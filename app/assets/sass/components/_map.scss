@@ -9,12 +9,6 @@
   canvas { // Open layers bug fix
     display: block !important;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
   }
   @include mq ($from: tablet) {
     right:280px;
@@ -35,9 +29,17 @@
 .defra-map-hidden {
   display:none !important;
 }
-.defra-map__viewport:focus > div:last-child {
-  outline: 3px solid $govuk-focus-colour;
-  outline-offset: -3px;
+.defra-map__viewport:focus {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  & > div:last-child {
+    outline: 3px solid $govuk-focus-colour;
+    outline-offset: -3px;
+  }
 }
 
 // Map controls - exit
