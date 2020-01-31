@@ -1,0 +1,58 @@
+// Key
+.defra-map-key__section {
+  border-top:1px solid $govuk-border-colour;
+  padding:10px 0 10px 0;
+  margin:0;
+  list-style-type: none;
+}
+.defra-map-key__item {
+  display:block;
+  padding:0 15px;
+  label {
+    @include govuk-font($size: 16);
+  }
+}
+.defra-map-key__item:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+// Symbols
+.defra-map-key__symbol-container {
+  position:relative;
+  display:block;
+  margin-left:36px;
+  &--multi {
+    margin-top:19px;
+  }
+}
+.defra-map-key__symbol {
+  position:absolute;
+  top:0;
+  left:0;
+  width:30px;
+  height:32px;
+  margin-left:-37px;
+  margin-top:-8px;
+  @include mq ($from: tablet) {
+    margin-top:-6px;
+  }
+  background-image: url('#{$govuk-images-path}icon-map-features-2x.png');
+  background-color:transparent;
+  background-position:0 0;
+  background-size:350px;
+  background-repeat: no-repeat;
+  border:0;
+}
+// Overide
+.defra-map-key {
+  .govuk-checkboxes__label:before,
+  .govuk-radios__label:before {
+    top:7px;
+  }
+  .govuk-checkboxes__label:after,
+  .govuk-radios__label:after {
+    top:14px;
+  }
+}

@@ -1,0 +1,32 @@
+
+{% extends "layout.html" %}
+
+{% block pageTitle %}
+  Map component - GOV.UK
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-xl">
+      Map component
+    </h1>
+    <div id="btn"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block map %}
+<div id="map"></div>
+{% endblock %}
+
+{% block pageScripts %}
+<script src='/public/javascripts/core.js'></script>
+<script src='/public/javascripts/map/ol.js'></script>
+<script src='/public/javascripts/map/maps.js'></script>
+<script src='/public/javascripts/map/styles.js'></script>
+<script src='/public/javascripts/map/layers.js'></script>
+<script src='/public/javascripts/map/container.js'></script>
+<script src='/public/javascripts/map/live.js'></script>
+<script src='/public/javascripts/pages/index.js'></script>
+{% endblock %}

@@ -1,0 +1,101 @@
+.defra-button-text {
+    @extend .govuk-body;
+    margin:0px;
+    color:$govuk-link-colour;
+    background-color: transparent;
+    border:0px;
+    text-align:left;
+    text-decoration: underline;
+    padding:0;
+    border-radius: 0;
+    cursor:pointer;
+}
+.defra-button-text:focus,
+.defra-button-text:active {
+    outline:3px solid $govuk-focus-colour;
+    background-color: $govuk-focus-colour;
+    color: $govuk-text-colour !important;
+}
+.defra-button-text:hover {
+    color:$govuk-link-hover-colour;
+}
+.defra-button-text-s {
+    @extend .defra-button-text;
+    @extend .govuk-body-s;
+    // padding-left:16px;
+    &.defra-button-text--show-map:before {
+        width:16px;
+        height:22px;
+        background-position:-309px -655px;
+        top:-4px;
+        @include mq ($from: tablet) {
+           top:-2px; 
+        }
+    }
+}
+.defra-button-text-m {
+    @extend .defra-button-text;
+    @extend .govuk-body-s;
+    padding-left:21px;
+    &.defra-button-text--show-map:before {
+        width:16px;
+        height:25px;
+        background-position:-257px -655px;
+        top:-4px;
+        @include mq ($from: tablet) {
+           top:-2px; 
+        }
+    }
+}
+
+// Map button
+.defra-button-map {
+    @extend .defra-button-text;
+    position:relative;
+    display:inline-block;
+    padding-left:20px;
+    &--small {
+        padding-left:18px;
+        @include mq ($from: tablet) {
+            padding-left:20px;
+        }
+        @include govuk-font($size: 16);
+        color: $govuk-text-colour;
+    }
+}
+.defra-button-map:before {
+    content: "";
+    position: absolute;
+    top:0px;
+    left:0px;
+    background-image: url('#{$govuk-images-path}icon-map.svg');
+    background-color:transparent;
+    background-size:45px 20px;
+    background-repeat: no-repeat;
+    background-position: top right;
+    height:20px;
+    width:15px;
+    @include mq ($from: tablet) {
+        top: 3px;
+    }
+}
+.defra-button-map--small:before {
+    top:-1px;
+    @include mq ($from: tablet) {
+        top: 1px;
+    }
+}
+.defra-button-map:hover:before {
+    background-position: 50% 0%;
+}
+.defra-button-map:focus:before {
+    background-position: 100% 0%;
+}
+.defra-table-impact__button {
+    @extend .defra-button-text-s;
+    span {
+        @include mq ($until: tablet) {
+            @include defra-visually-hidden;
+        }
+    }
+}
