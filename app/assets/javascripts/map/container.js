@@ -27,6 +27,9 @@
     var containerElement = document.getElementById(containerId)
     var mapElement = document.createElement('div')
     mapElement.className = 'defra-map'
+    mapElement.setAttribute('role', 'dialog')
+    mapElement.setAttribute('open', true)
+    mapElement.setAttribute('aria-label', 'Map view')
     containerElement.append(mapElement)
 
     // Set states
@@ -182,6 +185,7 @@
 
     // Browser history change
     var popstate = function (e) {
+      console.log('Popstate')
       // Reenable radio group cursor keys
       keyboardPan.setActive(false)
       // Remove all map elements from the DOM
@@ -212,8 +216,12 @@
     // Key presses
     mapElement.addEventListener('keyup', function (e) {
       // Close key on escape
-      if (e.keyCode === 27 && isMobile && isKeyOpen) {
-        this.closeKey()
+      if (e.keyCode === 27) {
+        if (isMobile && isKeyOpen) {
+          this.closeKey()
+        } else {
+          window.history.back()
+        }
       }
       // Exclude address bar on tab key
       if (e.keyCode === 9 && isMobile && isKeyOpen) {
