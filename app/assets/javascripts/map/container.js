@@ -39,6 +39,7 @@
     var controls = ol.control.defaults({
       zoom: false,
       rotate: false,
+      keyboardPan: false,
       attribution: false
     })
 
@@ -185,9 +186,7 @@
 
     // Browser history change
     var popstate = function (e) {
-      console.log('Popstate')
-      // Reenable radio group cursor keys
-      keyboardPan.setActive(false)
+      window.removeEventListener('popstate', popstate)
       // Remove all map elements from the DOM
       containerElement.removeChild(containerElement.firstChild)
       // Remove title prefix and reinstate non-map elements
@@ -200,7 +199,6 @@
         var returnFocusElement = document.getElementById(returnFocusId)
         returnFocusElement.focus()
       }
-      window.removeEventListener('popstate', popstate)
     }
     window.addEventListener('popstate', popstate)
 

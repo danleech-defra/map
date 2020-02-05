@@ -268,7 +268,11 @@
       // Timer used to stop 100 url replaces in 30 seconds limit
       clearTimeout(timer)
       timer = setTimeout(function () {
-        replaceHistory('ext', ext)
+        // Is map view
+        if (getParameterByName('v')) {
+          replaceHistory('ext', ext)
+        }
+        // Has keyboard focus
         if (document.activeElement.id === 'viewport') {
           hideOverlays()
           showOverlays(getVisibleFeatures())
