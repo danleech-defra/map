@@ -95,6 +95,22 @@
     })
     map.addControl(zoom)
 
+    // Add a new history entry
+    if (!(getParameterByName('v') === containerId)) {
+      // Advance history if button pressed
+      var data = { v: containerId, hasHistory: true }
+      var title = document.title
+      var url = window.location.pathname + window.location.search
+      url = addOrUpdateParameter(url, 'v', containerId)
+      if (options.queryParams) {
+        // Add any querystring parameters that may have been passed in
+        Object.keys(options.queryParams).forEach(function (key, index) {
+          url = addOrUpdateParameter(url, key, options.queryParams[key])
+        })
+      }
+      window.history.pushState(data, title, url)
+    }
+
     // Create key buttons
     var openKeyButton = document.createElement('button')
     openKeyButton.className = 'defra-map__open-key'
@@ -111,11 +127,17 @@
     mapElement.prepend(openKeyButton)
 
     // Create exit map button
+    var hasHistory = window.history.state ? window.history.state.hasHistory || false : false
     var exitMapButton = document.createElement('button')
-    exitMapButton.className = 'defra-map__exit'
+    exitMapButton.className = hasHistory ? 'defra-map__back' : 'defra-map__exit'
     exitMapButton.appendChild(document.createTextNode('Exit map'))
     exitMapButton.addEventListener('click', function (e) {
-      window.history.back()
+      if (hasHistory) {
+        window.history.back()
+      } else {
+        var url = window.location.pathname
+        window.location.href = url
+      }
     })
     mapElement.prepend(exitMapButton)
     exitMapButton.focus()
@@ -140,22 +162,6 @@
 
     // Get list of focusable elements from the key
     var allFocusElements = keyElement.querySelectorAll('button:not(:disabled), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
-
-    // Add a new history entry
-    if (!(getParameterByName('v') === containerId)) {
-      // Advance history if button pressed
-      var state = { v: containerId }
-      var title = document.title
-      var url = window.location.pathname + window.location.search
-      url = addOrUpdateParameter(url, 'v', containerId)
-      if (options.queryParams) {
-        // Add any querystring parameters that may have been passed in
-        Object.keys(options.queryParams).forEach(function (key, index) {
-          url = addOrUpdateParameter(url, key, options.queryParams[key])
-        })
-      }
-      window.history.pushState(state, title, url)
-    }
 
     //
     // Events
@@ -276,6 +282,7 @@
     //
 
     this.map = map
+    this.hasHistory = hasHistory
     this.element = mapElement
   }
 

@@ -175,10 +175,10 @@
 
     // Function update url and replace history state
     function replaceHistory (queryParam, value) {
-      var state = { v: containerId }
+      var data = { v: containerId, hasHistory: container.hasHistory }
       var url = addOrUpdateParameter(window.location.pathname + window.location.search, queryParam, value)
       var title = document.title
-      window.history.replaceState(state, title, url)
+      window.history.replaceState(data, title, url)
     }
 
     // Get visible features
