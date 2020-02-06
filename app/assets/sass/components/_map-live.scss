@@ -56,3 +56,37 @@
     top:14px;
   }
 }
+// Map keyboard access overlays
+.defra-map-overlay {
+  @include govuk-font($size: 19, $weight: bold);
+  text-align:center;
+  width:20px;
+  height:20px;
+  text-shadow:
+   -1px -1px 0 #fff,  
+    1px -1px 0 #fff,
+    -1px 1px 0 #fff,
+     1px 1px 0 #fff;
+}
+.defra-map-overlay--21,
+.defra-map-overlay--22,
+.defra-map-overlay--23,
+.defra-map-overlay--24 {
+  margin-left:-9px;
+  margin-top:-30px;
+  &-bigZoom {
+    margin-left:-10px;
+    margin-top:-50px;
+  }
+}
+.defra-map-overlay--11,
+.defra-map-overlay--12,
+.defra-map-overlay--13,
+.defra-map-overlay--14 {
+  margin-left:-10px;
+  margin-top:-52px;
+  &-bigZoom {
+    margin-left:-10px;
+    margin-top:-12px;
+  }
+}

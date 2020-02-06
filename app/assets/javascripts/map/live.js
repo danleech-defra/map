@@ -187,7 +187,8 @@
       var lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
       var resolution = map.getView().getResolution()
       var extent = map.getView().calculateExtent(map.getSize())
-      var layers = [rainfall, stations, impacts, resolution <= options.maxBigZoom ? vectorTiles : warnings]
+      var isBigZoom = resolution <= options.maxBigZoom
+      var layers = [rainfall, stations, impacts, isBigZoom ? vectorTiles : warnings]
       layers = layers.filter(layer => lyrs.some(lyr => layer.get('featureCodes').includes(lyr)))
       var activeStates = []
       lyrs.forEach(function (lyr) { activeStates = activeStates.concat(featureCodes[lyr]) })
@@ -199,6 +200,8 @@
           if (activeStates.includes(feature.get('state'))) {
             features.push({
               id: feature.getId(),
+              state: feature.get('state'),
+              isBigZoom: isBigZoom,
               centre: ol.extent.getCenter(feature.getGeometry().getExtent())
             })
           }
@@ -210,20 +213,19 @@
     // Show overlays
     function showOverlays (features) {
       features.forEach(function (feature, i) {
-        var overlayElement = document.createElement('div')
-        overlayElement.classList.add('defra-map-overlay')
-        overlayElement.innerText = i + 1
+        var overlayElement = document.createTextNode(i + 1)
         map.addOverlay(
           new ol.Overlay({
             element: overlayElement,
             position: feature.centre,
-            offset: [-10, -10]
+            className: `defra-map-overlay defra-map-overlay--${feature.state}${feature.isBigZoom ? '-bigZoom' : ''}`,
+            offset: [0, 0]
           })
         )
       })
     }
 
-    // Show overlays
+    // Hide overlays
     function hideOverlays () {
       map.getOverlays().clear()
     }
