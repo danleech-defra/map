@@ -257,7 +257,7 @@
     })
 
     // Pan or zoom map (fires on map load aswell)
-    var timer = null
+    var t1 = null
     map.addEventListener('moveend', function (e) {
       var resolution = map.getView().getResolution()
       // Toggle key symbols depending on resolution
@@ -267,17 +267,17 @@
       var ext = ol.proj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
       ext = ext.map(function (x) { return Number(x.toFixed(6)) })
       ext = ext.join(',')
+      // Has keyboard focus
+      if (document.activeElement.id === 'viewport') {
+        hideOverlays()
+        showOverlays(getVisibleFeatures())
+      }
       // Timer used to stop 100 url replaces in 30 seconds limit
-      clearTimeout(timer)
-      timer = setTimeout(function () {
+      clearTimeout(t1)
+      t1 = setTimeout(function () {
         // Is map view
         if (getParameterByName('v')) {
           replaceHistory('ext', ext)
-        }
-        // Has keyboard focus
-        if (document.activeElement.id === 'viewport') {
-          hideOverlays()
-          showOverlays(getVisibleFeatures())
         }
       }, 350)
     })
