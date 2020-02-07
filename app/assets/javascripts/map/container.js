@@ -33,7 +33,7 @@
     containerElement.append(mapElement)
 
     // Set states
-    var isKeyOpen, isMobile
+    var isKeyOpen, isTablet
 
     // Remove default controls
     var controls = ol.control.defaults({
@@ -179,14 +179,14 @@
     })
 
     // Mobile key
-    var mqListener = function (mobile) {
-      isMobile = mobile.matches
-      isKeyOpen = (mapElement.classList.contains('defra-map--key-open') && isMobile) || !isMobile
+    var mqListener = function (tablet) {
+      isTablet = tablet.matches
+      isKeyOpen = (mapElement.classList.contains('defra-map--key-open') && isTablet) || !isTablet
       keyElement.setAttribute('open', isKeyOpen)
-      keyElement.setAttribute('aria-modal', isMobile)
-      viewport.tabIndex = isMobile && isKeyOpen ? -1 : 0
+      keyElement.setAttribute('aria-modal', isTablet)
+      viewport.tabIndex = isTablet && isKeyOpen ? -1 : 0
     }
-    var mq = window.matchMedia('(max-width: 40.0525em)') // Need to ensure this is tied to GOVUK Frontend
+    var mq = window.matchMedia('(max-width: 48.0625em)') // Need to ensure this is tied to GOVUK Frontend
     mqListener(mq)
     mq.addListener(mqListener)
 
@@ -212,7 +212,7 @@
     map.on('click', function (e) {
       document.activeElement.blur()
       // Hide key
-      if (isMobile && isKeyOpen) {
+      if (isTablet && isKeyOpen) {
         this.closeKey()
       }
     }.bind(this))
@@ -221,14 +221,14 @@
     mapElement.addEventListener('keyup', function (e) {
       // Close key on escape
       if (e.keyCode === 27) {
-        if (isMobile && isKeyOpen) {
+        if (isTablet && isKeyOpen) {
           this.closeKey()
         } else {
           window.history.back()
         }
       }
       // Exclude address bar on tab key
-      if (e.keyCode === 9 && isMobile && isKeyOpen) {
+      if (e.keyCode === 9 && isTablet && isKeyOpen) {
         // Get list of visible, focusable elements
         var visibleFucosElements = []
         for (var i = 0; i < allFocusElements.length; i++) {
@@ -256,11 +256,11 @@
     }
 
     this.closeKey = function () {
-      isKeyOpen = !isMobile
+      isKeyOpen = !isTablet
       mapElement.classList.remove('defra-map--key-open')
       viewport.tabIndex = 0
       keyElement.setAttribute('open', isKeyOpen)
-      keyElement.setAttribute('aria-modal', isMobile)
+      keyElement.setAttribute('aria-modal', isTablet)
       openKeyButton.focus()
     }
 

@@ -10,19 +10,19 @@
     display: block !important;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
   }
-  @include mq ($from: tablet) {
-    right:280px;
+  @include mq ($from: desktop) {
+    right:300px;
   }
   &-key {
     display:none;
     background-color:white;
     position:absolute;
-    @include mq ($from: tablet) {
+    @include mq ($from: desktop) {
       display: block;
       left:100%;
       top:0px;
       bottom:0px;
-      width:280px;
+      width:300px;
     }
   }
 }
@@ -65,7 +65,7 @@
   background-position: 10px 9px;
   background-repeat: no-repeat;
   text-indent:-5000px;
-  @include mq ($from: tablet) {
+  @include mq ($from: desktop) {
     text-indent:0px;
     width:auto;
     padding-left:38px;
@@ -120,7 +120,7 @@
   background-repeat: no-repeat;
   padding-left:35px;
   padding-right:11px;
-  @include mq ($from: tablet) {
+  @include mq ($from: desktop) {
     display: none;
   }
   &:hover {
@@ -143,23 +143,26 @@
 // Map key
 .defra-map--key-open {
   .defra-map-key {
-    @include mq ($until: tablet) {
+    @include mq ($until: desktop) {
       display: block;
       left:0;
       top:0px;
       bottom:0px;
-      width:260px;
+      width:300px;
+    }
+    @include mq ($until: tablet) {
+      width:275px;
     }
   }
   .defra-map__exit,
   .defra-map__back,
   .defra-map__open-key {
-    @include mq ($until: tablet) {
+    @include mq ($until: desktop) {
       display: none;
     }
   }
   .defra-map__viewport div:last-child {
-    @include mq ($until: tablet) {
+    @include mq ($until: desktop) {
       background-color:rgba(0,0,0,0.1);
       outline: 0px;
       outline-offset: 0px;
@@ -188,12 +191,15 @@
 
 // Map controls - close key
 .defra-map-key__close {
-  @include mq ($from: tablet) {
+  @include mq ($from: desktop) {
     display: none;
   }
   position:absolute;
   right:5px;
   top:5px;
+  @include mq ($from: tablet) {
+    top:10px;
+  }
   width:39px;
   height:39px;
   margin:0;
