@@ -282,8 +282,9 @@
     //
 
     this.map = map
-    this.hasHistory = hasHistory
     this.element = mapElement
+    this.hasHistory = hasHistory
+    this.closeInfoButton = closeInfoButton
   }
 
   maps.MapContainer = MapContainer

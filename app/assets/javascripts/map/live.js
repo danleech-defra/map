@@ -71,6 +71,9 @@
       setCheckboxes()
     }
 
+    // Store visible features
+    var visibleFeatures = []
+
     // Set map extent from querystring
     function setExtent (padding = [0, 0, 0, 0]) {
       var ext = getParameterByName('ext')
@@ -183,6 +186,7 @@
 
     // Get visible features
     function getVisibleFeatures () {
+      visibleFeatures = []
       var featureCodes = { ts: [11], tw: [12], ta: [13], tr: [14], st: [21, 22, 23, 24], hi: [31], rf: [41] }
       var lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
       var resolution = map.getView().getResolution()
@@ -192,13 +196,12 @@
       layers = layers.filter(layer => lyrs.some(lyr => layer.get('featureCodes').includes(lyr)))
       var activeStates = []
       lyrs.forEach(function (lyr) { activeStates = activeStates.concat(featureCodes[lyr]) })
-      var features = []
       layers.forEach(function (layer) {
         // We know which layer and which feature states to count
-        if (features.length > 9) return true
+        if (visibleFeatures.length > 9) return true
         layer.getSource().forEachFeatureIntersectingExtent(extent, function (feature) {
           if (activeStates.includes(feature.get('state'))) {
-            features.push({
+            visibleFeatures.push({
               id: feature.getId(),
               state: feature.get('state'),
               isBigZoom: isBigZoom,
@@ -207,12 +210,11 @@
           }
         })
       })
-      return features
     }
 
     // Show overlays
-    function showOverlays (features) {
-      features.forEach(function (feature, i) {
+    function showOverlays () {
+      visibleFeatures.forEach(function (feature, i) {
         var overlayElement = document.createTextNode(i + 1)
         map.addOverlay(
           new ol.Overlay({
@@ -268,7 +270,7 @@
       ext = ext.map(function (x) { return Number(x.toFixed(6)) })
       ext = ext.join(',')
       // Has keyboard focus
-      if (document.activeElement.id === 'viewport') {
+      if (visibleFeatures.length) {
         hideOverlays()
         showOverlays(getVisibleFeatures())
       }
@@ -292,7 +294,7 @@
     })
 
     // Select feature if map is clicked
-    map.addEventListener('click', async function (e) {
+    map.addEventListener('click', function (e) {
       // Get mouse coordinates and check for feature
       var feature = map.forEachFeatureAtPixel(e.pixel, function (feature) { return feature })
       setSelectedFeature(feature ? feature.getId() : '')
@@ -319,8 +321,34 @@
       showOverlays(getVisibleFeatures())
     })
 
-    // Viewport blur
-    document.getElementById('viewport').addEventListener('blur', function () {
+    // Listen for number keys
+    document.getElementById(containerId).addEventListener('keyup', function (e) {
+      var index = -1
+      if ((e.keyCode - 48) >= 1 && (e.keyCode - 48) <= visibleFeatures.length) {
+        index = e.keyCode - 49
+      } else if ((e.keyCode - 96) >= 1 && (e.keyCode - 96) <= visibleFeatures.length) {
+        index = e.keyCode - 97
+      }
+      if (index >= 0) {
+        setSelectedFeature(visibleFeatures[index].id)
+      }
+    })
+
+    // Close info button click
+    container.closeInfoButton.addEventListener('click', function (e) {
+      setSelectedFeature()
+    })
+
+    // Close infor button keyboard only reinstate focus
+    container.closeInfoButton.addEventListener('keyup', function (e) {
+      if (e.keyCode === 13 || e.keyCode === 32) {
+        document.getElementById('viewport').focus()
+      }
+    })
+
+    // Hide overlays when any part of the map is clicked
+    document.getElementById(containerId).addEventListener('click', function (e) {
+      visibleFeatures = []
       hideOverlays()
     })
 
