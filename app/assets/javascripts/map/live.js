@@ -61,6 +61,7 @@
     // Create MapContainer
     var container = new MapContainer(containerId, options)
     var map = container.map
+    var mapElement = container.mapElement
 
     // Set layers, extent and key items from querystring
     if (getParameterByName('ext')) {
@@ -168,7 +169,7 @@
 
     // Toggle key symbols based on resolution
     function toggleKeySymbol (resolution) {
-      forEach(document.querySelectorAll('.defra-map-key *[data-style]'), function (symbol) {
+      forEach(mapElement.querySelectorAll('.defra-map-key *[data-style]'), function (symbol) {
         var style = symbol.getAttribute('data-style')
         var offsetStyle = symbol.getAttribute('data-style-offset')
         var isBigZoom = resolution <= options.maxBigZoom
@@ -317,12 +318,27 @@
 
     // Viewport focus
     document.getElementById('viewport').addEventListener('focus', function () {
+      console.log('Viewport gets focus')
       hideOverlays()
       showOverlays(getVisibleFeatures())
     })
 
+    // Clear selectedfeature when info is closed
+    container.closeInfoButton.addEventListener('click', function (e) {
+      console.log('Click')
+      setSelectedFeature()
+    })
+
+    // Reinstate focus to viewport when info closed by pressing escape
+    mapElement.addEventListener('keyup', function (e) {
+      if (e.keyCode === 27 && selectedFeatureId !== '') {
+        console.log('Escape')
+        setSelectedFeature()
+      }
+    })
+
     // Listen for number keys
-    document.getElementById(containerId).addEventListener('keyup', function (e) {
+    mapElement.addEventListener('keyup', function (e) {
       var index = -1
       if ((e.keyCode - 48) >= 1 && (e.keyCode - 48) <= visibleFeatures.length) {
         index = e.keyCode - 49
@@ -334,20 +350,8 @@
       }
     })
 
-    // Close info button click
-    container.closeInfoButton.addEventListener('click', function (e) {
-      setSelectedFeature()
-    })
-
-    // Close infor button keyboard only reinstate focus
-    container.closeInfoButton.addEventListener('keyup', function (e) {
-      if (e.keyCode === 13 || e.keyCode === 32) {
-        document.getElementById('viewport').focus()
-      }
-    })
-
     // Hide overlays when any part of the map is clicked
-    document.getElementById(containerId).addEventListener('click', function (e) {
+    mapElement.addEventListener('click', function (e) {
       visibleFeatures = []
       hideOverlays()
     })

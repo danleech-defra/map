@@ -33,7 +33,7 @@
     containerElement.append(mapElement)
 
     // Set states
-    var isKeyOpen, isTablet
+    var isKeyOpen, isInfoOpen, isTablet
 
     // Remove default controls
     var controls = ol.control.defaults({
@@ -72,6 +72,7 @@
 
     // Create information container
     var infoElement = document.createElement('div')
+    infoElement.id = 'info'
     infoElement.className = 'defra-map-info'
     infoElement.setAttribute('role', 'dialog')
     infoElement.setAttribute('open', false)
@@ -132,18 +133,14 @@
     exitMapButton.className = hasHistory ? 'defra-map__back' : 'defra-map__exit'
     exitMapButton.appendChild(document.createTextNode('Exit map'))
     exitMapButton.addEventListener('click', function (e) {
-      if (hasHistory) {
-        window.history.back()
-      } else {
-        var url = window.location.pathname
-        window.location.href = url
-      }
-    })
+      this.exitMap()
+    }.bind(this))
     mapElement.prepend(exitMapButton)
     exitMapButton.focus()
 
     // Create key elements
     var keyElement = document.createElement('div')
+    keyElement.id = 'key'
     keyElement.className = 'defra-map-key'
     keyElement.setAttribute('role', 'dialog')
     keyElement.setAttribute('open', true)
@@ -217,15 +214,22 @@
       }
     }.bind(this))
 
-    // Key presses
+    // Keyboard inputs
     mapElement.addEventListener('keyup', function (e) {
-      // Close key on escape
+      // Escape key behaviour
       if (e.keyCode === 27) {
-        if (isTablet && isKeyOpen) {
+        if (isInfoOpen) {
+          this.closeInfo()
+          document.getElementById('viewport').focus()
+        } else if (isTablet && isKeyOpen) {
           this.closeKey()
         } else {
-          window.history.back()
+          this.exitMap()
         }
+      }
+      // Enter or space bar
+      if ((e.keyCode === 13 || e.keyCode === 32) && e.target === closeInfoButton) {
+        document.getElementById('viewport').focus()
       }
       // Exclude address bar on tab key
       if (e.keyCode === 9 && isTablet && isKeyOpen) {
@@ -244,6 +248,15 @@
     //
     // Public methods
     //
+
+    this.exitMap = function () {
+      if (hasHistory) {
+        window.history.back()
+      } else {
+        var url = window.location.pathname
+        window.location.href = url
+      }
+    }
 
     this.openKey = function () {
       isKeyOpen = true
@@ -265,6 +278,7 @@
     }
 
     this.showInfo = function (id) {
+      isInfoOpen = true
       infoElement.classList.add('defra-map-info--open')
       infoElement.setAttribute('open', true)
       closeInfoButton.focus()
@@ -272,6 +286,7 @@
     }
 
     this.closeInfo = function (id) {
+      isInfoOpen = false
       infoElement.classList.remove('defra-map-info--open')
       infoElement.setAttribute('open', false)
       infoContainer.innerHTML = ''
@@ -282,9 +297,9 @@
     //
 
     this.map = map
-    this.element = mapElement
-    this.hasHistory = hasHistory
+    this.mapElement = mapElement
     this.closeInfoButton = closeInfoButton
+    this.hasHistory = hasHistory
   }
 
   maps.MapContainer = MapContainer
