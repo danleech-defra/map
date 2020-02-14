@@ -25,3 +25,9 @@ gulp.task('copy-assets-v6', function () {
     config.paths.v6Assets + '/**'])
     .pipe(gulp.dest(config.paths.public + '/v6'))
 })
+
+// javascript polyfill for :focus-visible
+gulp.task('copy-focus-visible-javascript', function () {
+  return gulp.src(config.paths.nodeModules + 'focus-visible/dist/focus-visible.min*')
+    .pipe(gulp.dest(config.paths.public + 'javascripts/map'))
+})
