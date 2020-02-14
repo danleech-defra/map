@@ -152,7 +152,7 @@
         container.showInfo(id)
       } else {
         selectedFeatureId = ''
-        container.closeInfo(id)
+        container.closeInfo()
       }
       // Update url
       replaceHistory('sid', selectedFeatureId)
@@ -318,21 +318,18 @@
 
     // Viewport focus
     document.getElementById('viewport').addEventListener('focus', function () {
-      console.log('Viewport gets focus')
       hideOverlays()
       showOverlays(getVisibleFeatures())
     })
 
     // Clear selectedfeature when info is closed
     container.closeInfoButton.addEventListener('click', function (e) {
-      console.log('Click')
       setSelectedFeature()
     })
 
     // Reinstate focus to viewport when info closed by pressing escape
     mapElement.addEventListener('keyup', function (e) {
       if (e.keyCode === 27 && selectedFeatureId !== '') {
-        console.log('Escape')
         setSelectedFeature()
       }
     })
@@ -351,8 +348,7 @@
     })
 
     // Hide overlays when any part of the map is clicked
-    mapElement.addEventListener('click', function (e) {
-      visibleFeatures = []
+    map.addEventListener('click', function (e) {
       hideOverlays()
     })
 

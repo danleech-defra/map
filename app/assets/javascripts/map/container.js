@@ -29,6 +29,7 @@
     mapElement.className = 'defra-map'
     mapElement.setAttribute('role', 'dialog')
     mapElement.setAttribute('open', true)
+    mapElement.setAttribute('aria-modal', true)
     mapElement.setAttribute('aria-label', 'Map view')
     containerElement.append(mapElement)
 
@@ -68,7 +69,7 @@
     })
 
     // Get return focus id
-    var returnFocusId = getParameterByName('r') || options.queryParams.rtn
+    var returnFocusId = getParameterByName('rtn') || options.queryParams.rtn
 
     // Create information container
     var infoElement = document.createElement('div')
