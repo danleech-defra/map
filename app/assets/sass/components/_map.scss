@@ -302,3 +302,29 @@
     }
   }
 }
+.defra-map-info__close {
+  position:absolute;
+  top:0px;
+  right:0px;
+  width:31px;
+  height:31px;
+  padding:0;
+  border:0;
+  cursor:pointer;
+  background-color: #ffffff;
+  background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M7.5,5.005l5.005,-5.005l2.495,2.495l-5.005,5.005l5.005,5.005l-2.495,2.495l-5.005,-5.005l-5.005,5.005l-2.495,-2.495l5.005,-5.005l-5.005,-5.005l2.495,-2.495l5.005,5.005Z" fill="#6F777B"/></svg>');
+  background-size: 15px 15px;
+  background-position: 8px 8px;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  text-indent: -5000px;
+  &:hover {
+    background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M7.5,5.005l5.005,-5.005l2.495,2.495l-5.005,5.005l5.005,5.005l-2.495,2.495l-5.005,-5.005l-5.005,5.005l-2.495,-2.495l5.005,-5.005l-5.005,-5.005l2.495,-2.495l5.005,5.005Z" fill="#0b0c0c"/></svg>');
+  }
+  &:focus {
+    background-color: $govuk-focus-colour;
+    background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M7.5,5.005l5.005,-5.005l2.495,2.495l-5.005,5.005l5.005,5.005l-2.495,2.495l-5.005,-5.005l-5.005,5.005l-2.495,-2.495l5.005,-5.005l-5.005,-5.005l2.495,-2.495l5.005,5.005Z" fill="#0b0c0c"/></svg>');
+    outline: 0px;
+    outline-offset: 0;
+  }
+}
