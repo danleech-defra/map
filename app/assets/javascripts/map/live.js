@@ -152,7 +152,6 @@
         container.showInfo(id)
       } else {
         selectedFeatureId = ''
-        //container.closeInfo()
       }
       // Update url
       replaceHistory('sid', selectedFeatureId)
@@ -230,6 +229,7 @@
 
     // Hide overlays
     function hideOverlays () {
+      visibleFeatures = []
       map.getOverlays().clear()
     }
 
@@ -319,7 +319,9 @@
     // Viewport focus
     document.getElementById('viewport').addEventListener('focus', function () {
       hideOverlays()
-      showOverlays(getVisibleFeatures())
+      if (this.classList.contains('focus-visible')) {
+        showOverlays(getVisibleFeatures())
+      }
     })
 
     // Clear selectedfeature when info is closed

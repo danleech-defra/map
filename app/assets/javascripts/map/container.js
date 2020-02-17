@@ -59,6 +59,7 @@
     viewport.className = `defra-map__viewport ${viewport.className}`
     viewport.id = 'viewport'
     viewport.tabIndex = 0
+    viewport.setAttribute('aria-describedby', 'tooltip')
 
     // Get a reference to keyboardPan interaction
     var keyboardPan
@@ -71,7 +72,16 @@
     // Get return focus id
     var returnFocusId = getParameterByName('rtn') || options.queryParams.rtn
 
-    // Create information container
+    // Create viewport keyboard access tooltip
+    var tooltipElement = document.createElement('div')
+    tooltipElement.innerHTML = 'Keyboard operation guidance'
+    tooltipElement.id = 'tooltip'
+    tooltipElement.className = 'defra-map-tooltip'
+    tooltipElement.setAttribute('role', 'tooltip')
+    tooltipElement.hidden = true
+    mapElement.append(tooltipElement)
+
+    // Create feature information panel
     var infoElement = document.createElement('div')
     infoElement.id = 'info'
     infoElement.className = 'defra-map-info'
@@ -127,7 +137,7 @@
     mapElement.prepend(exitMapButton)
     exitMapButton.focus()
 
-    // Create key elements
+    // Create key
     var keyElement = document.createElement('div')
     keyElement.id = 'key'
     keyElement.className = 'defra-map-key'
@@ -201,6 +211,10 @@
       if (isTablet && isKeyOpen) {
         this.closeKey()
       }
+      // Close info panel
+      if (isInfoOpen) {
+        this.closeInfo()
+      }
     }.bind(this))
 
     // Exit map click
@@ -223,9 +237,8 @@
       this.closeInfo()
     }.bind(this))
 
-    // Keyboard inputs
+    // Escape key behaviour
     mapElement.addEventListener('keyup', function (e) {
-      // Escape key behaviour
       if (e.keyCode === 27) {
         if (isInfoOpen) {
           this.closeInfo()
@@ -237,23 +250,6 @@
         }
       }
     }.bind(this))
-
-    // Exclude address bar on tab key
-    /*
-    mapElement.addEventListener('keyup', function (e) {
-      if (e.keyCode === 9 && isTablet && isKeyOpen) {
-        // Get list of visible, focusable elements
-        var visibleFucosElements = []
-        for (var i = 0; i < allFocusElements.length; i++) {
-          if (allFocusElements[i].offsetParent !== null) {
-            visibleFucosElements.push(allFocusElements[i])
-          }
-        }
-        // Tab
-        // Shift Tab
-      }
-    })
-    */
 
     //
     // Public methods
