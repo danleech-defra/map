@@ -115,8 +115,7 @@
     var openKeyButton = document.createElement('button')
     openKeyButton.className = 'defra-map__open-key'
     openKeyButton.innerHTML = 'Open key'
-    //mapElement.parentNode.insertBefore(openKeyButton, mapElement)
-    mapElement.prepend(openKeyButton)
+    mapElement.insertBefore(openKeyButton, mapElement.firstChild)
     var closeKeyButton = document.createElement('button')
     closeKeyButton.className = 'defra-map-key__close'
     closeKeyButton.innerHTML = 'Close key'
@@ -126,7 +125,7 @@
     var exitMapButton = document.createElement('button')
     exitMapButton.className = hasHistory ? 'defra-map__back' : 'defra-map__exit'
     exitMapButton.appendChild(document.createTextNode('Exit map'))
-    mapElement.prepend(exitMapButton)
+    mapElement.insertBefore(exitMapButton, mapElement.firstChild)
     exitMapButton.focus()
 
     // Create key
