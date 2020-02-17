@@ -75,6 +75,15 @@
     // Store visible features
     var visibleFeatures = []
 
+    // Create viewport keyboard access tooltip
+    var tooltipElement = document.createElement('div')
+    tooltipElement.innerHTML = 'Keyboard operation guidance'
+    tooltipElement.id = 'tooltip'
+    tooltipElement.className = 'defra-map-tooltip'
+    tooltipElement.setAttribute('role', 'tooltip')
+    tooltipElement.hidden = true
+    mapElement.append(tooltipElement)
+
     // Set map extent from querystring
     function setExtent (padding = [0, 0, 0, 0]) {
       var ext = getParameterByName('ext')

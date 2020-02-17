@@ -72,15 +72,6 @@
     // Get return focus id
     var returnFocusId = getParameterByName('rtn') || options.queryParams.rtn
 
-    // Create viewport keyboard access tooltip
-    var tooltipElement = document.createElement('div')
-    tooltipElement.innerHTML = 'Keyboard operation guidance'
-    tooltipElement.id = 'tooltip'
-    tooltipElement.className = 'defra-map-tooltip'
-    tooltipElement.setAttribute('role', 'tooltip')
-    tooltipElement.hidden = true
-    mapElement.append(tooltipElement)
-
     // Create feature information panel
     var infoElement = document.createElement('div')
     infoElement.id = 'info'
@@ -124,10 +115,11 @@
     var openKeyButton = document.createElement('button')
     openKeyButton.className = 'defra-map__open-key'
     openKeyButton.innerHTML = 'Open key'
+    //mapElement.parentNode.insertBefore(openKeyButton, mapElement)
+    mapElement.prepend(openKeyButton)
     var closeKeyButton = document.createElement('button')
     closeKeyButton.className = 'defra-map-key__close'
     closeKeyButton.innerHTML = 'Close key'
-    mapElement.prepend(openKeyButton)
 
     // Create exit map button
     var hasHistory = window.history.state ? window.history.state.hasHistory || false : false
@@ -270,8 +262,8 @@
       viewport.tabIndex = -1
       keyElement.setAttribute('open', true)
       keyElement.setAttribute('aria-modal', true)
-      closeKeyButton.focus()
       this.closeInfo()
+      closeKeyButton.focus()
     }
 
     this.closeKey = function () {
