@@ -60,6 +60,8 @@
 
     // Create MapContainer
     var container = new MapContainer(containerId, options)
+    var closeInfoButton = container.closeInfoButton
+    var viewport = container.viewport
     var map = container.map
     var mapElement = container.mapElement
 
@@ -74,15 +76,6 @@
 
     // Store visible features
     var visibleFeatures = []
-
-    // Create viewport keyboard access tooltip
-    var tooltipElement = document.createElement('div')
-    tooltipElement.innerHTML = 'Keyboard operation guidance'
-    tooltipElement.id = 'tooltip'
-    tooltipElement.className = 'defra-map-tooltip'
-    tooltipElement.setAttribute('role', 'tooltip')
-    tooltipElement.hidden = true
-    mapElement.append(tooltipElement)
 
     // Set map extent from querystring
     function setExtent (padding = [0, 0, 0, 0]) {
@@ -223,17 +216,22 @@
 
     // Show overlays
     function showOverlays () {
-      visibleFeatures.forEach(function (feature, i) {
-        var overlayElement = document.createTextNode(i + 1)
-        map.addOverlay(
-          new ol.Overlay({
-            element: overlayElement,
-            position: feature.centre,
-            className: `defra-map-overlay defra-map-overlay--${feature.state}${feature.isBigZoom ? '-bigZoom' : ''}`,
-            offset: [0, 0]
-          })
-        )
-      })
+      if (visibleFeatures.length <= 9) {
+        container.hideTooltip()
+        visibleFeatures.forEach(function (feature, i) {
+          var overlayElement = document.createTextNode(i + 1)
+          map.addOverlay(
+            new ol.Overlay({
+              element: overlayElement,
+              position: feature.centre,
+              className: `defra-map-overlay defra-map-overlay--${feature.state}${feature.isBigZoom ? '-bigZoom' : ''}`,
+              offset: [0, 0]
+            })
+          )
+        })
+      } else {
+        container.showTooltip()
+      }
     }
 
     // Hide overlays
@@ -282,7 +280,8 @@
       // Has keyboard focus
       if (visibleFeatures.length) {
         hideOverlays()
-        showOverlays(getVisibleFeatures())
+        getVisibleFeatures()
+        showOverlays()
       }
       // Timer used to stop 100 url replaces in 30 seconds limit
       clearTimeout(t1)
@@ -321,20 +320,26 @@
         replaceHistory('lyr', lyrs)
         toggleLayerVisibility()
         toggleWarningTypes()
-        getVisibleFeatures()
+        hideOverlays()
       }
     })
 
-    // Viewport focus
-    document.getElementById('viewport').addEventListener('focus', function () {
+    // Show overlays or tooltip when viewport gets focus
+    viewport.addEventListener('focus', function () {
       hideOverlays()
       if (this.classList.contains('focus-visible')) {
-        showOverlays(getVisibleFeatures())
+        getVisibleFeatures()
+        showOverlays()
       }
+    })
+
+    // Hide tooltip on vierwport blur
+    viewport.addEventListener('blur', function () {
+      container.hideTooltip()
     })
 
     // Clear selectedfeature when info is closed
-    container.closeInfoButton.addEventListener('click', function (e) {
+    closeInfoButton.addEventListener('click', function (e) {
       setSelectedFeature()
     })
 
@@ -347,14 +352,16 @@
 
     // Listen for number keys
     mapElement.addEventListener('keyup', function (e) {
-      var index = -1
-      if ((e.keyCode - 48) >= 1 && (e.keyCode - 48) <= visibleFeatures.length) {
-        index = e.keyCode - 49
-      } else if ((e.keyCode - 96) >= 1 && (e.keyCode - 96) <= visibleFeatures.length) {
-        index = e.keyCode - 97
-      }
-      if (index >= 0) {
-        setSelectedFeature(visibleFeatures[index].id)
+      if (visibleFeatures.length <= 9) {
+        var index = -1
+        if ((e.keyCode - 48) >= 1 && (e.keyCode - 48) <= visibleFeatures.length) {
+          index = e.keyCode - 49
+        } else if ((e.keyCode - 96) >= 1 && (e.keyCode - 96) <= visibleFeatures.length) {
+          index = e.keyCode - 97
+        }
+        if (index >= 0) {
+          setSelectedFeature(visibleFeatures[index].id)
+        }
       }
     })
 

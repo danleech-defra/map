@@ -34,7 +34,7 @@
     containerElement.append(mapElement)
 
     // Set states
-    var isKeyOpen, isInfoOpen, isTablet
+    var isKeyOpen, isInfoOpen, isTooltipOpen, isTablet
 
     // Remove default controls
     var controls = ol.control.defaults({
@@ -71,6 +71,15 @@
 
     // Get return focus id
     var returnFocusId = getParameterByName('rtn') || options.queryParams.rtn
+
+    // Create viewport keyboard access tooltip
+    var tooltipElement = document.createElement('div')
+    tooltipElement.innerHTML = 'Zoom in to select features using number keys'
+    tooltipElement.id = 'tooltip'
+    tooltipElement.className = 'defra-map-tooltip'
+    tooltipElement.setAttribute('role', 'tooltip')
+    tooltipElement.hidden = true
+    mapElement.append(tooltipElement)
 
     // Create feature information panel
     var infoElement = document.createElement('div')
@@ -231,7 +240,9 @@
     // Escape key behaviour
     mapElement.addEventListener('keyup', function (e) {
       if (e.keyCode === 27) {
-        if (isInfoOpen) {
+        if (isTooltipOpen) {
+          this.hideTooltip()
+        } else if (isInfoOpen) {
           this.closeInfo()
           viewport.focus()
         } else if (isTablet && isKeyOpen) {
@@ -290,6 +301,16 @@
       viewport.focus()
     }
 
+    this.showTooltip = function () {
+      isTooltipOpen = true
+      tooltipElement.hidden = false
+    }
+
+    this.hideTooltip = function () {
+      isTooltipOpen = false
+      tooltipElement.hidden = true
+    }
+
     //
     // Public properties
     //
@@ -297,6 +318,7 @@
     this.map = map
     this.mapElement = mapElement
     this.closeInfoButton = closeInfoButton
+    this.viewport = viewport
     this.hasHistory = hasHistory
   }
 

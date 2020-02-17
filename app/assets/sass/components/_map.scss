@@ -350,3 +350,17 @@
     outline-offset: 0;
   }
 }
+// Viewport focus keyboard access tooltip
+.defra-map-tooltip {
+  position: absolute; 
+  @include govuk-font($size: 16);
+  background-color: $govuk-focus-colour;
+  bottom:10px;
+  left:10px;
+  right:10px;
+  padding:10px 12px;
+  @include mq ($from: tablet) {
+    right:auto;
+    width:360px;
+  }
+}
