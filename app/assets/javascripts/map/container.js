@@ -81,9 +81,6 @@
     var closeInfoButton = document.createElement('button')
     closeInfoButton.className = 'defra-map-info__close'
     closeInfoButton.innerHTML = 'Close'
-    closeInfoButton.addEventListener('click', function (e) {
-      this.closeInfo()
-    }.bind(this))
     var infoContainer = document.createElement('div')
     infoContainer.className = 'defra-map-info__container'
     infoElement.append(closeInfoButton)
@@ -120,12 +117,6 @@
     var closeKeyButton = document.createElement('button')
     closeKeyButton.className = 'defra-map-key__close'
     closeKeyButton.innerHTML = 'Close key'
-    closeKeyButton.addEventListener('click', function (e) {
-      this.closeKey()
-    }.bind(this))
-    openKeyButton.addEventListener('click', function (e) {
-      this.openKey()
-    }.bind(this))
     mapElement.prepend(openKeyButton)
 
     // Create exit map button
@@ -133,9 +124,6 @@
     var exitMapButton = document.createElement('button')
     exitMapButton.className = hasHistory ? 'defra-map__back' : 'defra-map__exit'
     exitMapButton.appendChild(document.createTextNode('Exit map'))
-    exitMapButton.addEventListener('click', function (e) {
-      this.exitMap()
-    }.bind(this))
     mapElement.prepend(exitMapButton)
     exitMapButton.focus()
 
@@ -215,24 +203,44 @@
       }
     }.bind(this))
 
+    // Exit map click
+    exitMapButton.addEventListener('click', function (e) {
+      this.exitMap()
+    }.bind(this))
+
+    // Close key click
+    closeKeyButton.addEventListener('click', function (e) {
+      this.closeKey()
+    }.bind(this))
+
+    // Open key click
+    openKeyButton.addEventListener('click', function (e) {
+      this.openKey()
+    }.bind(this))
+
+    // Close info click
+    closeInfoButton.addEventListener('click', function (e) {
+      this.closeInfo()
+    }.bind(this))
+
     // Keyboard inputs
     mapElement.addEventListener('keyup', function (e) {
       // Escape key behaviour
       if (e.keyCode === 27) {
         if (isInfoOpen) {
           this.closeInfo()
-          document.getElementById('viewport').focus()
+          viewport.focus()
         } else if (isTablet && isKeyOpen) {
           this.closeKey()
         } else {
           this.exitMap()
         }
       }
-      // Enter or space bar
-      if ((e.keyCode === 13 || e.keyCode === 32) && e.target === closeInfoButton) {
-        document.getElementById('viewport').focus()
-      }
-      // Exclude address bar on tab key
+    }.bind(this))
+
+    // Exclude address bar on tab key
+    /*
+    mapElement.addEventListener('keyup', function (e) {
       if (e.keyCode === 9 && isTablet && isKeyOpen) {
         // Get list of visible, focusable elements
         var visibleFucosElements = []
@@ -244,7 +252,8 @@
         // Tab
         // Shift Tab
       }
-    }.bind(this))
+    })
+    */
 
     //
     // Public methods
@@ -291,6 +300,7 @@
       infoElement.classList.remove('defra-map-info--open')
       infoElement.setAttribute('open', false)
       infoContainer.innerHTML = ''
+      viewport.focus()
     }
 
     //

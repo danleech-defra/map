@@ -141,7 +141,7 @@
       })
     }
 
-    // Set selected feature
+    // Set selected feature (includes opening and closing info panel)
     function setSelectedFeature (id) {
       toggleFeatureSelected(selectedFeatureId, false)
       selected.getSource().clear()
@@ -152,7 +152,7 @@
         container.showInfo(id)
       } else {
         selectedFeatureId = ''
-        container.closeInfo()
+        //container.closeInfo()
       }
       // Update url
       replaceHistory('sid', selectedFeatureId)
@@ -327,7 +327,7 @@
       setSelectedFeature()
     })
 
-    // Reinstate focus to viewport when info closed by pressing escape
+    // Clear selected feature when pressing escape
     mapElement.addEventListener('keyup', function (e) {
       if (e.keyCode === 27 && selectedFeatureId !== '') {
         setSelectedFeature()
