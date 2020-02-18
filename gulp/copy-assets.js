@@ -9,9 +9,13 @@ const gulp = require('gulp')
 const config = require('./config.json')
 
 gulp.task('copy-assets', function () {
-  return gulp.src(['!' + config.paths.assets + 'sass{,/**/*}',
-    config.paths.assets + '/**'])
-    .pipe(gulp.dest(config.paths.public))
+  return gulp.src([
+    '!' + config.paths.assets + 'sass{,/**/*}',
+    config.paths.assets + '/**',
+    '!' + config.paths.assets + '/javascripts/core.js',
+    '!' + config.paths.assets + '/javascripts/{pages,pages/**}',
+    '!' + config.paths.assets + '/javascripts/{components,components/**}'
+  ]).pipe(gulp.dest(config.paths.public))
 })
 
 gulp.task('copy-assets-documentation', function () {
@@ -27,7 +31,9 @@ gulp.task('copy-assets-v6', function () {
 })
 
 // javascript polyfill for :focus-visible
+/*
 gulp.task('copy-focus-visible-javascript', function () {
   return gulp.src(config.paths.nodeModules + 'focus-visible/dist/focus-visible.min*')
     .pipe(gulp.dest(config.paths.public + 'javascripts/map'))
 })
+*/

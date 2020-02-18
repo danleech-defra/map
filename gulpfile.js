@@ -8,6 +8,7 @@
   To add a new task, simply add a new task file that directory.
 */
 
+/*
 const gulp = require('gulp')
 const requireDir = require('require-dir')
 
@@ -33,6 +34,37 @@ gulp.task('watch', gulp.parallel(
   'watch-assets',
   'watch-sass-v6',
   'watch-assets-v6'
+))
+gulp.task('default', gulp.series(
+  'generate-assets',
+  gulp.parallel(
+    'watch',
+    'server'
+  )
+))
+*/
+
+// Use webpack
+const gulp = require('gulp')
+const requireDir = require('require-dir')
+
+requireDir('./gulp', { recurse: true })
+
+gulp.task('generate-assets', gulp.series(
+  'clean',
+  'sass-extensions',
+  gulp.parallel(
+    'sass',
+    'copy-assets',
+    'sass-documentation',
+    'copy-assets-documentation',
+    'sass-v6',
+    'webpack'
+  )
+))
+gulp.task('watch', gulp.parallel(
+  'watch-sass',
+  'watch-sass-v6'
 ))
 gulp.task('default', gulp.series(
   'generate-assets',

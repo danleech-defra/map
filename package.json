@@ -14,6 +14,7 @@
   "dependencies": {
     "acorn": "^6.0.5",
     "ansi-colors": "^3.2.3",
+    "babel-loader": "^8.0.6",
     "basic-auth": "^2.0.0",
     "basic-auth-connect": "^1.0.0",
     "body-parser": "^1.14.1",
@@ -34,18 +35,24 @@
     "govuk_template_jinja": "^0.24.1",
     "gulp": "^4.0.0",
     "gulp-nodemon": "^2.1.0",
+    "gulp-print": "^5.0.2",
     "gulp-sass": "^4.0.1",
     "gulp-sourcemaps": "^2.6.0",
+    "gulp-util": "^3.0.8",
     "keypather": "^3.0.0",
     "marked": "^0.8.0",
     "notifications-node-client": "^4.1.0",
     "nunjucks": "^3.1.3",
+    "ol": "^6.1.1",
     "portscanner": "^2.1.1",
     "prompt": "^1.0.0",
     "require-dir": "^1.0.0",
     "sync-request": "^6.0.0",
     "universal-analytics": "^0.4.16",
-    "uuid": "^3.2.1"
+    "uuid": "^3.2.1",
+    "vinyl-paths": "^3.0.1",
+    "webpack": "^4.41.6",
+    "webpack-stream": "^5.2.1"
   },
   "greenkeeper": {
     "ignore": [
