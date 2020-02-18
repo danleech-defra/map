@@ -10,14 +10,14 @@ window.flood.maps.styles = {
     if (!feature.get('isActive')) {
       return new Style({})
     }
-    var state = feature.get('state')
-    var isSelected = feature.get('isSelected')
+    const state = feature.get('state')
+    const isSelected = feature.get('isSelected')
 
     // Defaults
-    var strokeColour = 'transparent'
-    var fillColour = 'transparent'
-    var zIndex = 1
-    var opacity = 1
+    let strokeColour = 'transparent'
+    let fillColour = 'transparent'
+    let zIndex = 1
+    let opacity = 1
 
     if (resolution <= window.flood.maps.minResolution) {
       switch (state) {
@@ -45,7 +45,7 @@ window.flood.maps.styles = {
     }
 
     // Generate style
-    var style = new Style({
+    const style = new Style({
       fill: new Fill({
         color: fillColour
       }),
@@ -68,16 +68,16 @@ window.flood.maps.styles = {
       return new Style({})
     }
 
-    var state = feature.get('state')
-    var isSelected = feature.get('isSelected')
+    const state = feature.get('state')
+    const isSelected = feature.get('isSelected')
+    const source = '/public/images/icon-map-features-2x.png'
 
     // Defaults
-    var source = '/public/images/icon-map-features-2x.png'
-    var anchor = [0.5, 0.75]
-    var size = [86, 86]
-    var scale = 0.5
-    var offset = [0, 0]
-    var zIndex = 1
+    let anchor = [0.5, 0.75]
+    let size = [86, 86]
+    let scale = 0.5
+    let offset = [0, 0]
+    let zIndex = 1
 
     switch (state) {
       case 11: // Severe warning
@@ -138,7 +138,7 @@ window.flood.maps.styles = {
       zIndex = 10000
     }
 
-    var style = new Style({
+    const style = new Style({
       image: new Icon({
         src: source,
         size: size,
@@ -160,8 +160,8 @@ window.flood.maps.styles = {
 
 const pattern = (style, isSelected) => {
   // var pixelRatio = window.devicePixelRatio
-  var canvas = document.createElement('canvas')
-  var context = canvas.getContext('2d')
+  const canvas = document.createElement('canvas')
+  const context = canvas.getContext('2d')
   switch (style) {
     case 'cross-hatch':
       canvas.width = 10
