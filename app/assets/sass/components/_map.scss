@@ -310,7 +310,7 @@
     background-color:white;
     bottom:0;
     left:0;
-    width:100%;
+    right:36px;
     height:120px;
     @include mq ($from: tablet) {
       width:auto;
@@ -323,8 +323,8 @@
 }
 .defra-map-info__close {
   position:absolute;
-  top:0px;
-  right:0px;
+  top:5px;
+  right:5px;
   width:31px;
   height:31px;
   padding:0;

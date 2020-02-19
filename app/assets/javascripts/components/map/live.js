@@ -253,7 +253,7 @@ function LiveMap (containerId, queryParams) {
   // Events
   //
 
-  // Set vector tile states from centroids and set selected feature
+  // Set selected feature and vector tile states when features have loaded
   dataLayers.forEach(function (layer) {
     const change = layer.getSource().on('change', function (e) {
       layer.set('isReady', false)
@@ -286,7 +286,6 @@ function LiveMap (containerId, queryParams) {
     let ext = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
     ext = ext.map(function (x) { return Number(x.toFixed(6)) })
     ext = ext.join(',')
-    // Has keyboard focus
     if (visibleFeatures.length) {
       hideOverlays()
       getVisibleFeatures()
@@ -379,7 +378,18 @@ function LiveMap (containerId, queryParams) {
     hideOverlays()
   })
 
-  // External properties
+  //
+  // Public methods
+  //
+
+  this.addTargetArea = function (id, cooridinates, selected = true) {
+    console.log('Add target area1')
+  }
+
+  //
+  // Public properties
+  //
+
   this.container = container
   this.map = map
 }

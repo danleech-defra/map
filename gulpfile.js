@@ -67,8 +67,8 @@ gulp.task('watch', gulp.parallel(
   'watch-sass-v6'
 ))
 gulp.task('default', gulp.series(
-  'generate-assets',
   'webpack',
+  'generate-assets',
   gulp.parallel(
     'watch',
     'server'

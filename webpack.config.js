@@ -17,10 +17,12 @@ module.exports = {
   module: {
     rules: [
       {
+        exclude: /(docs|gulp|lib|node_modules)/,
         use: {
           loader: 'babel-loader'
         }
       }
     ]
-  }
+  },
+  cache: false
 }
