@@ -58,8 +58,7 @@ gulp.task('generate-assets', gulp.series(
     'copy-assets',
     'sass-documentation',
     'copy-assets-documentation',
-    'sass-v6',
-    'copy-webpack'
+    'sass-v6'
   )
 ))
 gulp.task('watch', gulp.parallel(
