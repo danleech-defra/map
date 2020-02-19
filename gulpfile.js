@@ -64,11 +64,11 @@ gulp.task('generate-assets', gulp.series(
 ))
 gulp.task('watch', gulp.parallel(
   'watch-sass',
-  'watch-sass-v6',
-  'webpack'
+  'watch-sass-v6'
 ))
 gulp.task('default', gulp.series(
   'generate-assets',
+  'webpack',
   gulp.parallel(
     'watch',
     'server'
