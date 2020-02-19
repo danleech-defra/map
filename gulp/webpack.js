@@ -11,5 +11,5 @@ const webpackConfig = require('../webpack.config.js')
 
 gulp.task('webpack', function () {
   return webpackStream(webpackConfig)
-    .pipe(gulp.dest(`${config.paths.public}/javascripts/pages`))
+    .pipe(gulp.dest(config.paths.webpackBuild))
 })

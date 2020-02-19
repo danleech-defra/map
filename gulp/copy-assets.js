@@ -30,10 +30,8 @@ gulp.task('copy-assets-v6', function () {
     .pipe(gulp.dest(config.paths.public + '/v6'))
 })
 
-// javascript polyfill for :focus-visible
-/*
-gulp.task('copy-focus-visible-javascript', function () {
-  return gulp.src(config.paths.nodeModules + 'focus-visible/dist/focus-visible.min*')
-    .pipe(gulp.dest(config.paths.public + 'javascripts/map'))
+// Copy Javascripts built with Webpack
+gulp.task('copy-webpack', function () {
+  return gulp.src(config.paths.webpackBuild + '**')
+    .pipe(gulp.dest(config.paths.public + 'javascripts/pages'))
 })
-*/

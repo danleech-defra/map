@@ -5,6 +5,7 @@
     "docsAssets" : "docs/assets/",
     "v6Assets": "app/v6/assets/",
     "nodeModules": "node_modules/",
+    "webpackBuild": "app/assets/javascripts/build/",
     "lib": "lib/"
   }
 }
