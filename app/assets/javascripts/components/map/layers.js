@@ -3,7 +3,7 @@
 Initialises the window.flood.maps layers
 */
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
-import { BingMaps, Vector as VectorSource } from 'ol/source'
+import { OSM, Vector as VectorSource } from 'ol/source'
 import { GeoJSON } from 'ol/format'
 
 window.flood.maps.layers = {
@@ -11,11 +11,7 @@ window.flood.maps.layers = {
   road: () => {
     return new TileLayer({
       ref: 'road',
-      source: new BingMaps({
-        key: 'Ajou-3bB1TMVLPyXyNvMawg4iBPqYYhAN4QMXvOoZvs47Qmrq7L5zio0VsOOAHUr',
-        imagerySet: 'RoadOnDemand'
-      }),
-      // source: new ol.source.OSM(),
+      source: new OSM(),
       visible: true,
       zIndex: 0
     })
@@ -24,10 +20,6 @@ window.flood.maps.layers = {
   satellite: () => {
     return new TileLayer({
       ref: 'satellite',
-      source: new BingMaps({
-        key: 'Ajou-3bB1TMVLPyXyNvMawg4iBPqYYhAN4QMXvOoZvs47Qmrq7L5zio0VsOOAHUr',
-        imagerySet: 'AerialWithLabelsOnDemand'
-      }),
       visible: false,
       zIndex: 0
     })

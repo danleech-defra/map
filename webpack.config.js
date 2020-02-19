@@ -7,7 +7,8 @@ module.exports = {
     index: './app/assets/javascripts/pages/index'
   },
   output: {
-    path: path.join(__dirname, 'public/javascripts'),
+    path: path.resolve(__dirname, 'public/javascripts'),
+    publicPath: '/public/javascripts',
     filename: '[name].js'
   },
   resolve: {
