@@ -229,6 +229,7 @@ function LiveMap (containerId, queryParams) {
 
   // Show overlays
   function showOverlays () {
+    hideOverlays()
     visibleFeatures = getVisibleFeatures()
     if (visibleFeatures.length <= 9) {
       container.hideTooltip()
@@ -275,6 +276,10 @@ function LiveMap (containerId, queryParams) {
         }
         // Attempt to set selected feature when layer is ready
         setSelectedFeature(selectedFeatureId)
+        // Show overlays
+        if (isKeyboardInteraction) {
+          showOverlays()
+        }
       }
     })
   })
@@ -294,7 +299,6 @@ function LiveMap (containerId, queryParams) {
     clearTimeout(t1)
     t1 = setTimeout(function () {
       // Show overlays for visible features
-      hideOverlays()
       if (isKeyboardInteraction) {
         showOverlays()
       }
@@ -332,7 +336,6 @@ function LiveMap (containerId, queryParams) {
       replaceHistory('lyr', lyrs)
       toggleLayerVisibility()
       toggleWarningTypes()
-      hideOverlays()
       if (isKeyboardInteraction) {
         showOverlays()
       }
@@ -341,7 +344,6 @@ function LiveMap (containerId, queryParams) {
 
   // Show overlays or tooltip when viewport gets focus
   viewport.addEventListener('focus', function () {
-    hideOverlays()
     if (this.classList.contains('focus-visible')) {
       isKeyboardInteraction = true
       showOverlays()
