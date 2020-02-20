@@ -7,7 +7,7 @@ module.exports = {
     index: './app/assets/javascripts/pages/index'
   },
   output: {
-    path: path.resolve(__dirname, 'public/javascripts'),
+    path: path.join(__dirname, 'public/javascripts'),
     publicPath: '/public/javascripts',
     filename: '[name].js'
   },
@@ -17,7 +17,8 @@ module.exports = {
   module: {
     rules: [
       {
-        exclude: /(docs|gulp|lib|node_modules)/,
+        test: /\.js?$/,
+        include: path.join(__dirname, '/app/assets/javascripts'),
         use: {
           loader: 'babel-loader'
         }
