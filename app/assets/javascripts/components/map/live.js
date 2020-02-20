@@ -57,6 +57,9 @@ function LiveMap (containerId, queryParams) {
   // Interactions with reference to keyboardPan
   const interactions = defaultInteractions()
 
+  // Store features that are visible in the viewport
+  let visibleFeatures = []
+
   // MapContainer options
   const options = {
     maxBigZoom: 200,
@@ -83,8 +86,8 @@ function LiveMap (containerId, queryParams) {
     setCheckboxes()
   }
 
-  // Store visible features
-  let visibleFeatures = []
+  // Detect keyboard interaction on features
+  let isKeyboardInteraction
 
   // Set map extent from querystring
   function setExtent (padding = [0, 0, 0, 0]) {
@@ -197,7 +200,7 @@ function LiveMap (containerId, queryParams) {
 
   // Get visible features
   function getVisibleFeatures () {
-    visibleFeatures = []
+    let visibleFeatures = []
     const featureCodes = { ts: [11], tw: [12], ta: [13], tr: [14], st: [21, 22, 23, 24], hi: [31], rf: [41] }
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
     const resolution = map.getView().getResolution()
@@ -221,10 +224,12 @@ function LiveMap (containerId, queryParams) {
         }
       })
     })
+    return visibleFeatures
   }
 
   // Show overlays
   function showOverlays () {
+    visibleFeatures = getVisibleFeatures()
     if (visibleFeatures.length <= 9) {
       container.hideTooltip()
       visibleFeatures.forEach(function (feature, i) {
@@ -245,7 +250,6 @@ function LiveMap (containerId, queryParams) {
 
   // Hide overlays
   function hideOverlays () {
-    visibleFeatures = []
     map.getOverlays().clear()
   }
 
@@ -286,14 +290,14 @@ function LiveMap (containerId, queryParams) {
     let ext = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
     ext = ext.map(function (x) { return Number(x.toFixed(6)) })
     ext = ext.join(',')
-    if (visibleFeatures.length) {
-      hideOverlays()
-      getVisibleFeatures()
-      showOverlays()
-    }
     // Timer used to stop 100 url replaces in 30 seconds limit
     clearTimeout(t1)
     t1 = setTimeout(function () {
+      // Show overlays for visible features
+      hideOverlays()
+      if (isKeyboardInteraction) {
+        showOverlays()
+      }
       // Is map view
       if (getParameterByName('v')) {
         replaceHistory('ext', ext)
@@ -329,6 +333,9 @@ function LiveMap (containerId, queryParams) {
       toggleLayerVisibility()
       toggleWarningTypes()
       hideOverlays()
+      if (isKeyboardInteraction) {
+        showOverlays()
+      }
     }
   })
 
@@ -336,7 +343,7 @@ function LiveMap (containerId, queryParams) {
   viewport.addEventListener('focus', function () {
     hideOverlays()
     if (this.classList.contains('focus-visible')) {
-      getVisibleFeatures()
+      isKeyboardInteraction = true
       showOverlays()
     }
   })
@@ -375,6 +382,7 @@ function LiveMap (containerId, queryParams) {
 
   // Hide overlays when any part of the map is clicked
   map.addEventListener('click', function (e) {
+    isKeyboardInteraction = false
     hideOverlays()
   })
 

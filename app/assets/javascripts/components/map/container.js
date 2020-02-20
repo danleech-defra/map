@@ -44,6 +44,9 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   // Set states
   let isKeyOpen, isInfoOpen, isTooltipOpen, isTablet
 
+  // Determin if user opened map or page refresh
+  let isUserInteracton = !(getParameterByName('v') && getParameterByName('v') === 'map')
+
   // Remove default controls
   const controls = defaultControls({
     zoom: false,
@@ -143,7 +146,9 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   exitMapButton.className = hasHistory ? 'defra-map__back' : 'defra-map__exit'
   exitMapButton.appendChild(document.createTextNode('Exit map'))
   mapElement.insertBefore(exitMapButton, mapElement.firstChild)
-  exitMapButton.focus()
+  if (isUserInteracton) {
+    exitMapButton.focus()
+  }
 
   // Create key
   const keyElement = document.createElement('div')
@@ -207,13 +212,16 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
     // Return focus
     if (returnFocusId) {
       const returnFocusElement = document.getElementById(returnFocusId)
-      returnFocusElement.focus()
+      if (isUserInteracton) {
+        returnFocusElement.focus()
+      }
     }
   }
   window.addEventListener('popstate', popstate)
 
   // Map click
   map.on('click', function (e) {
+    isUserInteracton = true
     document.activeElement.blur()
     // Hide key
     if (isTablet && isKeyOpen) {
@@ -247,6 +255,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
 
   // Escape key behaviour
   mapElement.addEventListener('keyup', function (e) {
+    isUserInteracton = true
     if (e.keyCode === 27) {
       if (isTooltipOpen) {
         this.hideTooltip()
@@ -297,8 +306,9 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
     isInfoOpen = true
     infoElement.classList.add('defra-map-info--open')
     infoElement.setAttribute('open', true)
-    console.log(window.history)
-    closeInfoButton.focus()
+    if (isUserInteracton) {
+      closeInfoButton.focus()
+    }
     infoContainer.innerHTML = id
   }
 
@@ -329,4 +339,5 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   this.closeInfoButton = closeInfoButton
   this.viewport = viewport
   this.hasHistory = hasHistory
+  this.isUserInteracton = isUserInteracton
 }

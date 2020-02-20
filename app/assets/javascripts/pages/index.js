@@ -10,8 +10,7 @@ import '../components/map/live'
 
 // Create LiveMap if querystring is present
 if (window.flood.utils.getParameterByName('v') === 'map') {
-  const liveMap = window.flood.maps.createLiveMap('map')
-  liveMap.addTargetArea()
+  window.flood.maps.createLiveMap('map')
 }
 // Create LiveMap if button press
 const btnContainer = document.getElementById('btn')

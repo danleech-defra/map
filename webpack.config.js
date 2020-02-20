@@ -2,7 +2,7 @@ var path = require('path')
 
 module.exports = {
   mode: 'development', // 'development' or 'production',
-  devtool: 'none', // 'source-map' or 'none',
+  devtool: 'source-map', // 'source-map' or 'none',
   entry: {
     index: './app/assets/javascripts/pages/index'
   },
