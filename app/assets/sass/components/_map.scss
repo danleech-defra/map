@@ -13,17 +13,17 @@
   @include mq ($from: desktop) {
     right:300px;
   }
-  &-key {
-    display:none;
-    background-color:white;
-    position:absolute;
-    @include mq ($from: desktop) {
-      display: block;
-      left:100%;
-      top:0px;
-      bottom:0px;
-      width:300px;
-    }
+}
+.defra-map-key {
+  display:none;
+  background-color:white;
+  position:absolute;
+  @include mq ($from: desktop) {
+    display: block;
+    left:100%;
+    top:0px;
+    bottom:0px;
+    width:300px;
   }
 }
 .defra-map-hidden {
@@ -310,7 +310,7 @@
     background-color:white;
     bottom:0;
     left:0;
-    right:36px;
+    right:0px;
     height:120px;
     @include mq ($from: tablet) {
       width:auto;
@@ -319,6 +319,9 @@
       right:51px;
       max-width:400px;
     }
+  }
+  .defra-map-info__container {
+    margin-right:36px;
   }
 }
 .defra-map-info__close {
