@@ -297,6 +297,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
     isInfoOpen = true
     infoElement.classList.add('defra-map-info--open')
     infoElement.setAttribute('open', true)
+    console.log(window.history)
     closeInfoButton.focus()
     infoContainer.innerHTML = id
   }
