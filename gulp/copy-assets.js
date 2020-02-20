@@ -29,9 +29,3 @@ gulp.task('copy-assets-v6', function () {
     config.paths.v6Assets + '/**'])
     .pipe(gulp.dest(config.paths.public + '/v6'))
 })
-
-// Copy Javascripts built with Webpack
-gulp.task('copy-webpack', function () {
-  return gulp.src(config.paths.webpackBuild + '**')
-    .pipe(gulp.dest(config.paths.public + 'javascripts/pages'))
-})

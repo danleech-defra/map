@@ -52,6 +52,7 @@ requireDir('./gulp', { recurse: true })
 
 gulp.task('generate-assets', gulp.series(
   'clean',
+  'webpack',
   'sass-extensions',
   gulp.parallel(
     'sass',
@@ -66,7 +67,6 @@ gulp.task('watch', gulp.parallel(
   'watch-sass-v6'
 ))
 gulp.task('default', gulp.series(
-  'webpack',
   'generate-assets',
   gulp.parallel(
     'watch',
