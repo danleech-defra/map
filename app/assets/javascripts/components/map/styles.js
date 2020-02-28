@@ -8,7 +8,7 @@ window.flood.maps.styles = {
   // Primarily vector tiles
   polygons: (feature, resolution) => {
     if (!feature.get('isActive')) {
-      return new Style({})
+      // return new Style({})
     }
     const state = feature.get('state')
     const isSelected = feature.get('isSelected')
@@ -20,6 +20,7 @@ window.flood.maps.styles = {
     let opacity = 1
 
     if (resolution <= window.flood.maps.minResolution) {
+      /*
       switch (state) {
         case 11:
           strokeColour = isSelected ? '#b6000c' : '#e3000f'
@@ -42,6 +43,10 @@ window.flood.maps.styles = {
           zIndex = 2
           break
       }
+      */
+      strokeColour = isSelected ? '#d87900' : '#f18700'
+      fillColour = pattern('diagonal-hatch', isSelected)
+      zIndex = 3
     }
 
     // Generate style

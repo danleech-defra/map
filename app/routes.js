@@ -10,7 +10,7 @@ router.get('/api/warnings.geojson', function (req, res) {
     features: [
       {
         type: 'Feature',
-        id: '013FWFD2',
+        id: 'warning.013FWFD2',
         geometry: {
           type: 'Point',
           coordinates: [
@@ -25,7 +25,7 @@ router.get('/api/warnings.geojson', function (req, res) {
       },
       {
         type: 'Feature',
-        id: '013WAFLM',
+        id: 'warning.013WAFLM',
         geometry: {
           type: 'Point',
           coordinates: [
@@ -40,7 +40,7 @@ router.get('/api/warnings.geojson', function (req, res) {
       },
       {
         type: 'Feature',
-        id: '013FWFGM52',
+        id: 'warning.013FWFGM52',
         geometry: {
           type: 'Point',
           coordinates: [
@@ -55,7 +55,7 @@ router.get('/api/warnings.geojson', function (req, res) {
       },
       {
         type: 'Feature',
-        id: '013FWFGM5',
+        id: 'warning.013FWFGM5',
         geometry: {
           type: 'Point',
           coordinates: [
@@ -81,7 +81,7 @@ router.get('/api/stations.geojson', function (req, res) {
     features: [
       {
         type: 'Feature',
-        id: 'stations.5149',
+        id: 'station.5149',
         geometry: {
           type: 'Point',
           coordinates: [
@@ -96,7 +96,7 @@ router.get('/api/stations.geojson', function (req, res) {
       },
       {
         type: 'Feature',
-        id: 'stations.5193',
+        id: 'station.5193',
         geometry: {
           type: 'Point',
           coordinates: [
@@ -111,7 +111,7 @@ router.get('/api/stations.geojson', function (req, res) {
       },
       {
         type: 'Feature',
-        id: 'stations.5088',
+        id: 'station.5088',
         geometry: {
           type: 'Point',
           coordinates: [
@@ -157,7 +157,7 @@ router.get('/vector-tiles.geojson', function (req, res) {
     features: [
       {
         type: 'Feature',
-        id: '013FWFD2',
+        id: 'target_area.013FWFD2',
         geometry: {
           type: 'MultiPolygon',
           coordinates: [
@@ -34956,7 +34956,7 @@ router.get('/vector-tiles.geojson', function (req, res) {
       },
       {
         type: 'Feature',
-        id: '013WAFLM',
+        id: 'target_area.013WAFLM',
         geometry: {
           type: 'MultiPolygon',
           coordinates: [
@@ -60087,7 +60087,7 @@ router.get('/vector-tiles.geojson', function (req, res) {
       },
       {
         type: 'Feature',
-        id: '013FWFGM52',
+        id: 'target_area.013FWFGM52',
         geometry: {
           type: 'MultiPolygon',
           coordinates: [
@@ -63752,7 +63752,7 @@ router.get('/vector-tiles.geojson', function (req, res) {
       },
       {
         type: 'Feature',
-        id: '013FWFGM5',
+        id: 'target_area.013FWFGM5',
         geometry: {
           type: 'MultiPolygon',
           coordinates: [
@@ -66995,7 +66995,7 @@ router.get('/vector-tiles.geojson', function (req, res) {
       },
       {
         type: 'Feature',
-        id: '013WAFSA',
+        id: 'target_area.013WAFSA',
         geometry: {
           type: 'MultiPolygon',
           coordinates: [

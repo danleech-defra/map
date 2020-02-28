@@ -1,5 +1,8 @@
 var path = require('path')
 
+console.log(path)
+console.log(__dirname)
+
 module.exports = {
   mode: 'development', // 'development' or 'production',
   devtool: 'source-map', // 'source-map' or 'none',
@@ -17,11 +20,25 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js?$/,
-        include: path.join(__dirname, '/app/assets/javascripts'),
+        test: /\.js$/,
+        include: [
+          path.join(__dirname, 'app/assets/javascripts')
+        ],
         use: {
           loader: 'babel-loader'
         }
+      },
+      {
+        type: 'javascript/auto',
+        test: /\.json$/,
+        include: [
+          path.join(__dirname, 'app/data')
+        ],
+        use: [
+          {
+            loader: 'json-loader'
+          }
+        ]
       }
     ]
   },

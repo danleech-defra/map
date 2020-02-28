@@ -117,11 +117,13 @@ function LiveMap (containerId, queryParams) {
         (state === 13 && lyrs.includes('ta')) ||
         (state === 14 && lyrs.includes('tr'))
       )
+      /*
       const vectorTile = vectorTiles.getSource().getFeatureById(warning.getId())
       warning.set('isActive', isActive)
       if (vectorTile) {
         vectorTile.set('isActive', isActive)
       }
+      */
     })
   }
 
@@ -137,12 +139,14 @@ function LiveMap (containerId, queryParams) {
 
   // Toggle features selected state
   function toggleFeatureSelected (id, state) {
+    /*
     dataLayers.forEach(function (layer) {
       const feature = layer.getSource().getFeatureById(id)
       if (feature) {
         feature.set('isSelected', state)
       }
     })
+    */
   }
 
   // Add a feature to the selected layer
@@ -254,6 +258,15 @@ function LiveMap (containerId, queryParams) {
     map.getOverlays().clear()
   }
 
+  // Replace warning ids (Geoserver adds a table prefix to the id)
+  function replaceWarningIds () {
+    warnings.getSource().forEachFeature(function (feature) {
+      const id = feature.getId()
+      const featureId = 'target_area.' + id.substring(id.lastIndexOf('.') + 1)
+      feature.setId(featureId)
+    })
+  }
+
   //
   // Events
   //
@@ -261,13 +274,19 @@ function LiveMap (containerId, queryParams) {
   // Set selected feature and vector tile states when features have loaded
   dataLayers.forEach(function (layer) {
     const change = layer.getSource().on('change', function (e) {
+      console.log(layer.get('ref'))
       layer.set('isReady', false)
       if (this.getState() === 'ready') {
         layer.set('isReady', true)
         // Remove ready event when layer is ready
         unByKey(change)
+        // Replace warning id prefix
+        if (warnings.get('isReady')) {
+          replaceWarningIds()
+        }
         // Vector tiles are ready to be styled
         if (vectorTiles.get('isReady') && warnings.get('isReady')) {
+          console.log('Ready')
           setVectorTileStates()
         }
         // Warning types can be set
@@ -282,6 +301,16 @@ function LiveMap (containerId, queryParams) {
         }
       }
     })
+  })
+
+  vectorTiles.getSource().on('tileloadstart', function (e) {
+    console.log('Tiles starting')
+  })
+
+  vectorTiles.getSource().on('tileloadend', function (e) {
+    console.log('Tiles loaded')
+    console.log(e.tile.getFeatures())
+    // Add id property to PostGis/Geoserver and set this as feature Id in MVT format on layer
   })
 
   // Pan or zoom map (fires on map load aswell)
