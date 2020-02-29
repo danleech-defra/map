@@ -19,5 +19,5 @@ const center = transform([
 window.flood.maps = {
   extent: extent,
   center: center,
-  minResolution: 200
+  symbolThreshold: 200
 }

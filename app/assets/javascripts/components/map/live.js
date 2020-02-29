@@ -42,7 +42,6 @@ function LiveMap (containerId, queryParams) {
   ]
 
   const dataLayers = [
-    vectorTiles,
     rainfall,
     stations,
     warnings,
@@ -127,14 +126,16 @@ function LiveMap (containerId, queryParams) {
     })
   }
 
-  // Set vector tile state from associated warning feature
-  function setVectorTileStates () {
+  function setVectorTileStates (features) {
+    // console.log(features)
+    /*
     vectorTiles.getSource().forEachFeature(function (feature) {
       const warning = warnings.getSource().getFeatureById(feature.getId())
       if (warning) {
         feature.set('state', warning.get('state'))
       }
     })
+    */
   }
 
   // Toggle features selected state
@@ -210,7 +211,7 @@ function LiveMap (containerId, queryParams) {
     const resolution = map.getView().getResolution()
     const extent = map.getView().calculateExtent(map.getSize())
     const isBigZoom = resolution <= options.maxBigZoom
-    let layers = [rainfall, stations, impacts, isBigZoom ? vectorTiles : warnings]
+    let layers = [rainfall, stations, impacts, warnings]
     layers = layers.filter(layer => lyrs.some(lyr => layer.get('featureCodes').includes(lyr)))
     let activeStates = []
     lyrs.forEach(function (lyr) { activeStates = activeStates.concat(featureCodes[lyr]) })
@@ -223,7 +224,7 @@ function LiveMap (containerId, queryParams) {
             id: feature.getId(),
             state: feature.get('state'),
             isBigZoom: isBigZoom,
-            centre: getCenter(feature.getGeometry().getExtent())
+            centre: feature.getGeometry().getCoordinates()
           })
         }
       })
@@ -258,15 +259,6 @@ function LiveMap (containerId, queryParams) {
     map.getOverlays().clear()
   }
 
-  // Replace warning ids (Geoserver adds a table prefix to the id)
-  function replaceWarningIds () {
-    warnings.getSource().forEachFeature(function (feature) {
-      const id = feature.getId()
-      const featureId = 'target_area.' + id.substring(id.lastIndexOf('.') + 1)
-      feature.setId(featureId)
-    })
-  }
-
   //
   // Events
   //
@@ -274,24 +266,15 @@ function LiveMap (containerId, queryParams) {
   // Set selected feature and vector tile states when features have loaded
   dataLayers.forEach(function (layer) {
     const change = layer.getSource().on('change', function (e) {
-      console.log(layer.get('ref'))
       layer.set('isReady', false)
       if (this.getState() === 'ready') {
         layer.set('isReady', true)
         // Remove ready event when layer is ready
         unByKey(change)
-        // Replace warning id prefix
+        // Set target area states to display
         if (warnings.get('isReady')) {
-          replaceWarningIds()
-        }
-        // Vector tiles are ready to be styled
-        if (vectorTiles.get('isReady') && warnings.get('isReady')) {
-          console.log('Ready')
-          setVectorTileStates()
-        }
-        // Warning types can be set
-        if (['vectorTiles', 'warnings'].includes(layer.get('ref'))) {
           toggleWarningTypes()
+          map.addLayer(vectorTiles)
         }
         // Attempt to set selected feature when layer is ready
         setSelectedFeature(selectedFeatureId)
@@ -303,14 +286,10 @@ function LiveMap (containerId, queryParams) {
     })
   })
 
-  vectorTiles.getSource().on('tileloadstart', function (e) {
-    console.log('Tiles starting')
-  })
-
+  // Set vector tile properties
   vectorTiles.getSource().on('tileloadend', function (e) {
-    console.log('Tiles loaded')
     console.log(e.tile.getFeatures())
-    // Add id property to PostGis/Geoserver and set this as feature Id in MVT format on layer
+    // setVectorTileStates(e.tile.getFeatures())
   })
 
   // Pan or zoom map (fires on map load aswell)

@@ -19,34 +19,27 @@ window.flood.maps.styles = {
     let zIndex = 1
     let opacity = 1
 
-    if (resolution <= window.flood.maps.minResolution) {
-      /*
-      switch (state) {
-        case 11:
-          strokeColour = isSelected ? '#b6000c' : '#e3000f'
-          fillColour = pattern('cross-hatch', isSelected)
-          zIndex = 5
-          break
-        case 12:
-          strokeColour = isSelected ? '#b6000c' : '#e3000f'
-          fillColour = pattern('vertical-hatch', isSelected)
-          zIndex = 4
-          break
-        case 13:
-          strokeColour = isSelected ? '#d87900' : '#f18700'
-          fillColour = pattern('diagonal-hatch', isSelected)
-          zIndex = 3
-          break
-        case 14:
-          strokeColour = isSelected ? '#595f62' : '#6f777b'
-          fillColour = pattern('horizontal-hatch', isSelected)
-          zIndex = 2
-          break
-      }
-      */
-      strokeColour = isSelected ? '#d87900' : '#f18700'
-      fillColour = pattern('diagonal-hatch', isSelected)
-      zIndex = 3
+    switch (state) {
+      case 11:
+        strokeColour = isSelected ? '#b6000c' : '#e3000f'
+        fillColour = pattern('cross-hatch', isSelected)
+        zIndex = 5
+        break
+      case 12:
+        strokeColour = isSelected ? '#b6000c' : '#e3000f'
+        fillColour = pattern('vertical-hatch', isSelected)
+        zIndex = 4
+        break
+      case 13:
+        strokeColour = isSelected ? '#d87900' : '#f18700'
+        fillColour = pattern('diagonal-hatch', isSelected)
+        zIndex = 3
+        break
+      case 14:
+        strokeColour = isSelected ? '#595f62' : '#6f777b'
+        fillColour = pattern('horizontal-hatch', isSelected)
+        zIndex = 2
+        break
     }
 
     // Generate style
@@ -133,8 +126,8 @@ window.flood.maps.styles = {
         break
     }
 
-    if (resolution > window.flood.maps.minResolution && state > 20) { // Don't offset warning symbols
-      offset[0] += window.flood.maps.minResolution
+    if (resolution > window.flood.maps.symbolThreshold && state > 20) { // Don't offset warning symbols
+      offset[0] += window.flood.maps.symbolThreshold
       anchor = [0.5, 0.5]
     }
 
@@ -155,7 +148,7 @@ window.flood.maps.styles = {
     })
 
     // Hide warning symbols when polygon is shown
-    if (resolution < window.flood.maps.minResolution && state <= 20) {
+    if (resolution < window.flood.maps.symbolThreshold && state <= 20) {
       return new Style({})
     }
 

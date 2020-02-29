@@ -2,10 +2,10 @@
 /*
 Initialises the window.flood.maps layers
 */
+import Feature from 'ol/Feature'
 import { Tile as TileLayer, Vector as VectorLayer, VectorTile as VectorTileLayer } from 'ol/layer'
 import { OSM, Vector as VectorSource, VectorTile as VectorTileSource } from 'ol/source'
 import { GeoJSON, MVT } from 'ol/format'
-import { createXYZ } from 'ol/tilegrid'
 
 window.flood.maps.layers = {
 
@@ -30,14 +30,15 @@ window.flood.maps.layers = {
     return new VectorTileLayer({
       ref: 'vectorTiles',
       featureCodes: 'ts, tw, ta, tr',
+      maxResolution: window.flood.maps.symbolThreshold,
       source: new VectorTileSource({
-        cacheSize: 0,
-        tilePixelRatio: 1, // oversampling when > 1
-        tileGrid: createXYZ({ maxZoom: 19, tileSize: 256 }),
+        // cacheSize: 128,
         format: new MVT({
-          idProperty: 'featureid'
+          featureClass: Feature,
+          idProperty: 'id'
         }),
-        url: 'http://localhost:8080/geoserver/gwc/service/wmts?request=GetTile&service=wmts&version=1.0.0&layer=flood:target_area&tilematrix=EPSG:900913:{z}&tilematrixset=EPSG:900913&format=application/vnd.mapbox-vector-tile&tilecol={x}&tilerow={y}'
+        url: 'http://localhost:8080/geoserver/gwc/service/wmts?request=GetTile&service=wmts&version=1.0.0&layer=flood:target_area&tilematrix=EPSG:900913:{z}&tilematrixset=EPSG:900913&format=application/vnd.mapbox-vector-tile&tilecol={x}&tilerow={y}',
+        overlaps: false
       }),
       style: window.flood.maps.styles.polygons,
       visible: true,
