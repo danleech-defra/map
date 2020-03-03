@@ -6,7 +6,6 @@
 // It uses the MapContainer
 
 import { View, Overlay } from 'ol'
-import { getCenter } from 'ol/extent'
 import { transformExtent } from 'ol/proj'
 import { unByKey } from 'ol/Observable'
 import { defaults as defaultInteractions } from 'ol/interaction'
@@ -24,6 +23,9 @@ function LiveMap (containerId, queryParams) {
     center: maps.center,
     extent: maps.extent
   })
+
+  // Store vector tile properties in the maps object
+  const vtProperties = maps.vtProperties
 
   // Layers
   const road = maps.layers.road()
@@ -108,7 +110,11 @@ function LiveMap (containerId, queryParams) {
   // Show or hide warning types
   function toggleWarningTypes () {
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
+    // Clear vector tile properties
+    vtProperties.length = 0
+    // Set warning feature active state
     warnings.getSource().forEachFeature(function (warning) {
+      const id = warning.getId()
       const state = warning.get('state')
       const isActive = (
         (state === 11 && lyrs.includes('ts')) ||
@@ -116,38 +122,25 @@ function LiveMap (containerId, queryParams) {
         (state === 13 && lyrs.includes('ta')) ||
         (state === 14 && lyrs.includes('tr'))
       )
-      /*
-      const vectorTile = vectorTiles.getSource().getFeatureById(warning.getId())
       warning.set('isActive', isActive)
-      if (vectorTile) {
-        vectorTile.set('isActive', isActive)
-      }
-      */
+      vtProperties.push({ id: id, state: state, isActive: isActive })
     })
-  }
-
-  function setVectorTileStates (features) {
-    // console.log(features)
-    /*
-    vectorTiles.getSource().forEachFeature(function (feature) {
-      const warning = warnings.getSource().getFeatureById(feature.getId())
-      if (warning) {
-        feature.set('state', warning.get('state'))
-      }
-    })
-    */
   }
 
   // Toggle features selected state
   function toggleFeatureSelected (id, state) {
-    /*
     dataLayers.forEach(function (layer) {
       const feature = layer.getSource().getFeatureById(id)
       if (feature) {
         feature.set('isSelected', state)
+        // Set vector tile selected property
+        if (layer.get('ref') === 'warnings') {
+          const index = vtProperties.findIndex(f => f.id === id)
+          vtProperties[index].isSelected = state
+          refreshVectorTiles()
+        }
       }
     })
-    */
   }
 
   // Add a feature to the selected layer
@@ -259,6 +252,12 @@ function LiveMap (containerId, queryParams) {
     map.getOverlays().clear()
   }
 
+  // Reload vector tiles
+  function refreshVectorTiles () {
+    // Triggers layer to be restyled
+    vectorTiles.setStyle(maps.styles.polygons)
+  }
+
   //
   // Events
   //
@@ -284,12 +283,6 @@ function LiveMap (containerId, queryParams) {
         }
       }
     })
-  })
-
-  // Set vector tile properties
-  vectorTiles.getSource().on('tileloadend', function (e) {
-    console.log(e.tile.getFeatures())
-    // setVectorTileStates(e.tile.getFeatures())
   })
 
   // Pan or zoom map (fires on map load aswell)
@@ -344,6 +337,7 @@ function LiveMap (containerId, queryParams) {
       replaceHistory('lyr', lyrs)
       toggleLayerVisibility()
       toggleWarningTypes()
+      refreshVectorTiles()
       if (isKeyboardInteraction) {
         showOverlays()
       }

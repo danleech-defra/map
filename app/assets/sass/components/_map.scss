@@ -367,3 +367,10 @@
     width:360px;
   }
 }
+
+// ol 6.2.0 mouse events bug fix
+// https://github.com/jumpinjackie/mapguide-react-layout/commit/eb6b3fdfe8f85e2050bf65d28dd13f9d9d47bad3
+.ol-overlaycontainer,
+.ol-overlaycontainer-stopevent {
+  pointer-events: none;
+}

@@ -19,5 +19,6 @@ const center = transform([
 window.flood.maps = {
   extent: extent,
   center: center,
-  symbolThreshold: 200
+  symbolThreshold: 200, // Used for toggling symbol display,
+  vtProperties: [] // Used to store vector tile properties
 }
