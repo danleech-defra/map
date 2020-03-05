@@ -25,7 +25,7 @@ window.flood.maps.layers = {
     })
   },
 
-  XtargetAreaPolygons: () => {
+  tmp_targetAreaPolygons: () => {
     return new VectorTileLayer({
       ref: 'targetAreaPolygons',
       featureCodes: 'ts, tw, ta, tr',
@@ -47,8 +47,10 @@ window.flood.maps.layers = {
       ref: 'targetAreaPolygons',
       featureCodes: 'ts, tw, ta, tr',
       source: new VectorSource({
-        format: new GeoJSON(),
-        projection: 'EPSG:3857',
+        format: new GeoJSON({
+          'dataProjection': 'EPSG::3857',
+          'featureProjection': 'EPSG::4326'
+        }),
         url: '/api/target-area-polygons.geojson'
       }),
       style: window.flood.maps.styles.targetAreaPolygons,

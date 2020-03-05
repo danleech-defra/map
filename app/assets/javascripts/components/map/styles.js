@@ -23,22 +23,22 @@ window.flood.maps.styles = {
     let opacity = 1
 
     switch (state) {
-      case 11:
+      case 11: // Severe warning
         strokeColour = isSelected ? '#b6000c' : '#e3000f'
         fillColour = pattern('cross-hatch', isSelected)
         zIndex = 5
         break
-      case 12:
+      case 12: // Warning
         strokeColour = isSelected ? '#b6000c' : '#e3000f'
         fillColour = pattern('vertical-hatch', isSelected)
         zIndex = 4
         break
-      case 13:
+      case 13: // Alert
         strokeColour = isSelected ? '#d87900' : '#f18700'
         fillColour = pattern('diagonal-hatch', isSelected)
         zIndex = 3
         break
-      case 14:
+      case 14: // Removed
         strokeColour = isSelected ? '#595f62' : '#6f777b'
         fillColour = pattern('horizontal-hatch', isSelected)
         zIndex = 2
@@ -160,13 +160,14 @@ window.flood.maps.styles = {
 }
 
 const pattern = (style, isSelected) => {
-  // var pixelRatio = window.devicePixelRatio
+  const dpr = window.devicePixelRatio || 1
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('2d')
   switch (style) {
     case 'cross-hatch':
-      canvas.width = 10
-      canvas.height = 10
+      canvas.width = 10 * dpr
+      canvas.height = 10 * dpr
+      context.scale(dpr, dpr)
       isSelected ? context.fillStyle = '#B6000C' : context.fillStyle = '#E3000F'
       context.fillRect(0, 0, 10, 10)
       context.beginPath()
@@ -181,8 +182,9 @@ const pattern = (style, isSelected) => {
       context.stroke()
       break
     case 'vertical-hatch':
-      canvas.width = 7
-      canvas.height = 7
+      canvas.width = 7 * dpr
+      canvas.height = 7 * dpr
+      context.scale(dpr, dpr)
       isSelected ? context.fillStyle = '#C1666C' : context.fillStyle = '#F17F87'
       context.fillRect(0, 0, 7, 7)
       context.beginPath()
@@ -194,8 +196,9 @@ const pattern = (style, isSelected) => {
       context.stroke()
       break
     case 'diagonal-hatch':
-      canvas.width = 10
-      canvas.height = 10
+      canvas.width = 10 * dpr
+      canvas.height = 10 * dpr
+      context.scale(dpr, dpr)
       isSelected ? context.fillStyle = '#DEAF72' : context.fillStyle = '#F8C37F'
       context.fillRect(0, 0, 10, 10)
       context.beginPath()
@@ -210,8 +213,9 @@ const pattern = (style, isSelected) => {
       context.stroke()
       break
     case 'horizontal-hatch':
-      canvas.width = 7
-      canvas.height = 7
+      canvas.width = 7 * dpr
+      canvas.height = 7 * dpr
+      context.scale(dpr, dpr)
       isSelected ? context.fillStyle = '#929597' : context.fillStyle = '#B7BBBD'
       context.fillRect(0, 0, 7, 7)
       context.beginPath()
