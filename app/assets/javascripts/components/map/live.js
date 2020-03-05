@@ -66,7 +66,7 @@ function LiveMap (settings) {
 
   // MapContainer options
   const options = {
-    maxBigZoom: 200,
+    maxBigZoom: maps.symbolThreshold,
     view: view,
     layers: layers,
     queryParams: queryParams,
@@ -214,8 +214,7 @@ function LiveMap (settings) {
     const resolution = map.getView().getResolution()
     const extent = map.getView().calculateExtent(map.getSize())
     const isBigZoom = resolution <= options.maxBigZoom
-    let layers = [rainfall, stations, impacts, warnings]
-    layers = layers.filter(layer => lyrs.some(lyr => layer.get('featureCodes').includes(lyr)))
+    const layers = dataLayers.filter(layer => lyrs.some(lyr => layer.get('featureCodes').includes(lyr)))
     let activeStates = []
     lyrs.forEach(function (lyr) { activeStates = activeStates.concat(featureCodes[lyr]) })
     layers.forEach(function (layer) {
@@ -285,13 +284,11 @@ function LiveMap (settings) {
   // Set selected feature and vector tile states when features have loaded
   dataLayers.forEach(function (layer) {
     const change = layer.getSource().on('change', function (e) {
-      layer.set('isReady', false)
       if (this.getState() === 'ready') {
-        layer.set('isReady', true)
         // Remove ready event when layer is ready
         unByKey(change)
         // Set target area states to display
-        if (warnings.get('isReady')) {
+        if (layer.get('ref') === 'warnings') {
           // Add optional target area
           if (targetArea) {
             addTargetArea()
