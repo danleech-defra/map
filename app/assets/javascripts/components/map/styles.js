@@ -6,15 +6,15 @@ import { Style, Icon, Fill, Stroke } from 'ol/style'
 
 window.flood.maps.styles = {
   // Primarily vector tiles
-  polygons: (feature, resolution) => {
-    // Vector tile properties are stored in the vtProperties of the maps object
-    const vtProperties = window.flood.maps.vtProperties
-    const properties = vtProperties.find(f => f.id === feature.getId())
-    if (typeof properties === 'undefined' || !properties.isActive) {
+  targetAreaPolygons: (feature, resolution) => {
+    // Use corresposnding warning feature propeties for styling
+    const warningsSource = window.flood.maps.warningsSource
+    const warning = warningsSource.getFeatureById(feature.getId())
+    if (!warning || !warning.get('isActive')) {
       return new Style({})
     }
-    const state = properties.state
-    const isSelected = properties.isSelected
+    const state = warning.get('state')
+    const isSelected = warning.get('isSelected')
 
     // Defaults
     let strokeColour = 'transparent'

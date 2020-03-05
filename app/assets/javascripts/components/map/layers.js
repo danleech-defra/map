@@ -25,20 +25,34 @@ window.flood.maps.layers = {
     })
   },
 
-  vectorTiles: () => {
+  XtargetAreaPolygons: () => {
     return new VectorTileLayer({
-      ref: 'vectorTiles',
+      ref: 'targetAreaPolygons',
       featureCodes: 'ts, tw, ta, tr',
-      maxResolution: window.flood.maps.symbolThreshold,
-      renderMode: 'hybrid',
       source: new VectorTileSource({
         format: new MVT({
           idProperty: 'id'
         }),
         url: 'http://localhost:8080/geoserver/gwc/service/wmts?request=GetTile&service=wmts&version=1.0.0&layer=flood:target_area&tilematrix=EPSG:900913:{z}&tilematrixset=EPSG:900913&format=application/vnd.mapbox-vector-tile&tilecol={x}&tilerow={y}'
       }),
-      style: window.flood.maps.styles.polygons,
-      visible: true,
+      renderMode: 'hybrid',
+      style: window.flood.maps.styles.targetAreaPolygons,
+      maxResolution: window.flood.maps.symbolThreshold,
+      zIndex: 1
+    })
+  },
+
+  targetAreaPolygons: () => {
+    return new VectorLayer({
+      ref: 'targetAreaPolygons',
+      featureCodes: 'ts, tw, ta, tr',
+      source: new VectorSource({
+        format: new GeoJSON(),
+        projection: 'EPSG:3857',
+        url: '/api/target-area-polygons.geojson'
+      }),
+      style: window.flood.maps.styles.targetAreaPolygons,
+      maxResolution: window.flood.maps.symbolThreshold,
       zIndex: 1
     })
   },

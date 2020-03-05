@@ -24,13 +24,10 @@ function LiveMap (containerId, queryParams) {
     extent: maps.extent
   })
 
-  // Store vector tile properties in the maps object
-  const vtProperties = maps.vtProperties
-
   // Layers
   const road = maps.layers.road()
   const satellite = maps.layers.satellite()
-  const vectorTiles = maps.layers.vectorTiles()
+  const targetAreaPolygons = maps.layers.targetAreaPolygons()
   const warnings = maps.layers.warnings()
   const stations = maps.layers.stations()
   const rainfall = maps.layers.rainfall()
@@ -110,11 +107,8 @@ function LiveMap (containerId, queryParams) {
   // Show or hide warning types
   function toggleWarningTypes () {
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
-    // Clear vector tile properties
-    vtProperties.length = 0
     // Set warning feature active state
     warnings.getSource().forEachFeature(function (warning) {
-      const id = warning.getId()
       const state = warning.get('state')
       const isActive = (
         (state === 11 && lyrs.includes('ts')) ||
@@ -123,7 +117,6 @@ function LiveMap (containerId, queryParams) {
         (state === 14 && lyrs.includes('tr'))
       )
       warning.set('isActive', isActive)
-      vtProperties.push({ id: id, state: state, isActive: isActive })
     })
   }
 
@@ -133,11 +126,9 @@ function LiveMap (containerId, queryParams) {
       const feature = layer.getSource().getFeatureById(id)
       if (feature) {
         feature.set('isSelected', state)
-        // Set vector tile selected property
+        // Refresh vector tiles
         if (layer.get('ref') === 'warnings') {
-          const index = vtProperties.findIndex(f => f.id === id)
-          vtProperties[index].isSelected = state
-          refreshVectorTiles()
+          reStyleTargetAreaPolygons()
         }
       }
     })
@@ -253,9 +244,9 @@ function LiveMap (containerId, queryParams) {
   }
 
   // Reload vector tiles
-  function refreshVectorTiles () {
+  function reStyleTargetAreaPolygons () {
     // Triggers layer to be restyled
-    vectorTiles.setStyle(maps.styles.polygons)
+    targetAreaPolygons.setStyle(maps.styles.targetAreaPolygons)
   }
 
   //
@@ -273,7 +264,9 @@ function LiveMap (containerId, queryParams) {
         // Set target area states to display
         if (warnings.get('isReady')) {
           toggleWarningTypes()
-          map.addLayer(vectorTiles)
+          // Store reference to warnings source for use in vector tiles style function
+          maps.warningsSource = warnings.getSource()
+          map.addLayer(targetAreaPolygons)
         }
         // Attempt to set selected feature when layer is ready
         setSelectedFeature(selectedFeatureId)
@@ -337,7 +330,7 @@ function LiveMap (containerId, queryParams) {
       replaceHistory('lyr', lyrs)
       toggleLayerVisibility()
       toggleWarningTypes()
-      refreshVectorTiles()
+      reStyleTargetAreaPolygons()
       if (isKeyboardInteraction) {
         showOverlays()
       }
