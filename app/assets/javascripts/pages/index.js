@@ -19,7 +19,9 @@ const targetArea = {
 if (window.flood.utils.getParameterByName('v') === 'map') {
   window.flood.maps.createLiveMap({
     containerId: 'map',
-    targetArea: targetArea
+    targetArea: targetArea,
+    center: [0, 1], // Optional center will be converted to extent in querystring
+    zoom: 14 // Optional zoom will be converted to extent in querystring
   })
 }
 
@@ -39,7 +41,9 @@ if (btnContainer) {
         ext: [-3.155526, 54.598045, -3.146394, 54.602512], // Optional initial zoom to extent
         sid: 'ta.011FWFNC6KC' // Optional intial selected feature
       },
-      targetArea: targetArea
+      targetArea: targetArea,
+      center: [0, 1], // Optional center will be converted to extent in querystring
+      zoom: 14 // Optional zoom will be converted to extent in querystring
     })
   })
   btnContainer.parentNode.replaceChild(button, btnContainer)
@@ -50,7 +54,9 @@ window.addEventListener('popstate', function (e) {
   if (e && e.state) {
     window.flood.maps.createLiveMap({
       containerId: 'map',
-      targetArea: targetArea
+      targetArea: targetArea,
+      center: [0, 1], // Optional center will be converted to extent in querystring
+      zoom: 14 // Optional zoom will be converted to extent in querystring
     })
   }
 })

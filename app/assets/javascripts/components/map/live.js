@@ -10,6 +10,7 @@ import { transformExtent, transform } from 'ol/proj'
 import { unByKey } from 'ol/Observable'
 import { defaults as defaultInteractions } from 'ol/interaction'
 import { Point } from 'ol/geom'
+import { buffer, containsExtent } from 'ol/extent'
 
 const maps = window.flood.maps
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
@@ -274,6 +275,15 @@ function LiveMap (settings) {
       // Opacity graduates between 1 and 0.4 with resolution
       const opacity = Math.min(Math.max((resolution + 40) / 100, 0.4), 1)
       targetAreaPolygons.setOpacity(opacity)
+    }
+  }
+
+  // Pan map
+  function panToFeature (feature) {
+    let extent = map.getView().calculateExtent(map.getSize())
+    extent = buffer(extent, -1000)
+    if (!containsExtent(extent, feature.getGeometry().getExtent())) {
+      map.getView().setCenter(feature.getGeometry().getCoordinates())
     }
   }
 
