@@ -1608,7 +1608,7 @@ router.get('/api/stations.geojson', function (req, res) {
     features: [
       {
         type: 'Feature',
-        id: 'station.5149',
+        id: 'st.5149',
         geometry: {
           type: 'Point',
           coordinates: [
@@ -1623,7 +1623,7 @@ router.get('/api/stations.geojson', function (req, res) {
       },
       {
         type: 'Feature',
-        id: 'station.5193',
+        id: 'st.5193',
         geometry: {
           type: 'Point',
           coordinates: [
@@ -1638,7 +1638,7 @@ router.get('/api/stations.geojson', function (req, res) {
       },
       {
         type: 'Feature',
-        id: 'station.5088',
+        id: 'st.5088',
         geometry: {
           type: 'Point',
           coordinates: [

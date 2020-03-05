@@ -25,7 +25,7 @@ window.flood.maps.layers = {
     })
   },
 
-  tmp_targetAreaPolygons: () => {
+  targetAreaPolygons: () => {
     return new VectorTileLayer({
       ref: 'targetAreaPolygons',
       featureCodes: 'ts, tw, ta, tr',
@@ -42,7 +42,7 @@ window.flood.maps.layers = {
     })
   },
 
-  targetAreaPolygons: () => {
+  tmp_targetAreaPolygons: () => {
     return new VectorLayer({
       ref: 'targetAreaPolygons',
       featureCodes: 'ts, tw, ta, tr',

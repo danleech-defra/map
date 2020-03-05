@@ -20,7 +20,6 @@ window.flood.maps.styles = {
     let strokeColour = 'transparent'
     let fillColour = 'transparent'
     let zIndex = 1
-    let opacity = 1
 
     switch (state) {
       case 11: // Severe warning
@@ -57,7 +56,6 @@ window.flood.maps.styles = {
         lineJoin: 'round',
         lineDash: [0, 0]
       }),
-      opacity: opacity,
       zIndex: zIndex
     })
 
@@ -130,7 +128,7 @@ window.flood.maps.styles = {
     }
 
     if (resolution > window.flood.maps.symbolThreshold && state > 20) { // Don't offset warning symbols
-      offset[0] += window.flood.maps.symbolThreshold
+      offset[0] += 200
       anchor = [0.5, 0.5]
     }
 

@@ -19,5 +19,5 @@ const center = transform([
 window.flood.maps = {
   extent: extent,
   center: center,
-  symbolThreshold: 200 // Used for toggling symbol display,
+  symbolThreshold: 100 // Used for toggling symbol display,
 }

@@ -5,16 +5,22 @@
 
 // It uses the MapContainer
 
-import { View, Overlay } from 'ol'
-import { transformExtent } from 'ol/proj'
+import { View, Overlay, Feature } from 'ol'
+import { transformExtent, transform } from 'ol/proj'
 import { unByKey } from 'ol/Observable'
 import { defaults as defaultInteractions } from 'ol/interaction'
+import { Point } from 'ol/geom'
 
 const maps = window.flood.maps
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
 const MapContainer = maps.MapContainer
 
-function LiveMap (containerId, queryParams) {
+function LiveMap (settings) {
+  // Settings
+  const containerId = settings.containerId
+  const queryParams = settings.queryParams
+  const targetArea = settings.targetArea
+
   // View
   const view = new View({
     zoom: 6,
@@ -104,6 +110,19 @@ function LiveMap (containerId, queryParams) {
     })
   }
 
+  // Add a target area feature
+  function addTargetArea () {
+    if (!warnings.getSource().getFeatureById(targetArea.id)) {
+      const feature = new Feature({
+        name: targetArea.name,
+        state: 14
+      })
+      feature.setId(targetArea.id)
+      feature.setGeometry(new Point(transform(targetArea.coordinates, 'EPSG:4326', 'EPSG:3857')))
+      warnings.getSource().addFeature(feature)
+    }
+  }
+
   // Show or hide warning types
   function toggleWarningTypes () {
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
@@ -128,7 +147,7 @@ function LiveMap (containerId, queryParams) {
         feature.set('isSelected', state)
         // Refresh vector tiles
         if (layer.get('ref') === 'warnings') {
-          reStyleTargetAreaPolygons()
+          restyleTargetAreaPolygons()
         }
       }
     })
@@ -243,10 +262,20 @@ function LiveMap (containerId, queryParams) {
     map.getOverlays().clear()
   }
 
-  // Reload vector tiles
-  function reStyleTargetAreaPolygons () {
+  // Restyle polygons
+  function restyleTargetAreaPolygons () {
     // Triggers layer to be restyled
     targetAreaPolygons.setStyle(maps.styles.targetAreaPolygons)
+  }
+
+  // Set target area polygon opacity
+  function setOpacityTargetAreaPolygons () {
+    if (targetAreaPolygons.getVisible()) {
+      const resolution = Math.floor(map.getView().getResolution())
+      // Opacity graduates between 1 and 0.4 with resolution
+      const opacity = Math.min(Math.max((resolution + 40) / 100, 0.4), 1)
+      targetAreaPolygons.setOpacity(opacity)
+    }
   }
 
   //
@@ -263,6 +292,10 @@ function LiveMap (containerId, queryParams) {
         unByKey(change)
         // Set target area states to display
         if (warnings.get('isReady')) {
+          // Add optional target area
+          if (targetArea) {
+            addTargetArea()
+          }
           toggleWarningTypes()
           // Store reference to warnings source for use in vector tiles style function
           maps.warningsSource = warnings.getSource()
@@ -289,6 +322,8 @@ function LiveMap (containerId, queryParams) {
     let ext = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
     ext = ext.map(function (x) { return Number(x.toFixed(6)) })
     ext = ext.join(',')
+    // Set polygon layer opacity
+    setOpacityTargetAreaPolygons()
     // Timer used to stop 100 url replaces in 30 seconds limit
     clearTimeout(t1)
     t1 = setTimeout(function () {
@@ -330,7 +365,7 @@ function LiveMap (containerId, queryParams) {
       replaceHistory('lyr', lyrs)
       toggleLayerVisibility()
       toggleWarningTypes()
-      reStyleTargetAreaPolygons()
+      restyleTargetAreaPolygons()
       if (isKeyboardInteraction) {
         showOverlays()
       }
@@ -384,14 +419,6 @@ function LiveMap (containerId, queryParams) {
   })
 
   //
-  // Public methods
-  //
-
-  this.addTargetArea = function (id, cooridinates, selected = true) {
-    console.log('Add target area1')
-  }
-
-  //
   // Public properties
   //
 
@@ -403,6 +430,6 @@ function LiveMap (containerId, queryParams) {
 // onto the `maps` object.
 // (This is done mainly to avoid the rule
 // "do not use 'new' for side effects. (no-new)")
-maps.createLiveMap = function (containerId, queryParams = {}) {
-  return new LiveMap(containerId, queryParams)
+maps.createLiveMap = function (settings) {
+  return new LiveMap(settings)
 }
