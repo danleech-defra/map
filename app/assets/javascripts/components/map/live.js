@@ -56,9 +56,6 @@ function LiveMap (settings) {
 
   const layers = defaultLayers.concat(dataLayers)
 
-  // Set selected feature id from querystring
-  let selectedFeatureId = getParameterByName('sid') || ''
-
   // Interactions with reference to keyboardPan
   const interactions = defaultInteractions()
 
@@ -81,6 +78,9 @@ function LiveMap (settings) {
   const viewport = container.viewport
   const map = container.map
   const mapElement = container.mapElement
+
+  // Set selected feature id from querystring
+  let selectedFeatureId = getParameterByName('sid') || ''
 
   // Set layers, extent and key items from querystring
   if (getParameterByName('ext')) {
