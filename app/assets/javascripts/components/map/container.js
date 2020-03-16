@@ -39,7 +39,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   mapElement.setAttribute('open', true)
   mapElement.setAttribute('aria-modal', true)
   mapElement.setAttribute('aria-label', 'Map view')
-  containerElement.append(mapElement)
+  containerElement.appendChild(mapElement)
 
   // Set states
   let isKeyOpen, isInfoOpen, isTooltipOpen, isTablet
@@ -90,7 +90,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   tooltipElement.className = 'defra-map-tooltip'
   tooltipElement.setAttribute('role', 'tooltip')
   tooltipElement.hidden = true
-  mapElement.append(tooltipElement)
+  mapElement.appendChild(tooltipElement)
 
   // Create feature information panel
   const infoElement = document.createElement('div')
@@ -104,9 +104,9 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   closeInfoButton.innerHTML = 'Close'
   const infoContainer = document.createElement('div')
   infoContainer.className = 'defra-map-info__container'
-  infoElement.append(closeInfoButton)
-  infoElement.append(infoContainer)
-  mapElement.append(infoElement)
+  infoElement.appendChild(closeInfoButton)
+  infoElement.appendChild(infoContainer)
+  mapElement.appendChild(infoElement)
 
   // Create zoom controls
   const zoom = new Zoom({
@@ -161,13 +161,13 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   keyTitle.id = 'mapKeyLabel'
   keyTitle.className = 'defra-map-key__title'
   keyTitle.innerHTML = 'Key'
-  keyElement.append(keyTitle)
-  keyElement.append(closeKeyButton)
+  keyElement.appendChild(keyTitle)
+  keyElement.appendChild(closeKeyButton)
   const keyContainer = document.createElement('div')
   keyContainer.className = 'defra-map-key__container'
   keyContainer.innerHTML = window.nunjucks.render(options.keyTemplate)
-  keyElement.append(keyContainer)
-  mapElement.append(keyElement)
+  keyElement.appendChild(keyContainer)
+  mapElement.appendChild(keyElement)
 
   // Get list of focusable elements from the key
   // const allFocusElements = keyElement.querySelectorAll('button:not(:disabled), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')

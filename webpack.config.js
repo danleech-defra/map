@@ -24,21 +24,10 @@ module.exports = {
         include: [
           path.join(__dirname, 'app/assets/javascripts')
         ],
+        exclude: /node_modules/,
         use: {
           loader: 'babel-loader'
         }
-      },
-      {
-        type: 'javascript/auto',
-        test: /\.json$/,
-        include: [
-          path.join(__dirname, 'app/data')
-        ],
-        use: [
-          {
-            loader: 'json-loader'
-          }
-        ]
       }
     ]
   },
