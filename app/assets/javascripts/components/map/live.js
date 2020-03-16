@@ -16,11 +16,10 @@ const maps = window.flood.maps
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
 const MapContainer = maps.MapContainer
 
-function LiveMap (settings) {
-  // Settings
-  const containerId = settings.containerId
-  const queryParams = settings.queryParams
-  const targetArea = settings.targetArea
+function LiveMap (containerId, options) {
+  // options
+  const queryParams = options.queryParams
+  const targetArea = options.targetArea
 
   // View
   const view = new View({
@@ -63,7 +62,7 @@ function LiveMap (settings) {
   let visibleFeatures = []
 
   // MapContainer options
-  const options = {
+  const containerOptions = {
     maxBigZoom: maps.symbolThreshold,
     view: view,
     layers: layers,
@@ -73,7 +72,7 @@ function LiveMap (settings) {
   }
 
   // Create MapContainer
-  const container = new MapContainer(containerId, options)
+  const container = new MapContainer(containerId, containerOptions)
   const closeInfoButton = container.closeInfoButton
   const viewport = container.viewport
   const map = container.map
@@ -194,7 +193,7 @@ function LiveMap (settings) {
     forEach(mapElement.querySelectorAll('.defra-map-key *[data-style]'), function (symbol) {
       const style = symbol.getAttribute('data-style')
       const offsetStyle = symbol.getAttribute('data-style-offset')
-      const isBigZoom = resolution <= options.maxBigZoom
+      const isBigZoom = resolution <= containerOptions.maxBigZoom
       symbol.style = isBigZoom ? offsetStyle : style
     })
   }
@@ -214,7 +213,7 @@ function LiveMap (settings) {
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
     const resolution = map.getView().getResolution()
     const extent = map.getView().calculateExtent(map.getSize())
-    const isBigZoom = resolution <= options.maxBigZoom
+    const isBigZoom = resolution <= containerOptions.maxBigZoom
     const layers = dataLayers.filter(layer => lyrs.some(lyr => layer.get('featureCodes').includes(lyr)))
     let activeStates = []
     lyrs.forEach(function (lyr) { activeStates = activeStates.concat(featureCodes[lyr]) })
@@ -437,6 +436,6 @@ function LiveMap (settings) {
 // onto the `maps` object.
 // (This is done mainly to avoid the rule
 // "do not use 'new' for side effects. (no-new)")
-maps.createLiveMap = function (settings) {
-  return new LiveMap(settings)
+maps.createLiveMap = function (containerId, options) {
+  return new LiveMap(containerId, options)
 }
