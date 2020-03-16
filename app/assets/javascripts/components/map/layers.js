@@ -28,7 +28,6 @@ window.flood.maps.layers = {
   tmp_targetAreaPolygons: () => {
     return new VectorTileLayer({
       ref: 'targetAreaPolygons',
-      featureCodes: 'ts, tw, ta, tr',
       source: new VectorTileSource({
         format: new MVT({
           idProperty: 'id'
@@ -45,7 +44,6 @@ window.flood.maps.layers = {
   targetAreaPolygons: () => {
     return new VectorLayer({
       ref: 'targetAreaPolygons',
-      featureCodes: 'ts, tw, ta, tr',
       source: new VectorSource({
         format: new GeoJSON({
           'dataProjection': 'EPSG::3857',

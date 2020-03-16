@@ -23,12 +23,14 @@ function LiveMap (containerId, options) {
 
   // View
   const view = new View({
-    zoom: 6,
+    zoom: options.zoom || 6,
     minZoom: 6,
     maxZoom: 18,
-    center: maps.center,
+    center: options.center ? transform(options.center, 'EPSG:4326', 'EPSG:3857') : maps.center,
     extent: maps.extent
   })
+
+  console.log(view)
 
   // Layers
   const road = maps.layers.road()
