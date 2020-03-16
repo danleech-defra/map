@@ -25,7 +25,7 @@ window.flood.maps.layers = {
     })
   },
 
-  tmp_targetAreaPolygons: () => {
+  targetAreaPolygons: () => {
     return new VectorTileLayer({
       ref: 'targetAreaPolygons',
       source: new VectorTileSource({
@@ -41,7 +41,7 @@ window.flood.maps.layers = {
     })
   },
 
-  targetAreaPolygons: () => {
+  tmp_targetAreaPolygons: () => {
     return new VectorLayer({
       ref: 'targetAreaPolygons',
       source: new VectorSource({

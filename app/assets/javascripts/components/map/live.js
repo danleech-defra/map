@@ -20,6 +20,7 @@ function LiveMap (containerId, options) {
   // options
   const queryParams = options.queryParams
   const targetArea = options.targetArea
+  const smartKey = true
 
   // View
   const view = new View({
@@ -63,7 +64,7 @@ function LiveMap (containerId, options) {
   // Store features that are visible in the viewport
   let visibleFeatures = []
 
-  // MapContainer options
+  // Options to pass to the MapContainer constructor
   const containerOptions = {
     maxBigZoom: maps.symbolThreshold,
     view: view,
@@ -90,6 +91,14 @@ function LiveMap (containerId, options) {
   if (getParameterByName('lyr')) {
     toggleLayerVisibility()
     setCheckboxes()
+  }
+
+  // Set smart key visibility
+  if (smartKey) {
+    const keyItems = document.querySelectorAll('.defra-map-key__section--layers .defra-map-key__item')
+    keyItems.forEach(function (keyItem) {
+      keyItem.style.display = 'none'
+    })
   }
 
   // Detect keyboard interaction on features
