@@ -11,10 +11,13 @@ window.flood.maps.styles = {
     const warningsSource = window.flood.maps.warningsSource
     const warning = warningsSource.getFeatureById(feature.getId())
     if (!warning || !warning.get('isActive')) {
-      return new Style({})
+      return new Style()
     }
+    console.log(warning.get('source'))
+
     const state = warning.get('state')
     const isSelected = warning.get('isSelected')
+    const source = warning.get('source')
 
     // Defaults
     let strokeColour = 'transparent'
@@ -34,13 +37,13 @@ window.flood.maps.styles = {
         break
       case 13: // Alert
         strokeColour = isSelected ? '#d87900' : '#f18700'
-        fillColour = pattern('diagonal-hatch', isSelected)
-        zIndex = 3
+        fillColour = pattern('diagonal-hatch', isSelected, source === 'g' ? 0.75 : 1)
+        zIndex = source === 'g' ? 2 : 3
         break
       case 14: // Removed
         strokeColour = isSelected ? '#595f62' : '#6f777b'
         fillColour = pattern('horizontal-hatch', isSelected)
-        zIndex = 2
+        zIndex = 1
         break
     }
 
@@ -157,7 +160,7 @@ window.flood.maps.styles = {
   }
 }
 
-const pattern = (style, isSelected) => {
+const pattern = (style, isSelected, alpha = 1) => {
   const dpr = window.devicePixelRatio || 1
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('2d')
@@ -197,11 +200,11 @@ const pattern = (style, isSelected) => {
       canvas.width = 10 * dpr
       canvas.height = 10 * dpr
       context.scale(dpr, dpr)
-      isSelected ? context.fillStyle = '#DEAF72' : context.fillStyle = '#F8C37F'
+      context.fillStyle = isSelected ? 'rgba(222,175,114,' + alpha + ')' : 'rgba(248,195,127,' + alpha + ')' // '#DEAF72' & '#F8C37F'
       context.fillRect(0, 0, 10, 10)
       context.beginPath()
       context.lineCap = 'square'
-      isSelected ? context.strokeStyle = '#D87900' : context.strokeStyle = '#F18700'
+      context.fillStyle = isSelected ? 'rgba(216,121,0,' + alpha + ')' : 'rgba(241,135,0,' + alpha + ')' // '#D87900' & '#F18700'
       context.lineWidth = 6
       context.moveTo(0, 5)
       context.lineTo(5, 0)

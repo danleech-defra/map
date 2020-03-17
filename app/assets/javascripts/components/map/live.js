@@ -20,7 +20,7 @@ function LiveMap (containerId, options) {
   // options
   const queryParams = options.queryParams
   const targetArea = options.targetArea
-  const smartKey = true
+  const smartKey = false
 
   // View
   const view = new View({
@@ -30,8 +30,6 @@ function LiveMap (containerId, options) {
     center: options.center ? transform(options.center, 'EPSG:4326', 'EPSG:3857') : maps.center,
     extent: maps.extent
   })
-
-  console.log(view)
 
   // Layers
   const road = maps.layers.road()
