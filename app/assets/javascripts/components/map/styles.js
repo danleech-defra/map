@@ -13,11 +13,10 @@ window.flood.maps.styles = {
     if (!warning || !warning.get('isActive')) {
       return new Style()
     }
-    console.log(warning.get('source'))
 
     const state = warning.get('state')
     const isSelected = warning.get('isSelected')
-    const source = warning.get('source')
+    const isGroundwater = warning.getId().substring(6, 9) === 'FAG'
 
     // Defaults
     let strokeColour = 'transparent'
@@ -36,9 +35,9 @@ window.flood.maps.styles = {
         zIndex = 4
         break
       case 13: // Alert
-        strokeColour = isSelected ? '#d87900' : '#f18700'
-        fillColour = pattern('diagonal-hatch', isSelected, source === 'g' ? 0.75 : 1)
-        zIndex = source === 'g' ? 2 : 3
+        strokeColour = isSelected ? '#d87900' : isGroundwater ? '#F5A540' : '#F18700'
+        fillColour = pattern('diagonal-hatch', isSelected, isGroundwater)
+        zIndex = isGroundwater ? 2 : 3
         break
       case 14: // Removed
         strokeColour = isSelected ? '#595f62' : '#6f777b'
@@ -160,7 +159,7 @@ window.flood.maps.styles = {
   }
 }
 
-const pattern = (style, isSelected, alpha = 1) => {
+const pattern = (style, isSelected, isLighten = false) => {
   const dpr = window.devicePixelRatio || 1
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('2d')
@@ -169,11 +168,11 @@ const pattern = (style, isSelected, alpha = 1) => {
       canvas.width = 10 * dpr
       canvas.height = 10 * dpr
       context.scale(dpr, dpr)
-      isSelected ? context.fillStyle = '#B6000C' : context.fillStyle = '#E3000F'
+      context.fillStyle = isSelected ? '#B6000C' : '#E3000F'
       context.fillRect(0, 0, 10, 10)
       context.beginPath()
       context.lineCap = 'square'
-      isSelected ? context.strokeStyle = '#C1666C' : context.strokeStyle = '#F17F87'
+      context.strokeStyle = isSelected ? '#C1666C' : '#F17F87'
       context.lineWidth = 1
       context.moveTo(0, 0)
       context.lineTo(10, 10)
@@ -186,11 +185,11 @@ const pattern = (style, isSelected, alpha = 1) => {
       canvas.width = 7 * dpr
       canvas.height = 7 * dpr
       context.scale(dpr, dpr)
-      isSelected ? context.fillStyle = '#C1666C' : context.fillStyle = '#F17F87'
+      context.fillStyle = isSelected ? '#C1666C' : '#F17F87'
       context.fillRect(0, 0, 7, 7)
       context.beginPath()
       context.lineCap = 'square'
-      isSelected ? context.strokeStyle = '#B6000C' : context.strokeStyle = '#E3000F'
+      context.strokeStyle = isSelected ? '#B6000C' : '#E3000F'
       context.lineWidth = 6
       context.moveTo(3, 0)
       context.lineTo(3, 10)
@@ -200,11 +199,11 @@ const pattern = (style, isSelected, alpha = 1) => {
       canvas.width = 10 * dpr
       canvas.height = 10 * dpr
       context.scale(dpr, dpr)
-      context.fillStyle = isSelected ? 'rgba(222,175,114,' + alpha + ')' : 'rgba(248,195,127,' + alpha + ')' // '#DEAF72' & '#F8C37F'
+      context.fillStyle = isSelected ? '#DEAF72' : '#F8C37F'
       context.fillRect(0, 0, 10, 10)
       context.beginPath()
       context.lineCap = 'square'
-      context.fillStyle = isSelected ? 'rgba(216,121,0,' + alpha + ')' : 'rgba(241,135,0,' + alpha + ')' // '#D87900' & '#F18700'
+      context.strokeStyle = isSelected ? '#D87900' : isLighten ? '#F5A540' : '#F18700' // 75% lighter
       context.lineWidth = 6
       context.moveTo(0, 5)
       context.lineTo(5, 0)
@@ -217,11 +216,11 @@ const pattern = (style, isSelected, alpha = 1) => {
       canvas.width = 7 * dpr
       canvas.height = 7 * dpr
       context.scale(dpr, dpr)
-      isSelected ? context.fillStyle = '#929597' : context.fillStyle = '#B7BBBD'
+      context.fillStyle = isSelected ? '#929597' : '#B7BBBD'
       context.fillRect(0, 0, 7, 7)
       context.beginPath()
       context.lineCap = 'square'
-      isSelected ? context.strokeStyle = '#595F62' : context.strokeStyle = '#6F777B'
+      context.strokeStyle = isSelected ? '#595F62' : '#6F777B'
       context.lineWidth = 6
       context.moveTo(0, 3)
       context.lineTo(10, 3)

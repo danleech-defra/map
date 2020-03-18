@@ -199,11 +199,13 @@ function LiveMap (containerId, options) {
 
   // Toggle key symbols based on resolution
   function toggleKeySymbol (resolution) {
-    forEach(mapElement.querySelectorAll('.defra-map-key *[data-style]'), function (symbol) {
-      const style = symbol.getAttribute('data-style')
-      const offsetStyle = symbol.getAttribute('data-style-offset')
+    forEach(mapElement.querySelectorAll('.defra-map-key__symbol'), function (symbol) {
       const isBigZoom = resolution <= containerOptions.maxBigZoom
-      symbol.style = isBigZoom ? offsetStyle : style
+      if (isBigZoom) {
+        symbol.classList.add('defra-map-key__symbol--big')
+      } else {
+        symbol.classList.remove('defra-map-key__symbol--big')
+      }
     })
   }
 
