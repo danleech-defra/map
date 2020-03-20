@@ -41,7 +41,8 @@ window.flood.maps.layers = {
     })
   },
 
-  tmp_targetAreaPolygons: () => {
+  /*
+  targetAreaPolygons: () => {
     return new VectorLayer({
       ref: 'targetAreaPolygons',
       source: new VectorSource({
@@ -56,19 +57,21 @@ window.flood.maps.layers = {
       zIndex: 1
     })
   },
+  */
 
-  rainfall: () => {
+  warnings: () => {
     return new VectorLayer({
-      ref: 'rainfall',
-      featureCodes: 'rf',
+      ref: 'warnings',
+      featureCodes: 'ts, tw, ta, tr',
       source: new VectorSource({
         format: new GeoJSON(),
         projection: 'EPSG:3857',
-        url: '/api/rainfall.geojson'
+        // url: '/api/warnings.geojson'
+        url: 'http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=flood:ta&srsName=EPSG:3857&outputFormat=application/json'
       }),
-      style: window.flood.maps.styles.points,
+      style: window.flood.maps.styles.warnings,
       visible: false,
-      zIndex: 2
+      zIndex: 4
     })
   },
 
@@ -79,27 +82,12 @@ window.flood.maps.layers = {
       source: new VectorSource({
         format: new GeoJSON(),
         projection: 'EPSG:3857',
-        url: '/api/stations.geojson'
+        // url: '/api/stations.geojson'
+        url: 'http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=flood:st&srsName=EPSG:3857&outputFormat=application/json'
       }),
-      style: window.flood.maps.styles.points,
+      style: window.flood.maps.styles.stations,
       visible: false,
       zIndex: 3
-    })
-  },
-
-  warnings: () => {
-    return new VectorLayer({
-      ref: 'warnings',
-      featureCodes: 'ts, tw, ta, tr',
-      source: new VectorSource({
-        format: new GeoJSON(),
-        projection: 'EPSG:3857',
-        url: '/api/warnings.geojson'
-        // url: 'http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=flood:ta&srsName=EPSG:3857&outputFormat=application/json'
-      }),
-      style: window.flood.maps.styles.points,
-      visible: false,
-      zIndex: 4
     })
   },
 
@@ -112,9 +100,24 @@ window.flood.maps.layers = {
         projection: 'EPSG:3857',
         url: '/api/impacts.geojson'
       }),
-      style: window.flood.maps.styles.points,
+      style: window.flood.maps.styles.impacts,
       visible: false,
       zIndex: 5
+    })
+  },
+
+  rainfall: () => {
+    return new VectorLayer({
+      ref: 'rainfall',
+      featureCodes: 'rf',
+      source: new VectorSource({
+        format: new GeoJSON(),
+        projection: 'EPSG:3857',
+        url: '/api/rainfall.geojson'
+      }),
+      style: window.flood.maps.styles.rainfall,
+      visible: false,
+      zIndex: 2
     })
   },
 
@@ -125,7 +128,6 @@ window.flood.maps.layers = {
         format: new GeoJSON(),
         projection: 'EPSG:3857'
       }),
-      style: window.flood.maps.styles.points,
       zIndex: 10
     })
   }

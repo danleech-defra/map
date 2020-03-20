@@ -6,7 +6,7 @@ import { Style, Icon, Fill, Stroke } from 'ol/style'
 
 window.flood.maps.styles = {
   // Primarily vector tiles
-  targetAreaPolygons: (feature, resolution) => {
+  targetAreaPolygons: (feature) => {
     // Use corresposnding warning feature propeties for styling
     const warningsSource = window.flood.maps.warningsSource
     const warning = warningsSource.getFeatureById(feature.getId())
@@ -63,9 +63,15 @@ window.flood.maps.styles = {
 
     return style
   },
-  // All centroid features
-  points: (feature, resolution) => {
-    if (feature.get('state') <= 20 && !feature.get('isActive')) {
+
+  // Warning centroids
+  warnings: (feature, resolution) => {
+    // If warning type is hidden in the key
+    if (!feature.get('isActive')) {
+      return new Style({})
+    }
+    // Hide warning symbols when polygon is shown
+    if (resolution < window.flood.maps.symbolThreshold) {
       return new Style({})
     }
 
@@ -74,9 +80,6 @@ window.flood.maps.styles = {
     const source = '/public/images/icon-map-features-2x.png'
 
     // Defaults
-    let anchor = [0.5, 0.75]
-    let size = [86, 86]
-    let scale = 0.5
     let offset = [0, 0]
     let zIndex = 1
 
@@ -97,63 +100,143 @@ window.flood.maps.styles = {
         zIndex = 7
         offset = [0, 1200]
         break
-      case 21: // High
-        size = [66, 84]
-        zIndex = 6
-        offset = [0, 400]
-        break
-      case 22: // Normal
-        size = [66, 84]
-        zIndex = 5
-        offset = [0, 200]
-        break
-      case 23: // No data
-        size = [66, 84]
-        zIndex = 4
-        offset = [0, 100]
-        break
-      case 24: // Error
-        size = [66, 84]
-        zIndex = 3
-        offset = [0, 0]
-        break
-      case 31: // Rain fall
-        size = [66, 84]
-        zIndex = 3
-        offset = [0, 1500]
-        break
-      case 41: // Impact
-        size = [74, 74]
-        zIndex = 2
-        offset = [0, 500]
-        break
     }
 
-    if (resolution > window.flood.maps.symbolThreshold && state > 20) { // Don't offset warning symbols
-      offset[0] += 200
-      anchor = [0.5, 0.5]
-    }
-
+    // Use selected symbol
     if (isSelected) {
       offset[0] += 100
-      zIndex = 10000
     }
 
     const style = new Style({
       image: new Icon({
         src: source,
-        size: size,
-        anchor: anchor,
-        scale: scale,
+        size: [86, 86],
+        anchor: [0.5, 0.75],
+        scale: 0.5,
         offset: offset
       }),
       zIndex: zIndex
     })
 
-    // Hide warning symbols when polygon is shown
-    if (resolution < window.flood.maps.symbolThreshold && state <= 20) {
-      return new Style({})
+    return style
+  },
+
+  // Station centroids
+  stations: (feature, resolution) => {
+    const state = feature.get('state')
+    const isSelected = feature.get('isSelected')
+    const source = '/public/images/icon-map-features-2x.png'
+
+    // Defaults
+    let anchor = [0.5, 0.75]
+    let offset = [0, 0]
+    let zIndex = 1
+
+    switch (state) {
+      case 21: // High
+        zIndex = 6
+        offset = [0, 400]
+        break
+      case 22: // Normal
+        zIndex = 5
+        offset = [0, 200]
+        break
+      case 24: // Error
+        zIndex = 3
+        offset = [0, 0]
+        break
+      default: // No data
+        zIndex = 4
+        offset = [0, 100]
     }
+
+    // Use large symbols
+    if (resolution > window.flood.maps.symbolThreshold) {
+      offset[0] += 200
+      anchor = [0.5, 0.5]
+    }
+
+    // Use selected symbol
+    if (isSelected) {
+      offset[0] += 100
+    }
+
+    const style = new Style({
+      image: new Icon({
+        src: source,
+        size: [66, 84],
+        anchor: anchor,
+        scale: 0.5,
+        offset: offset
+      }),
+      zIndex: zIndex
+    })
+
+    return style
+  },
+
+  // Impact centroids
+  impacts: (feature, resolution) => {
+    const isSelected = feature.get('isSelected')
+    const source = '/public/images/icon-map-features-2x.png'
+
+    // Defaults
+    let anchor = [0.5, 0.75]
+    let offset = [0, 500]
+
+    // Use large symbols
+    if (resolution > window.flood.maps.symbolThreshold) {
+      offset[0] += 200
+      anchor = [0.5, 0.5]
+    }
+
+    // Use selected symbol
+    if (isSelected) {
+      offset[0] += 100
+    }
+
+    const style = new Style({
+      image: new Icon({
+        src: source,
+        size: [74, 74],
+        anchor: anchor,
+        scale: 0.5,
+        offset: [0, 0]
+      })
+    })
+
+    return style
+  },
+
+  // Rainfall centroids
+  rainfall: (feature, resolution) => {
+    const isSelected = feature.get('isSelected')
+    const source = '/public/images/icon-map-features-2x.png'
+
+    // Defaults
+    let anchor = [0.5, 0.75]
+    let offset = [0, 1500]
+
+    // Use large symbols
+    if (resolution > window.flood.maps.symbolThreshold) {
+      offset[0] += 200
+      anchor = [0.5, 0.5]
+    }
+
+    // Use selected symbol
+    if (isSelected) {
+      offset[0] += 100
+    }
+
+    const style = new Style({
+      image: new Icon({
+        src: source,
+        size: [66, 84],
+        anchor: anchor,
+        scale: 0.5,
+        offset: [0, 0]
+      })
+    })
 
     return style
   }

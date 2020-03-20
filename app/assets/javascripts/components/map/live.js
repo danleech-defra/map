@@ -168,6 +168,7 @@ function LiveMap (containerId, options) {
       const feature = layer.getSource().getFeatureById(id)
       if (feature) {
         selected.getSource().addFeature(feature)
+        selected.setStyle(layer.getStyle())
       }
     })
   }
