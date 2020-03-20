@@ -221,26 +221,23 @@ function LiveMap (containerId, options) {
   // Get visible features
   function getVisibleFeatures () {
     let visibleFeatures = []
-    const featureCodes = { ts: [11], tw: [12], ta: [13], tr: [14], st: [21, 22, 23, 24], hi: [31], rf: [41] }
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
     const resolution = map.getView().getResolution()
     const extent = map.getView().calculateExtent(map.getSize())
     const isBigZoom = resolution <= containerOptions.maxBigZoom
     const layers = dataLayers.filter(layer => lyrs.some(lyr => layer.get('featureCodes').includes(lyr)))
-    let activeStates = []
-    lyrs.forEach(function (lyr) { activeStates = activeStates.concat(featureCodes[lyr]) })
     layers.forEach(function (layer) {
-      // We know which layer and which feature states to count
       if (visibleFeatures.length > 9) return true
       layer.getSource().forEachFeatureIntersectingExtent(extent, function (feature) {
-        if (activeStates.includes(feature.get('state'))) {
-          visibleFeatures.push({
-            id: feature.getId(),
-            state: feature.get('state'),
-            isBigZoom: isBigZoom,
-            centre: feature.getGeometry().getCoordinates()
-          })
+        if (layer.get('ref') === 'warnings' && (!feature.get('isActive') || feature.get('state') === 14)) {
+          return false // Exclude inactive or removed warnings
         }
+        visibleFeatures.push({
+          id: feature.getId(),
+          state: feature.get('state'),
+          isBigZoom: isBigZoom,
+          centre: feature.getGeometry().getCoordinates()
+        })
       })
     })
     return visibleFeatures
