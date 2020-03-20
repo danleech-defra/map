@@ -230,7 +230,7 @@ function LiveMap (containerId, options) {
       if (visibleFeatures.length > 9) return true
       layer.getSource().forEachFeatureIntersectingExtent(extent, function (feature) {
         if (layer.get('ref') === 'warnings' && (!feature.get('isActive') || feature.get('state') === 14)) {
-          return false // Exclude inactive or removed warnings
+          return false // Exclude hidden (not isActive) warnings and warnings removed
         }
         visibleFeatures.push({
           id: feature.getId(),
