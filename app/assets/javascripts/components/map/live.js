@@ -220,7 +220,7 @@ function LiveMap (containerId, options) {
 
   // Get visible features
   function getVisibleFeatures () {
-    let visibleFeatures = []
+    const visibleFeatures = []
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
     const resolution = map.getView().getResolution()
     const extent = map.getView().calculateExtent(map.getSize())
