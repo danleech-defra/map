@@ -234,7 +234,7 @@ function LiveMap (containerId, options) {
         }
         visibleFeatures.push({
           id: feature.getId(),
-          state: feature.get('state'),
+          state: layer.get('ref'), // Used to style the overlay
           isBigZoom: isBigZoom,
           centre: feature.getGeometry().getCoordinates()
         })
