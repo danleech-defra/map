@@ -25,6 +25,21 @@ window.flood.maps.layers = {
     })
   },
 
+  nuts1: () => {
+    return new VectorTileLayer({
+      ref: 'nuts1',
+      source: new VectorTileSource({
+        format: new MVT({
+          idProperty: 'id'
+        }),
+        url: 'http://localhost:8080/geoserver/gwc/service/wmts?request=GetTile&service=wmts&version=1.0.0&layer=flood:nuts1&tilematrix=EPSG:900913:{z}&tilematrixset=EPSG:900913&format=application/vnd.mapbox-vector-tile&tilecol={x}&tilerow={y}'
+      }),
+      renderMode: 'hybrid',
+      style: window.flood.maps.styles.nuts1,
+      zIndex: 1
+    })
+  },
+
   targetAreaPolygons: () => {
     return new VectorTileLayer({
       ref: 'targetAreaPolygons',

@@ -27,13 +27,14 @@ function LiveMap (containerId, options) {
     zoom: options.zoom || 6,
     minZoom: 6,
     maxZoom: 18,
-    center: options.center ? transform(options.center, 'EPSG:4326', 'EPSG:3857') : maps.center,
-    extent: maps.extent
+    center: options.center ? transform(options.center, 'EPSG:4326', 'EPSG:3857') : maps.center
+    // extent: maps.extent
   })
 
   // Layers
   const road = maps.layers.road()
   const satellite = maps.layers.satellite()
+  const nuts1 = maps.layers.nuts1()
   const targetAreaPolygons = maps.layers.targetAreaPolygons()
   const warnings = maps.layers.warnings()
   const stations = maps.layers.stations()
@@ -42,8 +43,9 @@ function LiveMap (containerId, options) {
   const selected = maps.layers.selected()
 
   const defaultLayers = [
-    road,
-    satellite,
+    // road,
+    // satellite,
+    nuts1,
     selected
   ]
 
@@ -357,7 +359,9 @@ function LiveMap (containerId, options) {
   map.addEventListener('pointermove', function (e) {
     // Detect vector feature at mouse coords
     const hit = map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
-      return true
+      if (!defaultLayers.includes(layer)) {
+        return true
+      }
     })
     map.getTarget().style.cursor = hit ? 'pointer' : ''
   })
@@ -365,7 +369,11 @@ function LiveMap (containerId, options) {
   // Select feature if map is clicked
   map.addEventListener('click', function (e) {
     // Get mouse coordinates and check for feature
-    const feature = map.forEachFeatureAtPixel(e.pixel, function (feature) { return feature })
+    const feature = map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
+      if (!defaultLayers.includes(layer)) {
+        return feature
+      }
+    })
     setSelectedFeature(feature ? feature.getId() : '')
   })
 
