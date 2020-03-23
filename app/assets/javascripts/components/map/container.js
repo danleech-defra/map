@@ -67,10 +67,13 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
 
   // Get reference to viewport
   const viewport = document.getElementsByClassName('ol-viewport')[0]
-  viewport.className = `defra-map__viewport ${viewport.className}`
   viewport.id = 'viewport'
+  viewport.className = `defra-map-viewport ${viewport.className}`
   viewport.tabIndex = 0
-  viewport.setAttribute('aria-describedby', 'tooltip')
+
+  // Add class for focus styling
+  const viewportFocusElement = viewport.getElementsByClassName('ol-overlaycontainer-stopevent')[0]
+  viewportFocusElement.classList.add('defra-map-viewport__focus-element')
 
   // Get a reference to keyboardPan interaction
   let keyboardPan
@@ -90,7 +93,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   tooltipElement.className = 'defra-map-tooltip'
   tooltipElement.setAttribute('role', 'tooltip')
   tooltipElement.hidden = true
-  mapElement.appendChild(tooltipElement)
+  viewport.appendChild(tooltipElement)
 
   // Create feature information panel
   const infoElement = document.createElement('div')
@@ -111,7 +114,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   // Create zoom controls
   const zoom = new Zoom({
     className: 'defra-map__zoom',
-    target: mapElement
+    target: viewport
   })
   map.addControl(zoom)
 
