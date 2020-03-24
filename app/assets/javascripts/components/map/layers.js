@@ -2,7 +2,7 @@
 /*
 Initialises the window.flood.maps layers
 */
-import { Tile as TileLayer, Vector as VectorLayer, VectorTile as VectorTileLayer } from 'ol/layer'
+import { Tile as TileLayer, Vector as VectorLayer, VectorTile as VectorTileLayer, Stamen } from 'ol/layer'
 import { OSM, Vector as VectorSource, VectorTile as VectorTileSource } from 'ol/source'
 import { GeoJSON, MVT } from 'ol/format'
 

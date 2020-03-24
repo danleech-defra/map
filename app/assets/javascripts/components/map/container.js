@@ -102,6 +102,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   infoElement.setAttribute('role', 'dialog')
   infoElement.setAttribute('open', false)
   infoElement.setAttribute('aria-labelledby', 'infoLabel')
+  infoElement.tabIndex = 0
   const closeInfoButton = document.createElement('button')
   closeInfoButton.className = 'defra-map-info__close'
   closeInfoButton.innerHTML = 'Close'
@@ -160,6 +161,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   keyElement.setAttribute('role', 'dialog')
   keyElement.setAttribute('open', true)
   keyElement.setAttribute('aria-labelledby', 'mapKeyLabel')
+  keyElement.tabIndex = 0
   const keyTitle = document.createElement('span')
   keyTitle.id = 'mapKeyLabel'
   keyTitle.className = 'defra-map-key__title'
@@ -310,7 +312,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
     infoElement.classList.add('defra-map-info--open')
     infoElement.setAttribute('open', true)
     if (isUserInteracton) {
-      closeInfoButton.focus()
+      infoElement.focus()
     }
     infoContainer.innerHTML = id
   }
