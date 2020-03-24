@@ -23,7 +23,8 @@
     left:100%;
     top:0px;
     bottom:0px;
-    width:300px;
+    width:298px;
+    margin-left:2px;
   }
   /*
   -webkit-box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.1);
@@ -31,7 +32,15 @@
   box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.1);
   */
   outline: 2px solid govuk-colour('black');
-  &.focus-visible {
+  &:before {
+    content:'';
+    position:absolute;
+    left:0px;
+    right:0px;
+    top:0px;
+    bottom:0px;
+  }
+  &.focus-visible:before {
     outline: 3px solid $govuk-focus-colour;
     outline-offset: -3px;
   }
@@ -192,7 +201,7 @@
   position:absolute;
   top:49px;
   @include mq ($from: tablet) {
-    top:59px;
+    top:49px;
   }
   bottom:0px;
   width:100%;
@@ -204,7 +213,7 @@
   padding:0 15px;
   line-height:49px;
   @include mq ($from: tablet) {
-    line-height:59px;
+    line-height:49px;
   }
 }
 
@@ -217,7 +226,7 @@
   right:5px;
   top:5px;
   @include mq ($from: tablet) {
-    top:10px;
+    top:5px;
   }
   width:39px;
   height:39px;
@@ -227,23 +236,20 @@
   border:0;
   cursor:pointer;
   background-color: #ffffff;
-  background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M7.5,5.005l5.005,-5.005l2.495,2.495l-5.005,5.005l5.005,5.005l-2.495,2.495l-5.005,-5.005l-5.005,5.005l-2.495,-2.495l5.005,-5.005l-5.005,-5.005l2.495,-2.495l5.005,5.005Z" fill="#6F777B"/></svg>');
+  background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M7.5,5.005l5.005,-5.005l2.495,2.495l-5.005,5.005l5.005,5.005l-2.495,2.495l-5.005,-5.005l-5.005,5.005l-2.495,-2.495l5.005,-5.005l-5.005,-5.005l2.495,-2.495l5.005,5.005Z" fill="#0b0c0c"/></svg>');
   background-size: 15px 15px;
   background-position: 12px 12px;
   background-repeat: no-repeat;
   color: white;
   text-indent:-5000px;
   &:hover {
-    background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M7.5,5.005l5.005,-5.005l2.495,2.495l-5.005,5.005l5.005,5.005l-2.495,2.495l-5.005,-5.005l-5.005,5.005l-2.495,-2.495l5.005,-5.005l-5.005,-5.005l2.495,-2.495l5.005,5.005Z" fill="#0b0c0c"/></svg>');
+    background-color: govuk-colour('mid-grey');
   }
   &:focus {
     outline:none;
   }
   &.focus-visible {
     background-color: $govuk-focus-colour;
-    background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M7.5,5.005l5.005,-5.005l2.495,2.495l-5.005,5.005l5.005,5.005l-2.495,2.495l-5.005,-5.005l-5.005,5.005l-2.495,-2.495l5.005,-5.005l-5.005,-5.005l2.495,-2.495l5.005,5.005Z" fill="#0b0c0c"/></svg>');
-    outline: 0px;
-    outline-offset: 0;
   }
 }
 
@@ -254,7 +260,7 @@
     display: block;
     position:absolute;
     bottom:10px;
-    right:12px;
+    right:10px;
     width:41px;
     height:auto;
     /*
@@ -262,7 +268,6 @@
     -moz-box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.1);
     box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.1);
     */
-    outline: 2px solid govuk-colour('black');
   }
   &-in,
   &-out {
@@ -279,17 +284,15 @@
     text-indent: -5000px;
   }
   &-in {
-    background-image: svg-url('<svg width="31" height="31" viewBox="0 0 31 31" xmlns="http://www.w3.org/2000/svg"><rect width="13" height="3" x="9" y="14" fill="#6F777B" /><rect width="3" height="13" x="14" y="9" fill="#6F777B" /></svg>');
+    background-image: svg-url('<svg width="31" height="31" viewBox="0 0 31 31" xmlns="http://www.w3.org/2000/svg"><rect width="13" height="3" x="9" y="14" fill="#0b0c0c" /><rect width="3" height="13" x="14" y="9" fill="#0b0c0c" /></svg>');
   }
   &-out {
-    background-image: svg-url('<svg width="31" height="31" viewBox="0 0 31 31" xmlns="http://www.w3.org/2000/svg"><rect width="13" height="3" x="9" y="14" fill="#6F777B" /></svg>');
+    background-image: svg-url('<svg width="31" height="31" viewBox="0 0 31 31" xmlns="http://www.w3.org/2000/svg"><rect width="13" height="3" x="9" y="14" fill="#0b0c0c" /></svg>');
   }
   &-in:hover {
-    background-image: svg-url('<svg width="31" height="31" viewBox="0 0 31 31" xmlns="http://www.w3.org/2000/svg"><rect width="13" height="3" x="9" y="14" fill="#0b0c0c" /><rect width="3" height="13" x="14" y="9" fill="#0b0c0c" /></svg>');
     background-color: $govuk-border-colour;
   }
   &-out:hover {
-    background-image: svg-url('<svg width="31" height="31" viewBox="0 0 31 31" xmlns="http://www.w3.org/2000/svg"><rect width="13" height="3" x="9" y="14" fill="#0b0c0c" /></svg>');
     background-color: $govuk-border-colour;
   }
   &-in:focus {
@@ -297,7 +300,6 @@
   }
   &-in.focus-visible {
     background-color: $govuk-focus-colour;
-    background-image: svg-url('<svg width="31" height="31" viewBox="0 0 31 31" xmlns="http://www.w3.org/2000/svg"><rect width="13" height="3" x="9" y="14" fill="#0b0c0c" /><rect width="3" height="13" x="14" y="9" fill="#0b0c0c" /></svg>');
     outline: 0px;
     outline-offset: 0;
   }
@@ -306,7 +308,6 @@
   }
   &-out.focus-visible {
     background-color: $govuk-focus-colour;
-    background-image: svg-url('<svg width="31" height="31" viewBox="0 0 31 31" xmlns="http://www.w3.org/2000/svg"><rect width="13" height="3" x="9" y="14" fill="#0b0c0c" /></svg>');
     outline: 0px;
     outline-offset: 0;
   }
@@ -336,44 +337,47 @@
     box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.1);
     */
     outline: 2px solid govuk-colour('black');
-    &.focus-visible {
+    &:before {
+      content:'';
+      position: absolute;
+      left:0px;
+      right:0px;
+      top:0px;
+      bottom:0px;
+    }
+    &.focus-visible:before {
       outline: 3px solid $govuk-focus-colour;
-      outline-offset: -3px;
+      outline-offset: 2px;
     }
   }
-  .defra-map-info__container {
+  &__container {
     margin-right:36px;
   }
 }
 .defra-map-info__close {
   position:absolute;
-  top:5px;
-  right:5px;
-  width:31px;
-  height:31px;
+  top:0px;
+  right:0px;
+  width:41px;
+  height:41px;
   padding:0;
   border:0;
   cursor:pointer;
   background-color: #ffffff;
-  background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M7.5,5.005l5.005,-5.005l2.495,2.495l-5.005,5.005l5.005,5.005l-2.495,2.495l-5.005,-5.005l-5.005,5.005l-2.495,-2.495l5.005,-5.005l-5.005,-5.005l2.495,-2.495l5.005,5.005Z" fill="#6F777B"/></svg>');
+  background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M7.5,5.005l5.005,-5.005l2.495,2.495l-5.005,5.005l5.005,5.005l-2.495,2.495l-5.005,-5.005l-5.005,5.005l-2.495,-2.495l5.005,-5.005l-5.005,-5.005l2.495,-2.495l5.005,5.005Z" fill="#0b0c0c"/></svg>');
   background-size: 15px 15px;
-  background-position: 8px 8px;
+  background-position: 13px 13px;
   background-repeat: no-repeat;
   overflow: hidden;
   text-indent: -5000px;
   &:hover {
-    background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M7.5,5.005l5.005,-5.005l2.495,2.495l-5.005,5.005l5.005,5.005l-2.495,2.495l-5.005,-5.005l-5.005,5.005l-2.495,-2.495l5.005,-5.005l-5.005,-5.005l2.495,-2.495l5.005,5.005Z" fill="#0b0c0c"/></svg>');
     background-color: govuk-colour('mid-grey');
-    outline: 3px solid govuk-colour('mid-grey');
   }
   &:focus {
     outline:none;
   }
   &.focus-visible {
     background-color: $govuk-focus-colour;
-    background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M7.5,5.005l5.005,-5.005l2.495,2.495l-5.005,5.005l5.005,5.005l-2.495,2.495l-5.005,-5.005l-5.005,5.005l-2.495,-2.495l5.005,-5.005l-5.005,-5.005l2.495,-2.495l5.005,5.005Z" fill="#0b0c0c"/></svg>');
-    outline: 0px;
-    outline-offset: 0;
   }
 }
 // Viewport focus keyboard access tooltip

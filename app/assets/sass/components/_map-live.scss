@@ -6,7 +6,8 @@
 }
 .defra-map-key__item {
   display:block;
-  padding:0 15px;
+  margin:0 5px;
+  padding:0 10px;
   label {
     @include govuk-font($size: 16);
   }
