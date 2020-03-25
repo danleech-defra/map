@@ -23,24 +23,15 @@
     left:100%;
     top:0px;
     bottom:0px;
-    width:298px;
-    margin-left:2px;
+    width:300px;
   }
   /*
   -webkit-box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.1);
   -moz-box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.1);
   box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.1);
   */
-  outline: 2px solid govuk-colour('black');
-  &:before {
-    content:'';
-    position:absolute;
-    left:0px;
-    right:0px;
-    top:0px;
-    bottom:0px;
-  }
-  &.focus-visible:before {
+  outline:0px;
+  &.focus-visible {
     outline: 3px solid $govuk-focus-colour;
     outline-offset: -3px;
   }
@@ -199,22 +190,15 @@
 }
 .defra-map-key__container {
   position:absolute;
-  top:49px;
-  @include mq ($from: tablet) {
-    top:49px;
-  }
+  top:51px;
   bottom:0px;
   width:100%;
   overflow:auto;
 }
 .defra-map-key__title {
   display: block;
-  @include govuk-font($size: 24, $weight: bold);
+  @include govuk-font($size: 24, $weight: bold, $line-height: 51px);
   padding:0 15px;
-  line-height:49px;
-  @include mq ($from: tablet) {
-    line-height:49px;
-  }
 }
 
 // Map controls - close key
@@ -225,11 +209,8 @@
   position:absolute;
   right:5px;
   top:5px;
-  @include mq ($from: tablet) {
-    top:5px;
-  }
-  width:39px;
-  height:39px;
+  width:41px;
+  height:41px;
   margin:0;
   border:0;
   padding:0;
@@ -238,7 +219,7 @@
   background-color: #ffffff;
   background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M7.5,5.005l5.005,-5.005l2.495,2.495l-5.005,5.005l5.005,5.005l-2.495,2.495l-5.005,-5.005l-5.005,5.005l-2.495,-2.495l5.005,-5.005l-5.005,-5.005l2.495,-2.495l5.005,5.005Z" fill="#0b0c0c"/></svg>');
   background-size: 15px 15px;
-  background-position: 12px 12px;
+  background-position: 13px 13px;
   background-repeat: no-repeat;
   color: white;
   text-indent:-5000px;
@@ -336,18 +317,10 @@
     -moz-box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.1);
     box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.1);
     */
-    outline: 2px solid govuk-colour('black');
-    &:before {
-      content:'';
-      position: absolute;
-      left:0px;
-      right:0px;
-      top:0px;
-      bottom:0px;
-    }
-    &.focus-visible:before {
+    outline:0px;
+    &.focus-visible {
       outline: 3px solid $govuk-focus-colour;
-      outline-offset: 2px;
+      outline-offset: 0px;
     }
   }
   &__container {
