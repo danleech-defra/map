@@ -104,6 +104,10 @@ function LiveMap (containerId, options) {
   // Detect keyboard interaction on features
   let isKeyboardInteraction
 
+  //
+  // Private methods
+  //
+
   // Set map extent from querystring
   function setExtent (padding = [0, 0, 0, 0]) {
     const ext = getParameterByName('ext')

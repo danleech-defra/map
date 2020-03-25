@@ -36,6 +36,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   const mapElement = document.createElement('div')
   mapElement.className = 'defra-map'
   mapElement.setAttribute('role', 'dialog')
+  mapElement.setAttribute('tabindex', 0)
   mapElement.setAttribute('open', true)
   mapElement.setAttribute('aria-modal', true)
   mapElement.setAttribute('aria-label', 'Map view')
@@ -95,6 +96,13 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   tooltipElement.hidden = true
   viewport.appendChild(tooltipElement)
 
+  // Create zoom controls
+  const zoom = new Zoom({
+    className: 'defra-map-zoom',
+    target: mapElement
+  })
+  map.addControl(zoom)
+
   // Create feature information panel
   const infoElement = document.createElement('div')
   infoElement.id = 'info'
@@ -111,13 +119,6 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   infoElement.appendChild(closeInfoButton)
   infoElement.appendChild(infoContainer)
   mapElement.appendChild(infoElement)
-
-  // Create zoom controls
-  const zoom = new Zoom({
-    className: 'defra-map__zoom',
-    target: viewport
-  })
-  map.addControl(zoom)
 
   // Add a new history entry
   if (!(getParameterByName('v') === containerId)) {
@@ -150,9 +151,6 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   exitMapButton.className = hasHistory ? 'defra-map__back' : 'defra-map__exit'
   exitMapButton.appendChild(document.createTextNode('Exit map'))
   mapElement.insertBefore(exitMapButton, mapElement.firstChild)
-  if (isUserInteracton) {
-    exitMapButton.focus()
-  }
 
   // Create key
   const keyElement = document.createElement('div')
@@ -174,8 +172,8 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   keyElement.appendChild(keyContainer)
   mapElement.appendChild(keyElement)
 
-  // Get list of focusable elements from the key
-  // const allFocusElements = keyElement.querySelectorAll('button:not(:disabled), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+  // Set initial focus
+  viewport.focus()
 
   //
   // Events
@@ -274,6 +272,40 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
       }
     }
   }.bind(this))
+
+  // Trap focus within current dialog
+  mapElement.addEventListener('keydown', function (e) {
+    const dialog = document.activeElement.closest('div[role="dialog"]')
+    const focusableEls = dialog.querySelectorAll([
+      'a[href]:not([disabled])',
+      'button:not([disabled])',
+      'textarea:not([disabled])',
+      'input[type="text"]:not([disabled])',
+      'input[type="radio"]:not([disabled])',
+      'input[type="checkbox"]:not([disabled])',
+      'select:not([disabled])'
+    ].join(','))
+    console.log(focusableEls)
+    const firstFocusableEl = focusableEls[0]
+    const lastFocusableEl = focusableEls[focusableEls.length - 1]
+    const isTabPressed = (e.key === 'Tab' || e.keyCode === 9)
+    if (!isTabPressed) {
+      return
+    }
+    if (e.shiftKey) /* shift + tab */ {
+      if (document.activeElement === firstFocusableEl) {
+        console.log('Move to last focus')
+        lastFocusableEl.focus()
+        e.preventDefault()
+      }
+    } else /* tab */ {
+      if (document.activeElement === lastFocusableEl) {
+        console.log('Move to first focus')
+        firstFocusableEl.focus()
+        e.preventDefault()
+      }
+    }
+  })
 
   //
   // Public methods

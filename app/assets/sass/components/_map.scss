@@ -235,7 +235,7 @@
 }
 
 // Map controls - zoom
-.defra-map__zoom {
+.defra-map-zoom {
   display: none;
   @include mq ($from: tablet) {
     display: block;
