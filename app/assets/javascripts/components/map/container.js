@@ -41,6 +41,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   mapElement.setAttribute('open', true)
   mapElement.setAttribute('aria-modal', true)
   mapElement.setAttribute('aria-label', 'Map view')
+  mapElement.setAttribute('data-tabring', true)
   containerElement.appendChild(mapElement)
 
   // Set states
@@ -71,6 +72,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   const viewport = document.getElementsByClassName('ol-viewport')[0]
   viewport.id = 'viewport'
   viewport.className = `defra-map-viewport ${viewport.className}`
+  viewport.setAttribute('data-tabring', false)
 
   // Add class for focus styling
   const viewportFocusElement = viewport.getElementsByClassName('ol-overlaycontainer-stopevent')[0]
@@ -125,6 +127,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   infoElement.setAttribute('aria-modal', false)
   infoElement.setAttribute('aria-label', 'Feature information')
   infoElement.tabIndex = 0
+  infoElement.setAttribute('data-tabring', true)
   const closeInfoButton = document.createElement('button')
   closeInfoButton.className = 'defra-map-info__close'
   closeInfoButton.innerHTML = 'Close'
@@ -194,6 +197,9 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
     isTablet = tablet.matches
     isKeyOpen = (mapElement.classList.contains('defra-map--key-open') && isTablet) || !isTablet
     keyElement.setAttribute('role', isTablet ? 'dialog' : 'region')
+    keyElement.setAttribute('data-tabring', isTablet)
+    closeKeyButton.hidden = !isTablet
+    openKeyButton.hidden = !isTablet
     if (isTablet) {
       keyElement.setAttribute('open', isKeyOpen)
       keyElement.setAttribute('aria-modal', true)
@@ -279,9 +285,14 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   }.bind(this))
 
   // Trap focus within current dialog
-  mapElement.addEventListener('keydown', function (e) {
-    const dialog = document.activeElement.closest('div[role="dialog"]')
-    const focusableEls = dialog.querySelectorAll([
+  mapElement.addEventListener('keyup', function (e) {
+    const isTabPressed = (e.key === 'Tab' || e.keyCode === 9)
+    if (!isTabPressed) {
+      return
+    }
+    const tabring = document.activeElement.closest('[data-tabring="true"]')
+    const specificity = tabring.classList.contains('defra-map') ? '[data-tabring="false"] ' : ''
+    const selectors = [
       'a[href]:not([disabled])',
       'button:not([disabled])',
       'textarea:not([disabled])',
@@ -289,14 +300,10 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
       'input[type="radio"]:not([disabled])',
       'input[type="checkbox"]:not([disabled])',
       'select:not([disabled])'
-    ].join(','))
-    console.log(focusableEls)
+    ]
+    const focusableEls = tabring.querySelectorAll(selectors.map(i => specificity + i).join(','))
     const firstFocusableEl = focusableEls[0]
     const lastFocusableEl = focusableEls[focusableEls.length - 1]
-    const isTabPressed = (e.key === 'Tab' || e.keyCode === 9)
-    if (!isTabPressed) {
-      return
-    }
     if (e.shiftKey) /* shift + tab */ {
       if (document.activeElement === firstFocusableEl) {
         console.log('Move to last focus')

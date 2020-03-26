@@ -254,7 +254,6 @@ function LiveMap (containerId, options) {
     hideOverlays()
     visibleFeatures = getVisibleFeatures()
     if (visibleFeatures.length <= 9) {
-      container.hideTooltip()
       visibleFeatures.forEach(function (feature, i) {
         const overlayElement = document.createTextNode(i + 1)
         map.addOverlay(
@@ -266,8 +265,6 @@ function LiveMap (containerId, options) {
           })
         )
       })
-    } else {
-      container.showTooltip()
     }
   }
 
