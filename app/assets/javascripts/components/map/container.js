@@ -35,6 +35,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   const containerElement = document.getElementById(containerId)
   const mapElement = document.createElement('div')
   mapElement.className = 'defra-map'
+  mapElement.tabIndex = 0
   mapElement.setAttribute('role', 'dialog')
   mapElement.setAttribute('tabindex', 0)
   mapElement.setAttribute('open', true)
@@ -70,7 +71,6 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   const viewport = document.getElementsByClassName('ol-viewport')[0]
   viewport.id = 'viewport'
   viewport.className = `defra-map-viewport ${viewport.className}`
-  viewport.tabIndex = 0
 
   // Add class for focus styling
   const viewportFocusElement = viewport.getElementsByClassName('ol-overlaycontainer-stopevent')[0]
@@ -87,29 +87,43 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   // Get return focus id
   const returnFocusId = getParameterByName('rtn') || options.queryParams.rtn
 
+  // Create open key button
+  const openKeyButton = document.createElement('button')
+  openKeyButton.className = 'defra-map__open-key'
+  openKeyButton.innerHTML = 'Open key'
+  viewport.insertBefore(openKeyButton, viewport.firstChild)
+
+  // Create exit map button
+  const hasHistory = window.history.state ? window.history.state.hasHistory || false : false
+  const exitMapButton = document.createElement('button')
+  exitMapButton.className = hasHistory ? 'defra-map__back' : 'defra-map__exit'
+  exitMapButton.appendChild(document.createTextNode('Exit map'))
+  viewport.insertBefore(exitMapButton, viewport.firstChild)
+
   // Create viewport keyboard access tooltip
   const tooltipElement = document.createElement('div')
-  tooltipElement.innerHTML = 'Zoom in to select features using number keys'
-  tooltipElement.id = 'tooltip'
   tooltipElement.className = 'defra-map-tooltip'
+  tooltipElement.id = 'tooltip'
   tooltipElement.setAttribute('role', 'tooltip')
   tooltipElement.hidden = true
+  tooltipElement.innerHTML = 'Zoom in to select features using number keys'
   viewport.appendChild(tooltipElement)
 
   // Create zoom controls
   const zoom = new Zoom({
     className: 'defra-map-zoom',
-    target: mapElement
+    target: viewport
   })
   map.addControl(zoom)
 
   // Create feature information panel
   const infoElement = document.createElement('div')
-  infoElement.id = 'info'
   infoElement.className = 'defra-map-info'
+  infoElement.id = 'info'
   infoElement.setAttribute('role', 'dialog')
   infoElement.setAttribute('open', false)
-  infoElement.setAttribute('aria-labelledby', 'infoLabel')
+  infoElement.setAttribute('aria-modal', false)
+  infoElement.setAttribute('aria-label', 'Feature information')
   infoElement.tabIndex = 0
   const closeInfoButton = document.createElement('button')
   closeInfoButton.className = 'defra-map-info__close'
@@ -136,28 +150,10 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
     window.history.pushState(data, title, url)
   }
 
-  // Create key buttons
-  const openKeyButton = document.createElement('button')
-  openKeyButton.className = 'defra-map__open-key'
-  openKeyButton.innerHTML = 'Open key'
-  mapElement.insertBefore(openKeyButton, mapElement.firstChild)
-  const closeKeyButton = document.createElement('button')
-  closeKeyButton.className = 'defra-map-key__close'
-  closeKeyButton.innerHTML = 'Close key'
-
-  // Create exit map button
-  const hasHistory = window.history.state ? window.history.state.hasHistory || false : false
-  const exitMapButton = document.createElement('button')
-  exitMapButton.className = hasHistory ? 'defra-map__back' : 'defra-map__exit'
-  exitMapButton.appendChild(document.createTextNode('Exit map'))
-  mapElement.insertBefore(exitMapButton, mapElement.firstChild)
-
   // Create key
   const keyElement = document.createElement('div')
-  keyElement.id = 'key'
   keyElement.className = 'defra-map-key'
-  keyElement.setAttribute('role', 'dialog')
-  keyElement.setAttribute('open', true)
+  keyElement.id = 'key'
   keyElement.setAttribute('aria-labelledby', 'mapKeyLabel')
   keyElement.tabIndex = 0
   const keyTitle = document.createElement('span')
@@ -165,6 +161,9 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   keyTitle.className = 'defra-map-key__title'
   keyTitle.innerHTML = 'Key'
   keyElement.appendChild(keyTitle)
+  const closeKeyButton = document.createElement('button')
+  closeKeyButton.className = 'defra-map-key__close'
+  closeKeyButton.innerHTML = 'Close key'
   keyElement.appendChild(closeKeyButton)
   const keyContainer = document.createElement('div')
   keyContainer.className = 'defra-map-key__container'
@@ -191,11 +190,17 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   })
 
   // Mobile key
-  const mqListener = function (tablet) {
+  const mqListener = function (tablet) { // Upto tablet
     isTablet = tablet.matches
     isKeyOpen = (mapElement.classList.contains('defra-map--key-open') && isTablet) || !isTablet
-    keyElement.setAttribute('open', isKeyOpen)
-    keyElement.setAttribute('aria-modal', isTablet)
+    keyElement.setAttribute('role', isTablet ? 'dialog' : 'region')
+    if (isTablet) {
+      keyElement.setAttribute('open', isKeyOpen)
+      keyElement.setAttribute('aria-modal', true)
+    } else {
+      keyElement.removeAttribute('open')
+      keyElement.removeAttribute('aria-modal')
+    }
     viewport.tabIndex = isTablet && isKeyOpen ? -1 : 0
   }
   const mq = window.matchMedia('(max-width: 48.0625em)') // Need to ensure this is tied to GOVUK Frontend
