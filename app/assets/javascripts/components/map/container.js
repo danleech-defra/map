@@ -41,11 +41,10 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   mapElement.setAttribute('open', true)
   mapElement.setAttribute('aria-modal', true)
   mapElement.setAttribute('aria-label', 'Map view')
-  mapElement.setAttribute('data-tabring', true)
   containerElement.appendChild(mapElement)
 
   // Set states
-  let isKeyOpen, isInfoOpen, isTooltipOpen, isTablet
+  let isKeyOpen, isInfoOpen, isTooltipOpen, isMobile, isTablet
 
   // Determin if user opened map or page refresh
   let isUserInteracton = !(getParameterByName('v') && getParameterByName('v') === 'map')
@@ -71,8 +70,8 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   // Get reference to viewport
   const viewport = document.getElementsByClassName('ol-viewport')[0]
   viewport.id = 'viewport'
+  viewport.setAttribute('role', 'region')
   viewport.className = `defra-map-viewport ${viewport.className}`
-  viewport.setAttribute('data-tabring', false)
 
   // Add class for focus styling
   const viewportFocusElement = viewport.getElementsByClassName('ol-overlaycontainer-stopevent')[0]
@@ -88,6 +87,22 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
 
   // Get return focus id
   const returnFocusId = getParameterByName('rtn') || options.queryParams.rtn
+
+  // Add a new history entry
+  if (!(getParameterByName('v') === containerId)) {
+    // Advance history if button pressed
+    const data = { v: containerId, hasHistory: true }
+    const title = document.title
+    let url = window.location.pathname + window.location.search
+    url = addOrUpdateParameter(url, 'v', containerId)
+    if (options.queryParams) {
+      // Add any querystring parameters that may have been passed in
+      Object.keys(options.queryParams).forEach(function (key, index) {
+        url = addOrUpdateParameter(url, key, options.queryParams[key])
+      })
+    }
+    window.history.pushState(data, title, url)
+  }
 
   // Create open key button
   const openKeyButton = document.createElement('button')
@@ -127,7 +142,6 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   infoElement.setAttribute('aria-modal', false)
   infoElement.setAttribute('aria-label', 'Feature information')
   infoElement.tabIndex = 0
-  infoElement.setAttribute('data-tabring', true)
   const closeInfoButton = document.createElement('button')
   closeInfoButton.className = 'defra-map-info__close'
   closeInfoButton.innerHTML = 'Close'
@@ -136,22 +150,6 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   infoElement.appendChild(closeInfoButton)
   infoElement.appendChild(infoContainer)
   mapElement.appendChild(infoElement)
-
-  // Add a new history entry
-  if (!(getParameterByName('v') === containerId)) {
-    // Advance history if button pressed
-    const data = { v: containerId, hasHistory: true }
-    const title = document.title
-    let url = window.location.pathname + window.location.search
-    url = addOrUpdateParameter(url, 'v', containerId)
-    if (options.queryParams) {
-      // Add any querystring parameters that may have been passed in
-      Object.keys(options.queryParams).forEach(function (key, index) {
-        url = addOrUpdateParameter(url, key, options.queryParams[key])
-      })
-    }
-    window.history.pushState(data, title, url)
-  }
 
   // Create key
   const keyElement = document.createElement('div')
@@ -192,12 +190,24 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
     })
   })
 
-  // Mobile key
-  const mqListener = function (tablet) { // Upto tablet
-    isTablet = tablet.matches
+  // Mobile behavior
+  const mobileMediaQuery = window.matchMedia('(max-width: 40.0525em)')
+  const zoomButtons = document.querySelectorAll('.defra-map-zoom button')
+  const mobileListener = function (mobileMediaQuery) {
+    isMobile = mobileMediaQuery.matches
+    zoomButtons.forEach(function (button) {
+      button.hidden = isMobile
+    })
+  }
+  mobileListener(mobileMediaQuery)
+  mobileMediaQuery.addListener(mobileListener)
+
+  // Tablet (upto portrait) behavior
+  const tabletMediaQuery = window.matchMedia('(max-width: 48.0625em)')
+  const tabletListener = function (tabletMediaQuery) {
+    isTablet = tabletMediaQuery.matches
     isKeyOpen = (mapElement.classList.contains('defra-map--key-open') && isTablet) || !isTablet
     keyElement.setAttribute('role', isTablet ? 'dialog' : 'region')
-    keyElement.setAttribute('data-tabring', isTablet)
     closeKeyButton.hidden = !isTablet
     openKeyButton.hidden = !isTablet
     if (isTablet) {
@@ -209,9 +219,8 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
     }
     viewport.tabIndex = isTablet && isKeyOpen ? -1 : 0
   }
-  const mq = window.matchMedia('(max-width: 48.0625em)') // Need to ensure this is tied to GOVUK Frontend
-  mqListener(mq)
-  mq.addListener(mqListener)
+  tabletListener(tabletMediaQuery)
+  tabletMediaQuery.addListener(tabletListener)
 
   // Browser history change
   const popstate = function (e) {
@@ -284,35 +293,34 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
     }
   }.bind(this))
 
-  // Trap focus within current dialog
-  mapElement.addEventListener('keyup', function (e) {
+  // Trap focus within dialog
+  mapElement.addEventListener('keydown', function (e) {
     const isTabPressed = (e.key === 'Tab' || e.keyCode === 9)
     if (!isTabPressed) {
       return
     }
-    const tabring = document.activeElement.closest('[data-tabring="true"]')
-    const specificity = tabring.classList.contains('defra-map') ? '[data-tabring="false"] ' : ''
+    const tabring = document.activeElement.closest('[role="dialog"]')
+    const specificity = tabring.classList.contains('defra-map') ? '.defra-map [role="region"] ' : '#' + tabring.id + ' '
     const selectors = [
-      'a[href]:not([disabled])',
-      'button:not([disabled])',
-      'textarea:not([disabled])',
-      'input[type="text"]:not([disabled])',
-      'input[type="radio"]:not([disabled])',
-      'input[type="checkbox"]:not([disabled])',
-      'select:not([disabled])'
+      'a[href]:not([disabled]):not([hidden])',
+      'button:not([disabled]):not([hidden])',
+      'textarea:not([disabled]):not([hidden])',
+      'input[type="text"]:not([disabled]):not([hidden])',
+      'input[type="radio"]:not([disabled]):not([hidden])',
+      'input[type="checkbox"]:not([disabled]):not([hidden])',
+      'select:not([disabled]):not([hidden])',
+      ''
     ]
-    const focusableEls = tabring.querySelectorAll(selectors.map(i => specificity + i).join(','))
+    const focusableEls = document.querySelectorAll(selectors.map(i => specificity + i).join(','))
     const firstFocusableEl = focusableEls[0]
     const lastFocusableEl = focusableEls[focusableEls.length - 1]
     if (e.shiftKey) /* shift + tab */ {
       if (document.activeElement === firstFocusableEl) {
-        console.log('Move to last focus')
         lastFocusableEl.focus()
         e.preventDefault()
       }
     } else /* tab */ {
       if (document.activeElement === lastFocusableEl) {
-        console.log('Move to first focus')
         firstFocusableEl.focus()
         e.preventDefault()
       }
