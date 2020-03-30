@@ -293,9 +293,9 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
     }
   }.bind(this))
 
-  // Trap focus within dialog
+  // Constrain tab focus within dialog
   mapElement.addEventListener('keydown', function (e) {
-    const isTabPressed = (e.key === 'Tab' || e.keyCode === 9)
+    const isTabPressed = e.which === 9
     if (!isTabPressed) {
       return
     }
@@ -324,6 +324,19 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
         firstFocusableEl.focus()
         e.preventDefault()
       }
+    }
+  })
+
+  // Move tab focus between regions
+  mapElement.addEventListener('keydown', function (e) {
+    const isRegionKeyPressed = e.which === 117
+    if (!isRegionKeyPressed) {
+      return
+    }
+    if (e.shiftKey) /* shift + F6 */ {
+      console.log('Previous region')
+    } else /* F6 */ {
+      console.log('Next region')
     }
   })
 
