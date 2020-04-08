@@ -1,90 +1,99 @@
-<ul class="defra-map-key__section">
-  <li class="defra-map-key__item">
-    <div class="govuk-radios govuk-radios--small">
-      <div class="govuk-radios__item">
-        <input class="govuk-radios__input" id="mv" name="baseLayer" type="radio"
-          checked value="mv">
-        <label class="govuk-label govuk-radios__label" for="mv">
-          <span class="defra-map-key__symbol-container">
-            <span class="defra-map-key__symbol defra-map-key__symbol--map"></span>
-              Default view
-          </span>
-        </label>
+<div class="defra-map-key__section">
+  <span class="defra-map-key__section-title">Base map</span>
+  <ul>
+    <li class="defra-map-key__item">
+      <div class="govuk-radios govuk-radios--small">
+        <div class="govuk-radios__item">
+          <input class="govuk-radios__input" id="mv" name="baseLayer" type="radio"
+            checked value="mv">
+          <label class="govuk-label govuk-radios__label" for="mv">
+            <span class="defra-map-key__symbol-container">
+              <span class="defra-map-key__symbol defra-map-key__symbol--map"></span>
+                Default view
+            </span>
+          </label>
+        </div>
+        <div class="govuk-radios__item">
+          <input class="govuk-radios__input" id="sv" name="baseLayer"
+            type="radio" value="sv">
+          <label class="govuk-label govuk-radios__label" for="sv">
+            <span class="defra-map-key__symbol-container">
+              <span class="defra-map-key__symbol defra-map-key__symbol--satellite"></span>
+                Satellite view
+            </span>
+          </label>
+        </div>
       </div>
-      <div class="govuk-radios__item">
-        <input class="govuk-radios__input" id="sv" name="baseLayer"
-          type="radio" value="sv">
-        <label class="govuk-label govuk-radios__label" for="sv">
-          <span class="defra-map-key__symbol-container">
-            <span class="defra-map-key__symbol defra-map-key__symbol--satellite"></span>
-              Satellite view
-          </span>
-        </label>
+    </li>
+  </ul>
+</div>
+<div class="defra-map-key__section">
+  <span class="defra-map-key__section-title">Warnings and alerts</span>
+  <ul>
+    <li class="defra-map-key__item">
+      <div class="govuk-checkboxes govuk-checkboxes--small">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="ts" name="ts" type="checkbox" value="ts">
+          <label class="govuk-label govuk-checkboxes__label" for="ts">
+            <span class="defra-map-key__symbol-container">
+              <span class="defra-map-key__symbol defra-map-key__symbol--severe"></span>
+                Severe flood warning
+            </span>
+          </label>
+        </div>
       </div>
-    </div>
-  </li>
-</ul>
-<ul class="defra-map-key__section defra-map-key__section--layers">
-  <li class="defra-map-key__item">
-    <div class="govuk-checkboxes govuk-checkboxes--small">
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="ts" name="ts" type="checkbox" value="ts">
-        <label class="govuk-label govuk-checkboxes__label" for="ts">
-          <span class="defra-map-key__symbol-container">
-            <span class="defra-map-key__symbol defra-map-key__symbol--severe"></span>
-              Severe flood warning
-          </span>
-        </label>
+    </li>
+    <li class="defra-map-key__item">
+      <div class="govuk-checkboxes govuk-checkboxes--small">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="tw" name="tw" type="checkbox" value="tw">
+          <label class="govuk-label govuk-checkboxes__label" for="tw">
+            <span class="defra-map-key__symbol-container">
+              <span class="defra-map-key__symbol defra-map-key__symbol--warning"></span>
+                Flood warning
+            </span>
+          </label>
+        </div>
       </div>
-    </div>
-  </li>
-  <li class="defra-map-key__item">
-    <div class="govuk-checkboxes govuk-checkboxes--small">
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="tw" name="tw" type="checkbox" value="tw">
-        <label class="govuk-label govuk-checkboxes__label" for="tw">
-          <span class="defra-map-key__symbol-container">
-            <span class="defra-map-key__symbol defra-map-key__symbol--warning"></span>
-              Flood warning
-          </span>
-        </label>
+    </li>
+    <li class="defra-map-key__item">
+      <div class="govuk-checkboxes govuk-checkboxes--small">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="ta" name="ta" type="checkbox" value="ta">
+          <label class="govuk-label govuk-checkboxes__label" for="ta">
+            <span class="defra-map-key__symbol-container">
+              <span class="defra-map-key__symbol defra-map-key__symbol--alert"></span>
+                Flood alert
+            </span>
+          </label>
+        </div>
       </div>
-    </div>
-  </li>
-  <li class="defra-map-key__item">
-    <div class="govuk-checkboxes govuk-checkboxes--small">
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="ta" name="ta" type="checkbox" value="ta">
-        <label class="govuk-label govuk-checkboxes__label" for="ta">
-          <span class="defra-map-key__symbol-container">
-            <span class="defra-map-key__symbol defra-map-key__symbol--alert"></span>
-              Flood alert
-          </span>
-        </label>
+    </li>
+  </ul>
+</div>
+<div class="defra-map-key__section">
+  <span class="defra-map-key__section-title">Water level measurements</span>
+  <ul>
+    <li class="defra-map-key__item">
+      <div class="govuk-checkboxes govuk-checkboxes--small">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="st" name="st" type="checkbox" value="st">
+          <label class="govuk-label govuk-checkboxes__label" for="st">
+            <span class="defra-map-key__symbol-container">
+              <span class="defra-map-key__symbol defra-map-key__symbol--high">Symbol</span>
+              River level (high)
+            </span>
+            <span class="defra-map-key__symbol-container defra-map-key__symbol-container--multi">
+              <span class="defra-map-key__symbol defra-map-key__symbol--normal">Symbol</span>
+              River level (normal)
+            </span>
+            <span class="defra-map-key__symbol-container defra-map-key__symbol-container--multi">
+              <span class="defra-map-key__symbol defra-map-key__symbol--station">Symbol</span>
+              Sea level
+            </span>
+          </label>
+        </div>
       </div>
-    </div>
-  </li>
-</ul>
-<ul class="defra-map-key__section defra-map-key__section--layers">
-  <li class="defra-map-key__item">
-    <div class="govuk-checkboxes govuk-checkboxes--small">
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="st" name="st" type="checkbox" value="st">
-        <label class="govuk-label govuk-checkboxes__label" for="st">
-          <span class="defra-map-key__symbol-container">
-            <span class="defra-map-key__symbol defra-map-key__symbol--station">Symbol</span>
-            River and sea levels
-          </span>
-          <span class="defra-map-key__symbol-container defra-map-key__symbol-container--multi">
-            <span class="defra-map-key__symbol defra-map-key__symbol--high">Symbol</span>
-              High
-          </span>
-          <span class="defra-map-key__symbol-container defra-map-key__symbol-container--multi">
-            <span class="defra-map-key__symbol defra-map-key__symbol--normal">Symbol</span>
-              Normal
-          </span>
-        </label>
-      </div>
-    </div>
-  </li>
-</ul>
+    </li>
+  </ul>
+</div>

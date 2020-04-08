@@ -1,8 +1,17 @@
 // Key
 .defra-map-key__section {
-  padding:0;
-  margin:0;
-  list-style-type: none;
+  ul {
+    padding:0;
+    margin:0;
+    list-style-type: none;
+  }
+}
+.defra-map-key__section-title {
+  @include govuk-font($size: 16, $weight: bold);
+  display: block;
+  margin:0 5px;
+  padding:15px 10px 0px;
+  border-top:1px solid $govuk-border-colour;
 }
 .defra-map-key__item {
   display:block;
@@ -13,7 +22,6 @@
   }
 }
 .defra-map-key__item:first-child {
-  border-top:1px solid $govuk-border-colour;
   padding-top:10px;
 }
 .defra-map-key__item:last-child {
