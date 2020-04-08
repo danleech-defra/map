@@ -120,8 +120,8 @@ function LiveMap (containerId, options) {
   function toggleLayerVisibility () {
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
     dataLayers.forEach(function (layer) {
-      const isVisble = lyrs.some(lyr => layer.get('featureCodes').includes(lyr))
-      layer.setVisible(isVisble)
+      const isVisible = lyrs.some(lyr => layer.get('featureCodes').includes(lyr))
+      layer.setVisible(isVisible)
     })
   }
 
@@ -138,19 +138,28 @@ function LiveMap (containerId, options) {
     }
   }
 
-  // Show or hide warning types
-  function toggleWarningTypes () {
+  // Show or hide features within layers
+  function toggleFeatureVisibility () {
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
-    // Set warning feature active state
-    warnings.getSource().forEachFeature(function (warning) {
-      const state = warning.get('state')
-      const isActive = (
-        (state === 11 && lyrs.includes('ts')) ||
-        (state === 12 && lyrs.includes('tw')) ||
-        (state === 13 && lyrs.includes('ta')) ||
-        (state === 14 && lyrs.includes('tr'))
-      )
-      warning.set('isActive', isActive)
+    dataLayers.forEach(function (layer) {
+      layer.getSource().forEachFeature(function (feature) {
+        const ref = layer.get('ref')
+        const state = feature.get('state')
+        const isVisible = (
+          // Warnings (excluding removed)
+          (state === 11 && lyrs.includes('ts')) ||
+          (state === 12 && lyrs.includes('tw')) ||
+          (state === 13 && lyrs.includes('ta')) ||
+          // Stations
+          (state === 21 && lyrs.includes('sh')) ||
+          (ref === 'stations' && state !== 21 && lyrs.includes('st')) ||
+          // Rainfall
+          (ref === 'rainfall' && (lyrs.includes('rw') || lyrs.includes('rd'))) ||
+          // Impacts
+          (ref === 'impacts' && lyrs.includes('hi'))
+        )
+        feature.set('isVisible', isVisible)
+      })
     })
   }
 
@@ -235,8 +244,8 @@ function LiveMap (containerId, options) {
     layers.forEach(function (layer) {
       if (visibleFeatures.length > 9) return true
       layer.getSource().forEachFeatureIntersectingExtent(extent, function (feature) {
-        if (layer.get('ref') === 'warnings' && (!feature.get('isActive') || feature.get('state') === 14)) {
-          return false // Exclude hidden (not isActive) warnings and warnings removed
+        if (!feature.get('isVisible')) {
+          return false
         }
         visibleFeatures.push({
           id: feature.getId(),
@@ -308,14 +317,16 @@ function LiveMap (containerId, options) {
       if (this.getState() === 'ready') {
         // Remove ready event when layer is ready
         unByKey(change)
-        // Set target area states to display
         if (layer.get('ref') === 'warnings') {
           // Add optional target area
           if (targetArea) {
             addTargetArea()
           }
-          toggleWarningTypes()
-          // Store reference to warnings source for use in vector tiles style function
+        }
+        // Set feature visibility after all features have loaded
+        toggleFeatureVisibility()
+        // Store reference to warnings source for use in vector tiles style function
+        if (layer.get('ref') === 'warnings') {
           maps.warningsSource = warnings.getSource()
           map.addLayer(targetAreaPolygons)
         }
@@ -388,7 +399,7 @@ function LiveMap (containerId, options) {
       lyrs = lyrs.join(',')
       replaceHistory('lyr', lyrs)
       toggleLayerVisibility()
-      toggleWarningTypes()
+      toggleFeatureVisibility()
       restyleTargetAreaPolygons()
       if (isKeyboardInteraction) {
         showOverlays()

@@ -28,7 +28,7 @@
   </ul>
 </div>
 <div class="defra-map-key__section">
-  <span class="defra-map-key__section-title">Warnings and alerts</span>
+  <span class="defra-map-key__section-title">Flood warnings and alerts</span>
   <ul>
     <li class="defra-map-key__item">
       <div class="govuk-checkboxes govuk-checkboxes--small">
@@ -72,24 +72,78 @@
   </ul>
 </div>
 <div class="defra-map-key__section">
+  <span class="defra-map-key__section-title">Past flood impacts</span>
+  <ul>
+    <li class="defra-map-key__item">
+      <div class="govuk-checkboxes govuk-checkboxes--small">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="hi" name="hi" type="checkbox" value="hi">
+          <label class="govuk-label govuk-checkboxes__label" for="hi">
+            <span class="defra-map-key__symbol-container">
+              <span class="defra-map-key__symbol defra-map-key__symbol--impact">Symbol</span>
+              Location of past impact
+            </span>
+          </label>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
+<div class="defra-map-key__section">
   <span class="defra-map-key__section-title">Water level measurements</span>
   <ul>
+    <li class="defra-map-key__item">
+      <div class="govuk-checkboxes govuk-checkboxes--small">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="sh" name="sh" type="checkbox" value="sh">
+          <label class="govuk-label govuk-checkboxes__label" for="sh">
+            <span class="defra-map-key__symbol-container">
+              <span class="defra-map-key__symbol defra-map-key__symbol--high">Symbol</span>
+              High river level
+            </span>
+          </label>
+        </div>
+      </div>
+    </li>
     <li class="defra-map-key__item">
       <div class="govuk-checkboxes govuk-checkboxes--small">
         <div class="govuk-checkboxes__item">
           <input class="govuk-checkboxes__input" id="st" name="st" type="checkbox" value="st">
           <label class="govuk-label govuk-checkboxes__label" for="st">
             <span class="defra-map-key__symbol-container">
-              <span class="defra-map-key__symbol defra-map-key__symbol--high">Symbol</span>
-              River level (high)
-            </span>
-            <span class="defra-map-key__symbol-container defra-map-key__symbol-container--multi">
-              <span class="defra-map-key__symbol defra-map-key__symbol--normal">Symbol</span>
-              River level (normal)
-            </span>
-            <span class="defra-map-key__symbol-container defra-map-key__symbol-container--multi">
               <span class="defra-map-key__symbol defra-map-key__symbol--station">Symbol</span>
-              Sea level
+              River, sea or groundwater level
+            </span>
+          </label>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
+<div class="defra-map-key__section">
+  <span class="defra-map-key__section-title">Rainfall measurements</span>
+  <ul>
+    <li class="defra-map-key__item">
+      <div class="govuk-checkboxes govuk-checkboxes--small">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="rw" name="rw" type="checkbox" value="rw">
+          <label class="govuk-label govuk-checkboxes__label" for="rw">
+            <span class="defra-map-key__symbol-container">
+              <span class="defra-map-key__symbol defra-map-key__symbol--wet">Symbol</span>
+              Rainfall (wet)
+            </span>
+          </label>
+        </div>
+      </div>
+    </li>
+    <li class="defra-map-key__item">
+      <div class="govuk-checkboxes govuk-checkboxes--small">
+        <div class="govuk-checkboxes__item">
+          <input class="govuk-checkboxes__input" id="rd" name="rd" type="checkbox" value="rd">
+          <label class="govuk-label govuk-checkboxes__label" for="rd">
+            <span class="defra-map-key__symbol-container">
+              <span class="defra-map-key__symbol defra-map-key__symbol--dry">Symbol</span>
+              Rainfall (dry)
             </span>
           </label>
         </div>
