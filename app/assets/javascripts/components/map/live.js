@@ -146,15 +146,16 @@ function LiveMap (containerId, options) {
         const ref = layer.get('ref')
         const state = feature.get('state')
         const isVisible = (
-          // Warnings (excluding removed)
+          // Warnings
           (state === 11 && lyrs.includes('ts')) ||
           (state === 12 && lyrs.includes('tw')) ||
           (state === 13 && lyrs.includes('ta')) ||
+          (state === 14 && lyrs.includes('tr')) ||
           // Stations
           (state === 21 && lyrs.includes('sh')) ||
           (ref === 'stations' && state !== 21 && lyrs.includes('st')) ||
           // Rainfall
-          (ref === 'rainfall' && (lyrs.includes('rw') || lyrs.includes('rd'))) ||
+          (ref === 'rainfall' && lyrs.includes('rf')) ||
           // Impacts
           (ref === 'impacts' && lyrs.includes('hi'))
         )
