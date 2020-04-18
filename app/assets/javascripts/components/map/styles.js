@@ -2,7 +2,7 @@
 /*
 Sets up the window.flood.maps styles objects
 */
-import { Style, Icon, Fill, Stroke } from 'ol/style'
+import { Style, Icon, Fill, Stroke, Circle } from 'ol/style'
 
 window.flood.maps.styles = {
   // Primarily vector tiles
@@ -135,11 +135,13 @@ window.flood.maps.styles = {
   // Station centroids
   stations: (feature, resolution) => {
     if (!feature.get('isVisible')) {
-      return new Style({})
+      return null
     }
     const state = feature.get('state')
     const isSelected = feature.get('isSelected')
     const isBigSymbol = resolution <= window.flood.maps.symbolThreshold
+    return icons.png
+    /*
     const dataUri = {
       default: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'%3E%3Ccircle cx='25' cy='25' r='8.5' style='fill:%23003078;stroke:%23fff;stroke-width:1px;'/%3E%3Ccircle cx='25' cy='25' r='5' style='fill:%23fff;'/%3E%3C/svg%3E`,
       defaultSelected: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 38 38'%3E%3Ccircle cx='18.75' cy='18.75' r='10.5' style='fill:%230b0c0c;stroke:%23fd0;stroke-width:6px;'/%3E%3Ccircle cx='18.75' cy='18.75' r='4.875' style='fill:%23fff;stroke:%23003078;stroke-width:2.25px;'/%3E%3C/svg%3E`,
@@ -165,12 +167,15 @@ window.flood.maps.styles = {
 
     return new Style({
       image: new Icon({
-        src: source,
-        imgSize: [50, 50],
-        anchor: [0.5, 0.5]
+        // src: source,
+        src: '/public/images/symbol.png',
+        imgSize: [100, 100],
+        anchor: [0.5, 0.5],
+        scale: 0.5
       }),
       zIndex: zIndex
     })
+    */
   },
 
   // Impact centroids
@@ -325,17 +330,13 @@ const pattern = (style, isSelected) => {
   return ctx.createPattern(canvas, 'repeat')
 }
 
-const icon = () => {
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
-  const dpr = window.devicePixelRatio || 1
-  canvas.width = 9 * dpr
-  canvas.height = 9 * dpr
-  ctx.scale(dpr, dpr)
-  ctx.beginPath()
-  ctx.arc(4.5, 4.5, 8.5, 0, 2 * Math.PI)
-  ctx.strokeStyle = '#003078'
-  ctx.lineWidth = 3
-  ctx.stroke()
-  return canvas
+const icons = {
+  png: new Style({
+    image: new Icon({ src: '/public/images/symbol.png',
+      imgSize: [100, 100],
+      anchor: [0.5, 0.5],
+      scale: 0.5
+    }),
+    zIndex: 4
+  })
 }

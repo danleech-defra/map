@@ -5,7 +5,6 @@ window.flood = {
   utils: {
     xhr: (url, callback) => {
       const xmlhttp = new window.XMLHttpRequest()
-
       xmlhttp.onreadystatechange = () => {
         if (this.readyState === 4 && this.status === 200) {
           try {
@@ -16,7 +15,6 @@ window.flood = {
           }
         }
       }
-
       xmlhttp.open('GET', url, true)
       xmlhttp.send()
     },

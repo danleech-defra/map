@@ -4,8 +4,8 @@ console.log(path)
 console.log(__dirname)
 
 module.exports = {
-  mode: 'development', // 'development' or 'production',
-  devtool: 'source-map', // 'source-map' or 'none',
+  mode: 'production', // 'development' or 'production',
+  devtool: 'none', // 'source-map' or 'none',
   entry: {
     index: './app/assets/javascripts/pages/index'
   },

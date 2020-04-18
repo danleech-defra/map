@@ -46,11 +46,20 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  &.focus-visible > .defra-map-viewport__focus-element {
+  background-color: #A9D3DF;
+}
+.defra-map-viewport__focus-element {
+  position:absolute;
+  left:0px;
+  right:0px;
+  top:0px;
+  bottom:0px;
+  pointer-events: none;
+  &.focus-visible {
     outline: 3px solid $govuk-focus-colour;
     outline-offset: -3px;
   }
-  background-color: #A9D3DF;
+  z-index: 2;
 }
 
 // Map controls - exit

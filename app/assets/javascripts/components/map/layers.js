@@ -35,6 +35,7 @@ window.flood.maps.layers = {
         url: 'http://localhost:8080/geoserver/gwc/service/wmts?request=GetTile&service=wmts&version=1.0.0&layer=flood:nuts1&tilematrix=EPSG:900913:{z}&tilematrixset=EPSG:900913&format=application/vnd.mapbox-vector-tile&tilecol={x}&tilerow={y}'
       }),
       renderMode: 'hybrid',
+      extent: window.flood.maps.extent,
       style: window.flood.maps.styles.nuts1,
       zIndex: 1
     })
@@ -50,6 +51,7 @@ window.flood.maps.layers = {
         url: 'http://localhost:8080/geoserver/gwc/service/wmts?request=GetTile&service=wmts&version=1.0.0&layer=flood:target_area&tilematrix=EPSG:900913:{z}&tilematrixset=EPSG:900913&format=application/vnd.mapbox-vector-tile&tilecol={x}&tilerow={y}'
       }),
       renderMode: 'hybrid',
+      extent: window.flood.maps.extent,
       style: window.flood.maps.styles.targetAreaPolygons,
       maxResolution: window.flood.maps.symbolThreshold,
       zIndex: 1

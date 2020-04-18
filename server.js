@@ -9,6 +9,7 @@ const nunjucks = require('nunjucks')
 const sessionInCookie = require('client-sessions')
 const sessionInMemory = require('express-session')
 const cookieParser = require('cookie-parser')
+const compression = require('compression')
 
 // Run before other code to make sure variables from .env are available
 dotenv.config()
@@ -39,6 +40,7 @@ try {
 }
 
 const app = express()
+app.use(compression())
 const documentationApp = express()
 
 if (useV6) {

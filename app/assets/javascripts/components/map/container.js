@@ -35,9 +35,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   const containerElement = document.getElementById(containerId)
   const mapElement = document.createElement('div')
   mapElement.className = 'defra-map'
-  mapElement.tabIndex = 0
   mapElement.setAttribute('role', 'dialog')
-  mapElement.setAttribute('tabindex', 0)
   mapElement.setAttribute('open', true)
   mapElement.setAttribute('aria-modal', true)
   mapElement.setAttribute('aria-label', 'Map view')
@@ -72,10 +70,6 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   viewport.id = 'viewport'
   viewport.setAttribute('role', 'region')
   viewport.className = `defra-map-viewport ${viewport.className}`
-
-  // Add class for focus styling
-  const viewportFocusElement = viewport.getElementsByClassName('ol-overlaycontainer-stopevent')[0]
-  viewportFocusElement.classList.add('defra-map-viewport__focus-element')
 
   // Get a reference to keyboardPan interaction
   let keyboardPan
@@ -116,6 +110,12 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   exitMapButton.className = hasHistory ? 'defra-map__back' : 'defra-map__exit'
   exitMapButton.appendChild(document.createTextNode('Exit map'))
   viewport.insertBefore(exitMapButton, viewport.firstChild)
+
+  // Viewport focus element (cant be parent of mapElement)
+  const viewportFocusElement = document.createElement('div')
+  viewportFocusElement.className = 'defra-map-viewport__focus-element'
+  viewportFocusElement.tabIndex = 0
+  viewport.insertBefore(viewportFocusElement, viewport.firstChild)
 
   // Create viewport keyboard access tooltip
   const tooltipElement = document.createElement('div')
@@ -173,7 +173,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   mapElement.appendChild(keyElement)
 
   // Set initial focus
-  viewport.focus()
+  viewportFocusElement.focus()
 
   //
   // Events
@@ -217,7 +217,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
       keyElement.removeAttribute('open')
       keyElement.removeAttribute('aria-modal')
     }
-    viewport.tabIndex = isTablet && isKeyOpen ? -1 : 0
+    viewportFocusElement.tabIndex = isTablet && isKeyOpen ? -1 : 0
   }
   tabletListener(tabletMediaQuery)
   tabletMediaQuery.addListener(tabletListener)
@@ -245,7 +245,6 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   // Map click
   map.on('click', function (e) {
     isUserInteracton = true
-    document.activeElement.blur()
     // Hide key
     if (isTablet && isKeyOpen) {
       this.closeKey()
@@ -255,6 +254,11 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
       this.closeInfo()
     }
   }.bind(this))
+
+  // Move focus back to mapElement on mouse down
+  mapElement.addEventListener('pointerdown', function (e) {
+    document.activeElement.blur()
+  })
 
   // Exit map click
   exitMapButton.addEventListener('click', function (e) {
@@ -356,7 +360,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   this.openKey = function () {
     isKeyOpen = true
     mapElement.classList.add('defra-map--key-open')
-    viewport.tabIndex = -1
+    viewportFocusElement.tabIndex = -1
     keyElement.setAttribute('open', true)
     keyElement.setAttribute('aria-modal', true)
     this.closeInfo()
@@ -366,7 +370,7 @@ window.flood.maps.MapContainer = function MapContainer (containerId, options) {
   this.closeKey = function () {
     isKeyOpen = !isTablet
     mapElement.classList.remove('defra-map--key-open')
-    viewport.tabIndex = 0
+    viewportFocusElement.tabIndex = 0
     keyElement.setAttribute('open', isKeyOpen)
     keyElement.setAttribute('aria-modal', isTablet)
     openKeyButton.focus()
