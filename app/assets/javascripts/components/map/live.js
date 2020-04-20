@@ -16,7 +16,7 @@ const maps = window.flood.maps
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
 const MapContainer = maps.MapContainer
 
-function LiveMap (containerId, options) {
+function LiveMap (btnContainerId, mapContainerId, options) {
   // options
   const queryParams = options.queryParams
   const targetArea = options.targetArea
@@ -48,9 +48,9 @@ function LiveMap (containerId, options) {
   const selected = maps.layers.selected()
 
   const defaultLayers = [
-    // road,
+    road,
     satellite,
-    nuts1,
+    // nuts1,
     selected
   ]
 
@@ -80,11 +80,11 @@ function LiveMap (containerId, options) {
   }
 
   // Create MapContainer
-  const container = new MapContainer(containerId, containerOptions)
+  const container = new MapContainer(btnContainerId, mapContainerId, containerOptions)
   const closeInfoButton = container.closeInfoButton
   const viewport = container.viewport
   const map = container.map
-  const mapElement = container.mapElement
+  const containerElement = container.containerElement
 
   // Set selected feature id from querystring
   let selectedFeatureId = getParameterByName('sid') || ''
@@ -221,7 +221,7 @@ function LiveMap (containerId, options) {
 
   // Toggle key symbols based on resolution
   function toggleKeySymbol (resolution) {
-    forEach(mapElement.querySelectorAll('.defra-map-key__symbol'), function (symbol) {
+    forEach(containerElement.querySelectorAll('.defra-map-key__symbol'), function (symbol) {
       const isBigZoom = resolution <= containerOptions.maxBigZoom
       if (isBigZoom) {
         symbol.classList.add('defra-map-key__symbol--big')
@@ -233,7 +233,7 @@ function LiveMap (containerId, options) {
 
   // Function update url and replace history state
   function replaceHistory (queryParam, value) {
-    const data = { v: containerId, hasHistory: container.hasHistory }
+    const data = { v: mapContainerId, hasHistory: container.hasHistory }
     const url = addOrUpdateParameter(window.location.pathname + window.location.search, queryParam, value)
     const title = document.title
     window.history.replaceState(data, title, url)
@@ -432,14 +432,14 @@ function LiveMap (containerId, options) {
   })
 
   // Clear selected feature when pressing escape
-  mapElement.addEventListener('keyup', function (e) {
+  containerElement.addEventListener('keyup', function (e) {
     if (e.keyCode === 27 && selectedFeatureId !== '') {
       setSelectedFeature()
     }
   })
 
   // Listen for number keys
-  mapElement.addEventListener('keyup', function (e) {
+  containerElement.addEventListener('keyup', function (e) {
     if (visibleFeatures.length <= 9) {
       let index = -1
       if ((e.keyCode - 48) >= 1 && (e.keyCode - 48) <= visibleFeatures.length) {
@@ -459,6 +459,25 @@ function LiveMap (containerId, options) {
     hideOverlays()
   })
 
+  // Create LiveMap if history changes
+  const popstate = function (e) {
+    console.log(e)
+    if (e && e.state) {
+      console.log('Live popstate')
+      window.removeEventListener('popstate', popstate)
+      return new LiveMap(btnContainerId, mapContainerId, { targetArea: options.targetArea })
+    }
+  }
+  window.addEventListener('popstate', popstate)
+ /*
+  window.addEventListener('popstate', function (e) {
+    if (e && e.state) {
+      console.log('Live popstate')
+      return new LiveMap(btnContainerId, mapContainerId, { targetArea: options.targetArea })
+    }
+  })
+  */
+
   //
   // Public properties
   //
@@ -471,6 +490,22 @@ function LiveMap (containerId, options) {
 // onto the `maps` object.
 // (This is done mainly to avoid the rule
 // "do not use 'new' for side effects. (no-new)")
-maps.createLiveMap = function (containerId, options) {
-  return new LiveMap(containerId, options)
+maps.createLiveMap = function (btnContainerId, mapContainerId, options = {}) {
+  const btnContainer = document.getElementById(btnContainerId)
+  const mapContainer = document.getElementById(mapContainerId)
+  // Create LiveMap on button click
+  if (btnContainer && mapContainer) {
+    const button = document.createElement('button')
+    button.id = btnContainerId
+    button.innerText = options.btnText || 'View map'
+    button.className = options.btnClasses || 'defra-button-map'
+    button.addEventListener('click', function (e) {
+      return new LiveMap(btnContainerId, mapContainerId, options)
+    })
+    btnContainer.parentNode.replaceChild(button, btnContainer)
+  }
+  // Create LiveMap if querystring is present
+  if (window.flood.utils.getParameterByName('v') === 'map') {
+    return new LiveMap(btnContainerId, mapContainerId, { targetArea: options.targetArea })
+  }
 }
