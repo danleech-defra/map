@@ -77,22 +77,6 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   })
   container.isMouseOverButton = false
 
-  // Add a new history entry
-  if (!(getParameterByName('v') === containerId)) {
-    // Advance history if button pressed
-    const data = { v: containerId, hasHistory: true }
-    const title = document.title
-    let url = window.location.pathname + window.location.search
-    url = addOrUpdateParameter(url, 'v', containerId)
-    if (options.queryParams) {
-      // Add any querystring parameters that may have been passed in
-      Object.keys(options.queryParams).forEach(function (key, index) {
-        url = addOrUpdateParameter(url, key, options.queryParams[key])
-      })
-    }
-    window.history.pushState(data, title, url)
-  }
-
   // Create open key button
   const openKeyButton = document.createElement('button')
   openKeyButton.className = 'defra-map__open-key'
