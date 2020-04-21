@@ -24,16 +24,8 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   // Prorotype kit only - remove in production
   options.keyTemplate = `public/templates/${options.keyTemplate}`
 
-  // Prefix title and hide non-map elements
-  const bodyElements = document.querySelectorAll(`body > :not([id="map"]):not(script)`)
-  document.title = `Map view: ${document.title}`
-  bodyElements.forEach(function (node) {
-    node.classList.add('defra-map-hidden')
-  })
-
   // Create container element
   const containerElement = document.getElementById(containerId)
-  const containerElementOuterHTML = containerElement.outerHTML
   containerElement.className = 'defra-map'
   containerElement.setAttribute('role', 'dialog')
   containerElement.setAttribute('open', true)
@@ -209,22 +201,6 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   }
   tabletListener(tabletMediaQuery)
   tabletMediaQuery.addListener(tabletListener)
-
-  // Browser history change
-  const popstate = function (e) {
-    console.log(e)
-    window.removeEventListener('popstate', popstate)
-    // Remove all map elements from the DOM
-    containerElement.outerHTML = containerElementOuterHTML
-    // Remove title prefix and reinstate non-map elements
-    document.title = document.title.replace('Map view: ', '')
-    bodyElements.forEach(function (node) {
-      node.classList.remove('defra-map-hidden')
-    })
-    // Return focus
-    document.getElementById(btnId).focus()
-  }
-  window.addEventListener('popstate', popstate)
 
   // Map click
   map.on('click', function (e) {
