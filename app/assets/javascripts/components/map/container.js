@@ -12,8 +12,6 @@ import { defaults as defaultControls, Zoom } from 'ol/control'
 import { Map } from 'ol'
 import { KeyboardPan, DragPan } from 'ol/interaction'
 
-const { addOrUpdateParameter, getParameterByName } = window.flood.utils
-
 window.flood.maps.MapContainer = function MapContainer (btnId, containerId, options) {
   // Get a reference to this
   const container = this
@@ -96,7 +94,7 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   tooltipElement.id = 'tooltip'
   tooltipElement.setAttribute('role', 'tooltip')
   tooltipElement.hidden = true
-  tooltipElement.innerHTML = 'Zoom in to select features using number keys'
+  tooltipElement.innerHTML = 'Keyboard access guidelines'
   viewport.appendChild(tooltipElement)
 
   // Create zoom controls
@@ -220,9 +218,10 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
     }
   })
 
-  // Move focus back to containerElement on mouse down
+  // Move focus back to viewport on mouse down
   containerElement.addEventListener('pointerdown', function (e) {
-    document.activeElement.blur()
+    viewport.focus()
+    viewport.removeAttribute('keyboard-focus')
   })
 
   // Exit map click

@@ -10,16 +10,6 @@
     padding:0;
     border-radius: 0;
     cursor:pointer;
-    &:focus {
-        outline:0px;
-    }
-    &.focus-visible {
-        outline:3px solid transparent;
-        background-color: $govuk-focus-colour;
-        color: $govuk-text-colour !important;
-        box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
-        text-decoration: none;
-    }
     &:active {
         color: $govuk-text-colour !important;
     }
@@ -29,6 +19,16 @@
     &-s {
         @extend .defra-button-text;
         @extend .govuk-body-s;
+    }
+    &:focus {
+        outline:0px;
+    }
+    &:focus[keyboard-focus] {
+        outline:3px solid transparent;
+        background-color: $govuk-focus-colour;
+        color: $govuk-text-colour !important;
+        box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
+        text-decoration: none;
     }
     &::-moz-focus-inner {
         border: 0;

@@ -1,12 +1,15 @@
 'use strict'
 // import '../components/nunjucks'
+import keyboardFocus from 'keyboard-focus'
 import '../core'
-import 'focus-visible'
 import '../components/map/maps'
 import '../components/map/styles'
 import '../components/map/layers'
 import '../components/map/container'
 import '../components/map/live'
+
+// Activate keyboard focus
+keyboardFocus(document)
 
 // Create inactive target area as it is not in the warnings geojson
 const targetArea = {

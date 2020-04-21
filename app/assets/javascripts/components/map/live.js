@@ -426,22 +426,15 @@ function LiveMap (btnContainerId, mapContainerId, options, bodyElements) {
     }
   })
 
-  // Show overlays or tooltip when viewport gets focus
-  viewport.addEventListener('focus', function () {
-    if (this.classList.contains('focus-visible')) {
-      isKeyboardInteraction = true
-      showOverlays()
-    }
-  })
-
-  // Hide tooltip on vierwport blur
-  viewport.addEventListener('blur', function () {
-    container.hideTooltip()
-  })
-
   // Clear selectedfeature when info is closed
   closeInfoButton.addEventListener('click', function (e) {
     setSelectedFeature()
+  })
+
+  // Detect keyboard interaction and show overlays
+  containerElement.addEventListener('keyup', function (e) {
+    isKeyboardInteraction = true
+    showOverlays()
   })
 
   // Clear selected feature when pressing escape
@@ -535,13 +528,9 @@ maps.createLiveMap = function (btnContainerId, mapContainerId, options = {}) {
   window.addEventListener('popstate', function (e) {
     if (e && e.state) {
       // Forward
-      console.log('Forward')
-      console.log(e.state)
       return new LiveMap(btnContainerId, mapContainerId, { targetArea: options.targetArea }, bodyElements)
     } else {
       // Back
-      console.log('Backward')
-      console.log(e.state)
       const mapContainer = document.getElementById(mapContainerId)
       mapContainer.outerHTML = `<div id="${mapContainerId}"></div>`
       document.title = document.title.replace('Map view: ', '')
@@ -551,7 +540,7 @@ maps.createLiveMap = function (btnContainerId, mapContainerId, options = {}) {
       document.getElementById(btnContainerId).focus()
     }
   })
-  
+
   // Direct or refresh
   if (window.flood.utils.getParameterByName('v') === 'map') {
     return new LiveMap(btnContainerId, mapContainerId, { targetArea: options.targetArea }, bodyElements)
