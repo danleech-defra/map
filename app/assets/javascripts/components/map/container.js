@@ -15,7 +15,7 @@ import { KeyboardPan, DragPan } from 'ol/interaction'
 const { addOrUpdateParameter, getParameterByName } = window.flood.utils
 
 window.flood.maps.MapContainer = function MapContainer (btnId, containerId, options) {
-  // Store a reference to this
+  // Get a reference to this
   const container = this
 
   // Setup defaults
@@ -332,12 +332,9 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
     if (hasHistory) {
       window.history.back()
     } else {
-      /*
-      const url = window.location.pathname
-      window.location.href = url
-      */
+      // Reset container element
       containerElement.outerHTML = `<div id="${containerId}"></div>`
-      // We need to know when exit map has occured for downstream tasks
+      // Dispatch event to use outside container for reinstting non-map elements
       let event
       if (typeof (Event) === 'function') {
         event = new window.Event('exitmap')

@@ -17,6 +17,9 @@ const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
 const MapContainer = maps.MapContainer
 
 function LiveMap (btnContainerId, mapContainerId, options, bodyElements) {
+  // Get a reference to this
+  const liveMap = this
+
   // Options
   const queryParams = options.queryParams
   const targetArea = options.targetArea
@@ -393,7 +396,6 @@ function LiveMap (btnContainerId, mapContainerId, options, bodyElements) {
   // Select feature if map is clicked
   map.addEventListener('click', function (e) {
     // Need to use flag instead of stopevent container
-    console.log(container.isMouseOverButton)
     if (container.isMouseOverButton) {
       return false
     }
@@ -470,7 +472,7 @@ function LiveMap (btnContainerId, mapContainerId, options, bodyElements) {
     hideOverlays()
   })
 
-  // Exit map
+  // Reinstate document properties on exit map
   containerElement.addEventListener('exitmap', function (e) {
     // Remove url parameters
     let search = window.location.search
@@ -480,21 +482,23 @@ function LiveMap (btnContainerId, mapContainerId, options, bodyElements) {
     search = addOrUpdateParameter(search, 'sid', '')
     const url = window.location.pathname + search
     const title = document.title.replace('Map view: ', '')
-    window.history.replaceState({}, title, url)
+    window.history.replaceState(null, title, url)
     // Remove title prefix
     document.title = title
     // Reinstate non-map elements
     bodyElements.forEach(function (element) {
       element.classList.remove('defra-map-hidden')
     })
+    // Reinstate focus
+    document.getElementById(btnContainerId).focus()
   })
 
   //
   // Public properties
   //
 
-  this.container = container
-  this.map = map
+  liveMap.container = container
+  liveMap.map = map
 }
 
 // Export a helper factory to create this map
@@ -517,9 +521,13 @@ maps.createLiveMap = function (btnContainerId, mapContainerId, options = {}) {
   window.addEventListener('popstate', function (e) {
     if (e && e.state) {
       // Forward
+      console.log('Forward')
+      console.log(e.state)
       return new LiveMap(btnContainerId, mapContainerId, { targetArea: options.targetArea }, bodyElements)
     } else {
       // Back
+      console.log('Backward')
+      console.log(e.state)
       const mapContainer = document.getElementById(mapContainerId)
       mapContainer.outerHTML = `<div id="${mapContainerId}"></div>`
       document.title = document.title.replace('Map view: ', '')
