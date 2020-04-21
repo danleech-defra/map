@@ -10,11 +10,15 @@
 
 import { defaults as defaultControls, Zoom } from 'ol/control'
 import { Map } from 'ol'
-import { KeyboardPan } from 'ol/interaction'
+import { KeyboardPan, DragPan } from 'ol/interaction'
 
 const { addOrUpdateParameter, getParameterByName } = window.flood.utils
 
 window.flood.maps.MapContainer = function MapContainer (btnId, containerId, options) {
+  // Store a reference to this
+  const container = this
+
+  // Setup defaults
   const defaults = {
     minIconResolution: window.flood.maps.minResolution,
     keyTemplate: ''
@@ -60,13 +64,18 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   viewport.setAttribute('role', 'region')
   viewport.className = `defra-map-viewport ${viewport.className}`
 
-  // Get a reference to keyboardPan interaction
+  // Get a reference to KeyboardPan and DragPan interactions
   let keyboardPan
+  let dragPan
   map.getInteractions().forEach(interaction => {
     if (interaction instanceof KeyboardPan) {
       keyboardPan = interaction
     }
+    if (interaction instanceof DragPan) {
+      dragPan = interaction
+    }
   })
+  container.isMouseOverButton = false
 
   // Add a new history entry
   if (!(getParameterByName('v') === containerId)) {
@@ -170,6 +179,19 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
     })
   })
 
+  // Handle event propogation to map from overlayed buttons
+  const buttons = viewport.querySelectorAll('.defra-map__back, .defra-map__exit, .defra-map-zoom, .defra-map-reset')
+  buttons.forEach(function (button) {
+    button.addEventListener('mouseenter', function (e) {
+      dragPan.setActive(false)
+      container.isMouseOverButton = true
+    })
+    button.addEventListener('mouseleave', function (e) {
+      dragPan.setActive(true)
+      container.isMouseOverButton = false
+    })
+  })
+
   // Mobile behavior
   const mobileMediaQuery = window.matchMedia('(max-width: 40.0525em)')
   const zoomButtons = document.querySelectorAll('.defra-map-zoom button')
@@ -206,13 +228,13 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   map.on('click', function (e) {
     // Hide key
     if (isTablet && isKeyOpen) {
-      this.closeKey()
+      container.closeKey()
     }
     // Close info panel
     if (isInfoOpen) {
-      this.closeInfo()
+      container.closeInfo()
     }
-  }.bind(this))
+  })
 
   // Move focus back to containerElement on mouse down
   containerElement.addEventListener('pointerdown', function (e) {
@@ -221,39 +243,39 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
 
   // Exit map click
   exitMapButton.addEventListener('click', function (e) {
-    this.exitMap()
-  }.bind(this))
+    container.exitMap()
+  })
 
   // Close key click
   closeKeyButton.addEventListener('click', function (e) {
-    this.closeKey()
-  }.bind(this))
+    container.closeKey()
+  })
 
   // Open key click
   openKeyButton.addEventListener('click', function (e) {
-    this.openKey()
-  }.bind(this))
+    container.openKey()
+  })
 
   // Close info click
   closeInfoButton.addEventListener('click', function (e) {
-    this.closeInfo()
-  }.bind(this))
+    container.closeInfo()
+  })
 
   // Escape key behaviour
   containerElement.addEventListener('keyup', function (e) {
     if (e.keyCode === 27) {
       if (isTooltipOpen) {
-        this.hideTooltip()
+        container.hideTooltip()
       } else if (isInfoOpen) {
-        this.closeInfo()
+        container.closeInfo()
         viewport.focus()
       } else if (isTablet && isKeyOpen) {
-        this.closeKey()
+        container.closeKey()
       } else {
-        this.exitMap()
+        container.exitMap()
       }
     }
-  }.bind(this))
+  })
 
   // Constrain tab focus within dialog
   containerElement.addEventListener('keydown', function (e) {
@@ -306,16 +328,28 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   // Public methods
   //
 
-  this.exitMap = function () {
+  container.exitMap = function () {
     if (hasHistory) {
       window.history.back()
     } else {
+      /*
       const url = window.location.pathname
       window.location.href = url
+      */
+      containerElement.outerHTML = `<div id="${containerId}"></div>`
+      // We need to know when exit map has occured for downstream tasks
+      let event
+      if (typeof (Event) === 'function') {
+        event = new window.Event('exitmap')
+      } else {
+        event = document.createEvent('Event')
+        event.initEvent('exitmap', true, true)
+      }
+      containerElement.dispatchEvent(event)
     }
   }
 
-  this.openKey = function () {
+  container.openKey = function () {
     isKeyOpen = true
     containerElement.classList.add('defra-map--key-open')
     viewport.tabIndex = -1
@@ -325,7 +359,7 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
     closeKeyButton.focus()
   }
 
-  this.closeKey = function () {
+  container.closeKey = function () {
     isKeyOpen = !isTablet
     containerElement.classList.remove('defra-map--key-open')
     viewport.tabIndex = 0
@@ -334,7 +368,7 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
     openKeyButton.focus()
   }
 
-  this.showInfo = function (id) {
+  container.showInfo = function (id) {
     isInfoOpen = true
     infoElement.classList.add('defra-map-info--open')
     infoElement.setAttribute('open', true)
@@ -342,7 +376,7 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
     infoContainer.innerHTML = id
   }
 
-  this.closeInfo = function (id) {
+  container.closeInfo = function (id) {
     isInfoOpen = false
     infoElement.classList.remove('defra-map-info--open')
     infoElement.setAttribute('open', false)
@@ -350,12 +384,12 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
     viewport.focus()
   }
 
-  this.showTooltip = function () {
+  container.showTooltip = function () {
     isTooltipOpen = true
     tooltipElement.hidden = false
   }
 
-  this.hideTooltip = function () {
+  container.hideTooltip = function () {
     isTooltipOpen = false
     tooltipElement.hidden = true
   }
@@ -364,9 +398,9 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   // Public properties
   //
 
-  this.map = map
-  this.containerElement = containerElement
-  this.closeInfoButton = closeInfoButton
-  this.viewport = viewport
-  this.hasHistory = hasHistory
+  container.map = map
+  container.containerElement = containerElement
+  container.closeInfoButton = closeInfoButton
+  container.viewport = viewport
+  container.hasHistory = hasHistory
 }

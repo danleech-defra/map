@@ -392,6 +392,11 @@ function LiveMap (btnContainerId, mapContainerId, options, bodyElements) {
 
   // Select feature if map is clicked
   map.addEventListener('click', function (e) {
+    // Need to use flag instead of stopevent container
+    console.log(container.isMouseOverButton)
+    if (container.isMouseOverButton) {
+      return false
+    }
     // Get mouse coordinates and check for feature
     const feature = map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
       if (!defaultLayers.includes(layer)) {
@@ -465,6 +470,25 @@ function LiveMap (btnContainerId, mapContainerId, options, bodyElements) {
     hideOverlays()
   })
 
+  // Exit map
+  containerElement.addEventListener('exitmap', function (e) {
+    // Remove url parameters
+    let search = window.location.search
+    search = addOrUpdateParameter(search, 'v', '')
+    search = addOrUpdateParameter(search, 'lyr', '')
+    search = addOrUpdateParameter(search, 'ext', '')
+    search = addOrUpdateParameter(search, 'sid', '')
+    const url = window.location.pathname + search
+    const title = document.title.replace('Map view: ', '')
+    window.history.replaceState({}, title, url)
+    // Remove title prefix
+    document.title = title
+    // Reinstate non-map elements
+    bodyElements.forEach(function (element) {
+      element.classList.remove('defra-map-hidden')
+    })
+  })
+
   //
   // Public properties
   //
@@ -496,7 +520,6 @@ maps.createLiveMap = function (btnContainerId, mapContainerId, options = {}) {
       return new LiveMap(btnContainerId, mapContainerId, { targetArea: options.targetArea }, bodyElements)
     } else {
       // Back
-      console.log('Backward')
       const mapContainer = document.getElementById(mapContainerId)
       mapContainer.outerHTML = `<div id="${mapContainerId}"></div>`
       document.title = document.title.replace('Map view: ', '')
