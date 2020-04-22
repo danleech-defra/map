@@ -19,7 +19,7 @@ const targetArea = {
   // polygon: [] Required if not using vector tiles
 }
 
-window.flood.maps.createLiveMap('btn', 'map', { // Button container / Map container (Required)
+window.flood.maps.createLiveMap('map1', { // Map Id / Button Id / Map container Id (Required)
   // btnText: 'View map' // Overide map button text
   btnClasses: 'defra-button-map govuk-!-margin-bottom-4', // Overide map button styling
   queryParams: { // Properties persist in the querystring
@@ -30,4 +30,9 @@ window.flood.maps.createLiveMap('btn', 'map', { // Button container / Map contai
   // center: [-1.548567, 53.801277], // Optional initial center will be converted to extent in querystring
   // zoom: 12, // Optional initial zoom will be converted to extent in querystring
   // targetArea: targetArea // Optional add a target area
+})
+
+window.flood.maps.createLiveMap('map2', {
+  btnText: 'View another map',
+  btnClasses: 'defra-button-map govuk-!-margin-bottom-4'
 })

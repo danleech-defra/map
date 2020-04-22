@@ -14,7 +14,7 @@ import { KeyboardPan, DragPan } from 'ol/interaction'
 
 const { dispatchEvent } = window.flood.utils
 
-window.flood.maps.MapContainer = function MapContainer (btnId, containerId, options) {
+window.flood.maps.MapContainer = function MapContainer (containerElement, options) {
   // Get a reference to this
   const container = this
 
@@ -29,7 +29,6 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   options.keyTemplate = `public/templates/${options.keyTemplate}`
 
   // Create container element
-  const containerElement = document.getElementById(containerId)
   containerElement.className = 'defra-map'
   containerElement.setAttribute('role', 'dialog')
   containerElement.tabIndex = 0
@@ -365,7 +364,6 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   //
 
   container.map = map
-  container.containerElement = containerElement
   container.closeInfoButton = closeInfoButton
   container.viewport = viewport
 }

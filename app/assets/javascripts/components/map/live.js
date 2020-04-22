@@ -16,7 +16,7 @@ const maps = window.flood.maps
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
 const MapContainer = maps.MapContainer
 
-function LiveMap (btnContainerId, mapContainerId, options) {
+function LiveMap (mapId, options) {
   // Get a reference to this
   const liveMap = this
 
@@ -84,11 +84,15 @@ function LiveMap (btnContainerId, mapContainerId, options) {
     exitButtonClass: hasHistory ? 'defra-map__back' : 'defra-map__exit'
   }
 
+  // Create container element
+  const containerElement = document.createElement('div')
+  containerElement.id = mapId + '-container'
+  document.body.appendChild(containerElement)
+
   // Create MapContainer
-  const container = new MapContainer(btnContainerId, mapContainerId, containerOptions)
+  const container = new MapContainer(containerElement, containerOptions)
   const closeInfoButton = container.closeInfoButton
   const map = container.map
-  const containerElement = container.containerElement
 
   // Set selected feature id from querystring
   let selectedFeatureId = getParameterByName('sid') || ''
@@ -237,7 +241,7 @@ function LiveMap (btnContainerId, mapContainerId, options) {
 
   // Function update url and replace history state
   function replaceHistory (queryParam, value) {
-    const data = { v: mapContainerId, hasHistory: hasHistory }
+    const data = { v: mapId, hasHistory: hasHistory }
     const url = addOrUpdateParameter(window.location.pathname + window.location.search, queryParam, value)
     const title = document.title
     window.history.replaceState(data, title, url)
@@ -472,24 +476,27 @@ function LiveMap (btnContainerId, mapContainerId, options) {
 // onto the `maps` object.
 // (This is done mainly to avoid the rule
 // "do not use 'new' for side effects. (no-new)")
-maps.createLiveMap = function (btnContainerId, mapContainerId, options = {}) {
+maps.createLiveMap = function (mapId, options = {}) {
+  ***** Container Id chnages
   // Get all non-map parent elements
   const bodyElements = document.querySelectorAll(`body > :not([id="map"]):not(script)`)
+  const btnId = mapId + '-button'
+  const containerId = mapId + '-container'
 
   // Create map button
-  const btnContainer = document.getElementById(btnContainerId)
+  const btnContainer = document.getElementById(mapId)
   const button = document.createElement('button')
-  button.id = btnContainerId
+  button.id = mapId + '-button'
   button.innerText = options.btnText || 'View map'
   button.className = options.btnClasses || 'defra-button-map'
 
   // Create map on button click
   button.addEventListener('click', function (e) {
     // Advance history
-    const data = { v: mapContainerId, hasHistory: true }
+    const data = { v: mapId, hasHistory: true }
     const title = document.title
     let url = window.location.pathname + window.location.search
-    url = addOrUpdateParameter(url, 'v', mapContainerId)
+    url = addOrUpdateParameter(url, 'v', mapId)
     // Add any querystring parameters that may have been passed in
     if (options.queryParams) {
       Object.keys(options.queryParams).forEach(function (key, index) {
@@ -499,7 +506,7 @@ maps.createLiveMap = function (btnContainerId, mapContainerId, options = {}) {
     window.history.pushState(data, title, url)
     setDocumentProperties()
     options.hasHistory = true
-    return new LiveMap(btnContainerId, mapContainerId, options)
+    return new LiveMap(mapId, options)
   })
   btnContainer.parentNode.replaceChild(button, btnContainer)
 
@@ -508,19 +515,19 @@ maps.createLiveMap = function (btnContainerId, mapContainerId, options = {}) {
     if (e && e.state) {
       // Forward
       setDocumentProperties()
-      return new LiveMap(btnContainerId, mapContainerId, {
+      return new LiveMap(mapId, {
         hasHistory: window.history.state ? window.history.state.hasHistory || false : false,
         targetArea: options.targetArea
       })
     } else {
       // Back
-      const mapContainer = document.getElementById(mapContainerId)
-      mapContainer.outerHTML = `<div id="${mapContainerId}"></div>`
+      const mapContainer = document.getElementById(containerId)
+      mapContainer.remove()
       document.title = document.title.replace('Map view: ', '')
       bodyElements.forEach(function (node) {
         node.classList.remove('defra-map-hidden')
       })
-      document.getElementById(btnContainerId).focus()
+      document.getElementById(btnId).focus()
     }
   })
 
@@ -531,8 +538,8 @@ maps.createLiveMap = function (btnContainerId, mapContainerId, options = {}) {
       window.history.back()
     } else {
       // Reset map element
-      const mapContainer = document.getElementById(mapContainerId)
-      mapContainer.outerHTML = `<div id="${mapContainerId}"></div>`
+      const mapContainer = document.getElementById(containerId)
+      mapContainer.remove()
       // Remove url parameters
       let search = window.location.search
       search = addOrUpdateParameter(search, 'v', '')
@@ -549,15 +556,15 @@ maps.createLiveMap = function (btnContainerId, mapContainerId, options = {}) {
         element.classList.remove('defra-map-hidden')
       })
       // Return focus
-      const btnContainer = document.getElementById(btnContainerId)
+      const btnContainer = document.getElementById(btnId)
       btnContainer.focus()
     }
   })
 
   // Create map on direct or refresh
-  if (window.flood.utils.getParameterByName('v') === 'map') {
+  if (window.flood.utils.getParameterByName('v') === mapId) {
     setDocumentProperties()
-    return new LiveMap(btnContainerId, mapContainerId, {
+    return new LiveMap(mapId, {
       hasHistory: window.history.state ? window.history.state.hasHistory || false : false,
       targetArea: options.targetArea
     })
