@@ -16,13 +16,12 @@
   &:focus[keyboard-focus] .defra-map-viewport:after {
     position:absolute;
     content:'';
-    left:0px;
-    right:0px;
-    top:0px;
-    bottom:0px;
+    left:3px;
+    right:3px;
+    top:3px;
+    bottom:3px;
     pointer-events: none;
     outline: 3px solid $govuk-focus-colour;
-    outline-offset: -3px;
     z-index: 99;
   }
 }
@@ -45,9 +44,15 @@
   &:focus {
     outline: none;
   }
-  &:focus[keyboard-focus] {
+  &:focus[keyboard-focus]:after {
+    position:absolute;
+    content:'';
+    left:3px;
+    right:3px;
+    top:3px;
+    bottom:3px;
     outline: 3px solid $govuk-focus-colour;
-    outline-offset: -3px;
+    z-index: 99;
   }
 }
 .defra-map-hidden {
@@ -103,7 +108,6 @@
     background-image: svg-url('<svg width="20" height="21" viewBox="0 0 20 21" xmlns="http://www.w3.org/2000/svg"><path d="M3.121,8.379l8.379,-8.379l2.121,2.121l-6.878,6.879l12.257,0l0,3l-12.257,0l6.878,6.879l-2.121,2.121l-10.5,-10.5l2.121,-2.121Z" fill="#0b0c0c"/></svg>');
     color: $govuk-text-colour;
     outline: 0px;
-    outline-offset: 0;
   }
   &::-moz-focus-inner {
     border: 0;
@@ -163,7 +167,6 @@
     background-image: svg-url('<svg width="18" height="17" viewBox="0 0 20 19" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M9,0l-9,6l9,6l9,-6l-9,-6Z" fill="#0b0c0c"/><path d="M15.75,9.5l2.25,1.5l-9,6l-9,-6l2.25,-1.5l6.75,4.5l6.75,-4.5Z" fill="#0b0c0c"/></svg>');
     color: $govuk-text-colour;
     outline: 0px;
-    outline-offset: 0;
   }
   &::-moz-focus-inner {
     border: 0;
@@ -298,7 +301,6 @@
   &-out:focus[keyboard-focus] {
     background-color: $govuk-focus-colour;
     outline: 0px;
-    outline-offset: 0;
   }
 }
 
@@ -331,12 +333,12 @@
     &:focus[keyboard-focus]:after {
       position:absolute;
       content:'';
-      left:0px;
-      right:0px;
-      top:0px;
-      bottom:0px;
+      left:3px;
+      right:3px;
+      top:3px;
+      bottom:3px;
       outline: 3px solid $govuk-focus-colour;
-      outline-offset: -3px;
+      z-index: 99;
     }
   }
   &__container {
