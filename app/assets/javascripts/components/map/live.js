@@ -113,9 +113,6 @@ function LiveMap (btnContainerId, mapContainerId, options) {
   // Detect keyboard interaction on features
   let isKeyboardInteraction
 
-  // Move focus to first focusable element within dialog
-  containerElement.focus()
-
   //
   // Private methods
   //

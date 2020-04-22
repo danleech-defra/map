@@ -144,8 +144,8 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   keyElement.appendChild(keyContainer)
   containerElement.appendChild(keyElement)
 
-  // Set initial focus
-  viewport.focus()
+  // Move focus to first focusable element within dialog
+  containerElement.focus()
 
   //
   // Events
@@ -246,7 +246,7 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
         container.hideTooltip()
       } else if (isInfoOpen) {
         container.closeInfo()
-        viewport.focus()
+        containerElement.focus()
       } else if (isTablet && isKeyOpen) {
         container.closeKey()
       } else {
@@ -347,7 +347,7 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
     infoElement.classList.remove('defra-map-info--open')
     infoElement.setAttribute('open', false)
     infoContainer.innerHTML = ''
-    viewport.focus()
+    containerElement.focus()
   }
 
   container.showTooltip = function () {
