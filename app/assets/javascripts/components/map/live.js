@@ -477,7 +477,6 @@ function LiveMap (mapId, options) {
 // (This is done mainly to avoid the rule
 // "do not use 'new' for side effects. (no-new)")
 maps.createLiveMap = function (mapId, options = {}) {
-  ***** Container Id chnages
   // Get all non-map parent elements
   const bodyElements = document.querySelectorAll(`body > :not([id="map"]):not(script)`)
   const btnId = mapId + '-button'
