@@ -12,6 +12,8 @@ import { defaults as defaultControls, Zoom } from 'ol/control'
 import { Map } from 'ol'
 import { KeyboardPan, DragPan } from 'ol/interaction'
 
+const { dispatchEvent } = window.flood.utils
+
 window.flood.maps.MapContainer = function MapContainer (btnId, containerId, options) {
   // Get a reference to this
   const container = this
@@ -30,6 +32,7 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   const containerElement = document.getElementById(containerId)
   containerElement.className = 'defra-map'
   containerElement.setAttribute('role', 'dialog')
+  containerElement.tabIndex = 0
   containerElement.setAttribute('open', true)
   containerElement.setAttribute('aria-modal', true)
   containerElement.setAttribute('aria-label', 'Map view')
@@ -58,7 +61,6 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   // Get reference to viewport
   const viewport = document.getElementsByClassName('ol-viewport')[0]
   viewport.id = 'viewport'
-  viewport.tabIndex = 0
   viewport.setAttribute('role', 'region')
   viewport.className = `defra-map-viewport ${viewport.className}`
 
@@ -82,9 +84,8 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   viewport.insertBefore(openKeyButton, viewport.firstChild)
 
   // Create exit map button
-  const hasHistory = window.history.state ? window.history.state.hasHistory || false : false
   const exitMapButton = document.createElement('button')
-  exitMapButton.className = hasHistory ? 'defra-map__back' : 'defra-map__exit'
+  exitMapButton.className = options.exitButtonClass || 'defra-map__exit'
   exitMapButton.appendChild(document.createTextNode('Exit map'))
   viewport.insertBefore(exitMapButton, viewport.firstChild)
 
@@ -201,7 +202,7 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
       keyElement.removeAttribute('open')
       keyElement.removeAttribute('aria-modal')
     }
-    viewport.tabIndex = isTablet && isKeyOpen ? -1 : 0
+    containerElement.tabIndex = isTablet && isKeyOpen ? -1 : 0
   }
   tabletListener(tabletMediaQuery)
   tabletMediaQuery.addListener(tabletListener)
@@ -216,12 +217,6 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
     if (isInfoOpen) {
       container.closeInfo()
     }
-  })
-
-  // Move focus back to viewport on mouse down
-  containerElement.addEventListener('pointerdown', function (e) {
-    viewport.focus()
-    viewport.removeAttribute('keyboard-focus')
   })
 
   // Exit map click
@@ -260,6 +255,11 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
     }
   })
 
+  // Remove focus on container click
+  containerElement.addEventListener('pointerdown', function (e) {
+    document.activeElement.blur() // Safari perfromacne bug if viewport or parent has focus
+  })
+
   // Constrain tab focus within dialog
   containerElement.addEventListener('keydown', function (e) {
     const isTabPressed = e.which === 9
@@ -267,7 +267,7 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
       return
     }
     const tabring = document.activeElement.closest('[role="dialog"]')
-    const specificity = tabring.classList.contains('defra-map') ? '.defra-map [role="region"] ' : '#' + tabring.id + ' '
+    const specificity = tabring.classList.contains('defra-map') ? '[role="region"] ' : ''
     const selectors = [
       'a[href]:not([disabled]):not([hidden])',
       'button:not([disabled]):not([hidden])',
@@ -275,10 +275,9 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
       'input[type="text"]:not([disabled]):not([hidden])',
       'input[type="radio"]:not([disabled]):not([hidden])',
       'input[type="checkbox"]:not([disabled]):not([hidden])',
-      'select:not([disabled]):not([hidden])',
-      ''
+      'select:not([disabled]):not([hidden])'
     ]
-    const focusableEls = document.querySelectorAll(selectors.map(i => specificity + i).join(','))
+    const focusableEls = document.querySelectorAll(`#${tabring.id}, ` + selectors.map(i => `#${tabring.id} ${specificity}` + i).join(','))
     const firstFocusableEl = focusableEls[0]
     const lastFocusableEl = focusableEls[focusableEls.length - 1]
     if (e.shiftKey) /* shift + tab */ {
@@ -312,27 +311,14 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   //
 
   container.exitMap = function () {
-    if (hasHistory) {
-      window.history.back()
-    } else {
-      // Reset container element
-      containerElement.outerHTML = `<div id="${containerId}"></div>`
-      // Dispatch event to use outside container for reinstting non-map elements
-      let event
-      if (typeof (Event) === 'function') {
-        event = new window.Event('exitmap')
-      } else {
-        event = document.createEvent('Event')
-        event.initEvent('exitmap', true, true)
-      }
-      containerElement.dispatchEvent(event)
-    }
+    // Dispatch event to use outside container for reinstting non-map elements
+    dispatchEvent(window, 'exitmap')
   }
 
   container.openKey = function () {
     isKeyOpen = true
     containerElement.classList.add('defra-map--key-open')
-    viewport.tabIndex = -1
+    containerElement.tabIndex = -1
     keyElement.setAttribute('open', true)
     keyElement.setAttribute('aria-modal', true)
     this.closeInfo()
@@ -342,7 +328,7 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   container.closeKey = function () {
     isKeyOpen = !isTablet
     containerElement.classList.remove('defra-map--key-open')
-    viewport.tabIndex = 0
+    containerElement.tabIndex = 0
     keyElement.setAttribute('open', isKeyOpen)
     keyElement.setAttribute('aria-modal', isTablet)
     openKeyButton.focus()
@@ -382,5 +368,4 @@ window.flood.maps.MapContainer = function MapContainer (btnId, containerId, opti
   container.containerElement = containerElement
   container.closeInfoButton = closeInfoButton
   container.viewport = viewport
-  container.hasHistory = hasHistory
 }

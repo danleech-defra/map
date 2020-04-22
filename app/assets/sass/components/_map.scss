@@ -13,6 +13,18 @@
   @include mq ($from: desktop) {
     right:300px;
   }
+  &:focus[keyboard-focus] .defra-map-viewport:after {
+    position:absolute;
+    content:'';
+    left:0px;
+    right:0px;
+    top:0px;
+    bottom:0px;
+    pointer-events: none;
+    outline: 3px solid $govuk-focus-colour;
+    outline-offset: -3px;
+    z-index: 99;
+  }
 }
 .defra-map-key {
   display:none;
@@ -49,18 +61,6 @@
   -ms-user-select: none;
   user-select: none;
   background-color: #A9D3DF;
-  &:focus[keyboard-focus]:after {
-    position:absolute;
-    content:'';
-    left:0px;
-    right:0px;
-    top:0px;
-    bottom:0px;
-    pointer-events: none;
-    outline: 3px solid $govuk-focus-colour;
-    outline-offset: -3px;
-    z-index: 99;
-  }
 }
 
 // Map controls - exit

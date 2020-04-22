@@ -65,6 +65,16 @@ window.flood = {
         // nav.prepend(hyperlink)
         nav.insertBefore(hyperlink, nav.childNodes[0])
       }
+    },
+    dispatchEvent: (element, name) => {
+      let event
+      if (typeof (Event) === 'function') {
+        event = new window.Event(name)
+      } else {
+        event = document.createEvent('Event')
+        event.initEvent(name, true, true)
+      }
+      element.dispatchEvent(event)
     }
   }
 }
