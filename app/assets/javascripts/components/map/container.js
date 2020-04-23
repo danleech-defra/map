@@ -14,10 +14,7 @@ import { KeyboardPan, DragPan } from 'ol/interaction'
 
 const { dispatchEvent } = window.flood.utils
 
-window.flood.maps.MapContainer = function MapContainer (containerElement, options) {
-  // Get a reference to this
-  const container = this
-
+window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Setup defaults
   const defaults = {
     minIconResolution: window.flood.maps.minResolution,
@@ -29,12 +26,15 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   options.keyTemplate = `public/templates/${options.keyTemplate}`
 
   // Create container element
+  const containerElement = document.createElement('div')
+  containerElement.id = mapId + '-container'
   containerElement.className = 'defra-map'
   containerElement.setAttribute('role', 'dialog')
   containerElement.tabIndex = 0
   containerElement.setAttribute('open', true)
   containerElement.setAttribute('aria-modal', true)
   containerElement.setAttribute('aria-label', 'Map view')
+  document.body.appendChild(containerElement)
 
   // Set states
   let isKeyOpen, isInfoOpen, isTooltipOpen, isMobile, isTablet
@@ -59,7 +59,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Get reference to viewport
   const viewport = document.getElementsByClassName('ol-viewport')[0]
-  viewport.id = 'viewport'
+  viewport.id = mapId + '-viewport'
   viewport.setAttribute('role', 'region')
   viewport.className = `defra-map-viewport ${viewport.className}`
 
@@ -74,7 +74,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
       dragPan = interaction
     }
   })
-  container.isMouseOverButton = false
 
   // Create open key button
   const openKeyButton = document.createElement('button')
@@ -91,7 +90,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   // Create viewport keyboard access tooltip
   const tooltipElement = document.createElement('div')
   tooltipElement.className = 'defra-map-tooltip'
-  tooltipElement.id = 'tooltip'
+  tooltipElement.id = mapId + '-tooltip'
   tooltipElement.setAttribute('role', 'tooltip')
   tooltipElement.hidden = true
   tooltipElement.innerHTML = 'Keyboard access guidelines'
@@ -107,7 +106,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   // Create feature information panel
   const infoElement = document.createElement('div')
   infoElement.className = 'defra-map-info'
-  infoElement.id = 'info'
+  infoElement.id = mapId + '-info'
   infoElement.setAttribute('role', 'dialog')
   infoElement.setAttribute('open', false)
   infoElement.setAttribute('aria-modal', false)
@@ -125,11 +124,11 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   // Create key
   const keyElement = document.createElement('div')
   keyElement.className = 'defra-map-key'
-  keyElement.id = 'key'
+  keyElement.id = mapId + '-key'
   keyElement.setAttribute('aria-labelledby', 'mapKeyLabel')
   keyElement.tabIndex = 0
   const keyTitle = document.createElement('span')
-  keyTitle.id = 'mapKeyLabel'
+  keyTitle.id = mapId + '-mapKeyLabel'
   keyTitle.className = 'defra-map-key__title'
   keyTitle.innerHTML = 'Key'
   keyElement.appendChild(keyTitle)
@@ -147,8 +146,77 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   containerElement.focus()
 
   //
+  // Public properties
+  //
+
+  this.map = map
+  this.viewport = viewport
+  this.containerElement = containerElement
+  this.closeInfoButton = closeInfoButton
+  this.isMouseOverButton = false
+
+  //
+  // Public methods
+  //
+
+  this.exitMap = function () {
+    // Remove container element
+    containerElement.remove()
+    // Dispatch event for tasks downstream
+    dispatchEvent(window, 'exitmap')
+  }
+
+  this.openKey = function () {
+    isKeyOpen = true
+    containerElement.classList.add('defra-map--key-open')
+    containerElement.tabIndex = -1
+    keyElement.setAttribute('open', true)
+    keyElement.setAttribute('aria-modal', true)
+    this.closeInfo()
+    closeKeyButton.focus()
+  }
+
+  this.closeKey = function () {
+    isKeyOpen = !isTablet
+    containerElement.classList.remove('defra-map--key-open')
+    containerElement.tabIndex = 0
+    keyElement.setAttribute('open', isKeyOpen)
+    keyElement.setAttribute('aria-modal', isTablet)
+    openKeyButton.focus()
+  }
+
+  this.showInfo = function (id) {
+    isInfoOpen = true
+    infoElement.classList.add('defra-map-info--open')
+    infoElement.setAttribute('open', true)
+    infoElement.focus()
+    infoContainer.innerHTML = id
+  }
+
+  this.closeInfo = function (id) {
+    isInfoOpen = false
+    infoElement.classList.remove('defra-map-info--open')
+    infoElement.setAttribute('open', false)
+    infoContainer.innerHTML = ''
+    containerElement.focus()
+  }
+
+  this.showTooltip = function () {
+    isTooltipOpen = true
+    tooltipElement.hidden = false
+  }
+
+  this.hideTooltip = function () {
+    isTooltipOpen = false
+    tooltipElement.hidden = true
+  }
+
+  //
   // Events
   //
+
+  // Get a reference to this
+  const container = this
 
   // Radio group focus/blur
   const radios = containerElement.querySelectorAll('input[type="radio"]')
@@ -304,66 +372,4 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
       console.log('Next region')
     }
   })
-
-  //
-  // Public methods
-  //
-
-  container.exitMap = function () {
-    // Dispatch event to use outside container for reinstting non-map elements
-    dispatchEvent(window, 'exitmap')
-  }
-
-  container.openKey = function () {
-    isKeyOpen = true
-    containerElement.classList.add('defra-map--key-open')
-    containerElement.tabIndex = -1
-    keyElement.setAttribute('open', true)
-    keyElement.setAttribute('aria-modal', true)
-    this.closeInfo()
-    closeKeyButton.focus()
-  }
-
-  container.closeKey = function () {
-    isKeyOpen = !isTablet
-    containerElement.classList.remove('defra-map--key-open')
-    containerElement.tabIndex = 0
-    keyElement.setAttribute('open', isKeyOpen)
-    keyElement.setAttribute('aria-modal', isTablet)
-    openKeyButton.focus()
-  }
-
-  container.showInfo = function (id) {
-    isInfoOpen = true
-    infoElement.classList.add('defra-map-info--open')
-    infoElement.setAttribute('open', true)
-    infoElement.focus()
-    infoContainer.innerHTML = id
-  }
-
-  container.closeInfo = function (id) {
-    isInfoOpen = false
-    infoElement.classList.remove('defra-map-info--open')
-    infoElement.setAttribute('open', false)
-    infoContainer.innerHTML = ''
-    containerElement.focus()
-  }
-
-  container.showTooltip = function () {
-    isTooltipOpen = true
-    tooltipElement.hidden = false
-  }
-
-  container.hideTooltip = function () {
-    isTooltipOpen = false
-    tooltipElement.hidden = true
-  }
-
-  //
-  // Public properties
-  //
-
-  container.map = map
-  container.closeInfoButton = closeInfoButton
-  container.viewport = viewport
 }
