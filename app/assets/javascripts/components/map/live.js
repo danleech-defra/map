@@ -513,6 +513,8 @@ maps.createLiveMap = function (mapId, options = {}) {
     return new LiveMap(mapId, options)
   })
 
+  // **** Fires when moving into page too????
+
   // Create map on browser backward/forward
   window.addEventListener('popstate', function (e) {
     if (mapId === e.state.v) { // Recreate the map
