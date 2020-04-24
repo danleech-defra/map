@@ -526,14 +526,10 @@ maps.createLiveMap = function (mapId, options = {}) {
 
 // Add to address multiple maps on the same page
 maps.initLiveMaps = function () {
-  // Initialise history state
-  const data = { v: '' }
-  const title = document.title
-  const url = window.location.pathname + window.location.search
-  window.history.replaceState(data, title, url)
-
-  // Set dcument title and hide non-map mapopen
+  // Set document title and hide non-map mapopen
   window.addEventListener('mapopen', function (e) {
+    console.log('mapopen')
+    console.log(window.history.state)
     const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
     document.title = `Map view: ${document.title}`
     bodyElements.forEach(function (element) {
@@ -541,7 +537,7 @@ maps.initLiveMaps = function () {
     })
   })
 
-  // Recreate map on browser backward/forward
+  // Recreate or remove map on browser backward/forward
   window.addEventListener('popstate', function (e) {
     const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
     const container = document.querySelector('.defra-map')
