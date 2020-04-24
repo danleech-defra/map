@@ -41,7 +41,6 @@ window.flood.maps.layers = {
     })
   },
 
-  /*
   targetAreaPolygons: () => {
     return new VectorTileLayer({
       ref: 'targetAreaPolygons',
@@ -54,12 +53,12 @@ window.flood.maps.layers = {
       renderMode: 'hybrid',
       extent: window.flood.maps.extent,
       style: window.flood.maps.styles.targetAreaPolygons,
-      maxResolution: window.flood.maps.symbolThreshold,
+      maxResolution: window.flood.maps.liveMapSymbolBreakpoint,
       zIndex: 1
     })
   },
-  */
 
+  /*
   targetAreaPolygons: () => {
     return new VectorLayer({
       ref: 'targetAreaPolygons',
@@ -71,10 +70,11 @@ window.flood.maps.layers = {
         url: '/api/target-area-polygons.geojson'
       }),
       style: window.flood.maps.styles.targetAreaPolygons,
-      maxResolution: window.flood.maps.symbolThreshold,
+      maxResolution: window.flood.maps.liveMapSymbolBreakpoint,
       zIndex: 1
     })
   },
+  */
 
   warnings: () => {
     return new VectorLayer({
@@ -83,8 +83,8 @@ window.flood.maps.layers = {
       source: new VectorSource({
         format: new GeoJSON(),
         projection: 'EPSG:3857',
-        url: '/api/warnings.geojson'
-        // url: 'http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=flood:ta&srsName=EPSG:3857&outputFormat=application/json'
+        // url: '/api/warnings.geojson'
+        url: 'http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=flood:ta&srsName=EPSG:3857&outputFormat=application/json'
       }),
       style: window.flood.maps.styles.warnings,
       visible: false,
@@ -99,8 +99,8 @@ window.flood.maps.layers = {
       source: new VectorSource({
         format: new GeoJSON(),
         projection: 'EPSG:3857',
-        url: '/api/stations.geojson'
-        // url: 'http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=flood:st&srsName=EPSG:3857&outputFormat=application/json'
+        // url: '/api/stations.geojson'
+        url: 'http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=flood:st&srsName=EPSG:3857&outputFormat=application/json'
       }),
       style: window.flood.maps.styles.stations,
       visible: false,

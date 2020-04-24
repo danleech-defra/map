@@ -13,7 +13,7 @@ import { Point } from 'ol/geom'
 import { buffer, containsExtent } from 'ol/extent'
 
 const maps = window.flood.maps
-const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
+const { addOrUpdateParameter, getParameterByName, forEach, dispatchEvent } = window.flood.utils
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
@@ -29,7 +29,7 @@ function LiveMap (mapId, options) {
   const queryParams = Object.assign({}, defautlQueryParams, options.queryParams)
   const targetArea = options.targetArea
   const smartKey = false
-  const hasHistory = options.hasHistory
+  const isBack = options.isBack
 
   // View
   const view = new View({
@@ -75,18 +75,21 @@ function LiveMap (mapId, options) {
   // Interactions with reference to keyboardPan
   const interactions = defaultInteractions()
 
+  // Detect keyboard interaction on features
+  let isKeyboardInteraction
+
   // Store features that are visible in the viewport
   let visibleFeatures = []
 
   // Options to pass to the MapContainer constructor
   const containerOptions = {
-    maxBigZoom: maps.symbolThreshold,
+    maxBigZoom: window.flood.maps.liveMapSymbolBreakpoint,
     view: view,
     layers: layers,
     queryParams: queryParams,
     interactions: interactions,
     keyTemplate: 'key-live.html',
-    exitButtonClass: hasHistory ? 'defra-map__back' : 'defra-map__exit'
+    exitButtonClass: isBack ? 'defra-map__back' : 'defra-map__exit'
   }
 
   // Create MapContainer
@@ -115,8 +118,8 @@ function LiveMap (mapId, options) {
     })
   }
 
-  // Detect keyboard interaction on features
-  let isKeyboardInteraction
+  // Dispatch event for tasks downstream
+  dispatchEvent(window, 'mapopen')
 
   //
   // Private methods
@@ -242,7 +245,7 @@ function LiveMap (mapId, options) {
 
   // Function update url and replace history state
   function replaceHistory (queryParam, value) {
-    const data = { v: mapId, hasHistory: hasHistory }
+    const data = { v: mapId, isBack: isBack }
     const url = addOrUpdateParameter(window.location.pathname + window.location.search, queryParam, value)
     const title = document.title
     window.history.replaceState(data, title, url)
@@ -480,8 +483,10 @@ function LiveMap (mapId, options) {
 // (This is done mainly to avoid the rule
 // "do not use 'new' for side effects. (no-new)")
 maps.createLiveMap = function (mapId, options = {}) {
-  // Get all non-map parent elements
-  const bodyElements = document.querySelectorAll(`body > :not([id="map"]):not(script)`)
+  // Add window events before maps are created
+  if (!window.flood.maps.isLiveMapsInitialised) {
+    window.flood.maps.initLiveMaps()
+  }
 
   // Create map button
   const btnContainer = document.getElementById(mapId)
@@ -494,7 +499,7 @@ maps.createLiveMap = function (mapId, options = {}) {
   // Create map on button press
   button.addEventListener('click', function (e) {
     // Advance history
-    const data = { v: mapId, hasHistory: true }
+    const data = { v: mapId, isBack: true }
     const title = document.title
     let url = window.location.pathname + window.location.search
     url = addOrUpdateParameter(url, 'v', mapId)
@@ -505,88 +510,99 @@ maps.createLiveMap = function (mapId, options = {}) {
       })
     }
     window.history.pushState(data, title, url)
-    document.title = `Map view: ${document.title}`
-    bodyElements.forEach(function (element) {
-      element.classList.add('defra-map-hidden')
-    })
-    options.hasHistory = true
+    // Create map instance
+    options.isBack = data.isBack
     return new LiveMap(mapId, options)
-  })
-
-  // **** Fires when moving into page too????
-
-  // Create map on browser backward/forward
-  window.addEventListener('popstate', function (e) {
-    if (mapId === e.state.v) { // Recreate the map
-      console.log('Recreate ' + mapId)
-      document.title = `Map view: ${document.title}`
-      bodyElements.forEach(function (element) {
-        element.classList.add('defra-map-hidden')
-      })
-      return new LiveMap(mapId, {
-        hasHistory: true,
-        targetArea: options.targetArea
-      })
-    } else if (e.state.v === '') { // Remove the map
-      console.log('Remove ' + mapId)
-      const container = document.getElementsByClassName('defra-map')[0]
-      if (container) {
-        container.remove()
-      }
-      document.title = document.title.replace('Map view: ', '')
-      bodyElements.forEach(function (node) {
-        node.classList.remove('defra-map-hidden')
-      })
-      document.getElementById(mapId + '-button').focus()
-    }
-  })
-
-  // Remove map on exit button press
-  window.addEventListener('exitmap', function (e) {
-    // Only apply to active map
-    if (window.activeMap.id === mapId) {
-      if (window.history.state.hasHistory) {
-        window.history.back()
-      } else {
-        // Remove url parameters
-        let search = window.location.search
-        window.activeMap.queryParamKeys.forEach(paramKey => {
-          search = addOrUpdateParameter(search, paramKey, '')
-        })
-        const data = { v: '', hasHistory: false }
-        const url = window.location.pathname + search
-        const title = document.title.replace('Map view: ', '')
-        window.history.replaceState(data, title, url)
-        // Remove title prefix
-        document.title = title
-        // Reinstate non-map elements
-        bodyElements.forEach(function (element) {
-          element.classList.remove('defra-map-hidden')
-        })
-        // Return focus
-        const button = document.getElementById(mapId + '-button')
-        button.focus()
-      }
-    }
   })
 
   // Create map on direct or refresh
   if (window.flood.utils.getParameterByName('v') === mapId) {
-    console.log(window.history.state)
-    console.log('Direct ' + mapId)
+    return new LiveMap(mapId, {
+      isBack: window.history.state ? window.history.state.isBack || false : false,
+      targetArea: options.targetArea
+    })
+  }
+}
+
+// Add to address multiple maps on the same page
+maps.initLiveMaps = function () {
+  // Initialise history state
+  const data = { v: '' }
+  const title = document.title
+  const url = window.location.pathname + window.location.search
+  window.history.replaceState(data, title, url)
+
+  // Set dcument title and hide non-map mapopen
+  window.addEventListener('mapopen', function (e) {
+    console.log('Map open')
+    const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
     document.title = `Map view: ${document.title}`
     bodyElements.forEach(function (element) {
       element.classList.add('defra-map-hidden')
     })
-    return new LiveMap(mapId, {
-      hasHistory: window.history.state ? window.history.state.hasHistory || false : false,
-      targetArea: options.targetArea
-    })
-  } else {
-    // Save initial history state
-    const data = { v: '', hasHistory: false }
-    const title = document.title
-    let url = window.location.pathname + window.location.search
-    window.history.replaceState(data, title, url)
-  }
+  })
+
+  // Recreate map on browser backward/forward
+  window.addEventListener('popstate', function (e) {
+    const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
+    const container = document.querySelector('.defra-map')
+    if (e.state.v !== '') {
+      if (container) { // * Safari fires popstate on page load?
+        return
+      }
+      // Set document properties
+      document.title = `Map view: ${document.title}`
+      bodyElements.forEach(function (element) {
+        element.classList.add('defra-map-hidden')
+      })
+      // Recreate the map
+      return new LiveMap(e.state.v, {
+        isBack: e.state.isBack
+      })
+    } else {
+      // Reinstate document properties and non-map elements
+      document.title = document.title.replace('Map view: ', '')
+      bodyElements.forEach(function (node) {
+        node.classList.remove('defra-map-hidden')
+      })
+      // Remove the map and return focus
+      if (container) { // * Safari fires popstate on page load?
+        const btnId = container.id.substr(0, container.id.indexOf('-')) + '-button'
+        container.remove()
+        document.getElementById(btnId).focus()
+      }
+    }
+  })
+
+  // Remove map on exit button press
+  window.addEventListener('mapexit', function (e) {
+    const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
+    if (window.history.state.isBack) {
+      window.history.back()
+    } else {
+      // Remove url parameters
+      let search = window.location.search
+      const paramKeys = ['v', 'lyr', 'ext', 'sid']
+      paramKeys.forEach(paramKey => {
+        search = addOrUpdateParameter(search, paramKey, '')
+      })
+      // Reset history
+      const data = { v: '', isBack: false }
+      const url = window.location.pathname + search
+      const title = document.title.replace('Map view: ', '')
+      window.history.replaceState(data, title, url)
+      // Reinstate document properties and non-map elements
+      document.title = title
+      bodyElements.forEach(function (element) {
+        element.classList.remove('defra-map-hidden')
+      })
+      // Remove the map and return focus
+      const container = document.querySelector('.defra-map')
+      const btnId = container.id.substr(0, container.id.indexOf('-')) + '-button'
+      container.remove()
+      document.getElementById(btnId).focus()
+    }
+  })
+
+  window.flood.maps.isLiveMapsInitialised = true
 }

@@ -160,10 +160,9 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   //
 
   this.exitMap = function () {
-    // Remove container element
-    containerElement.remove()
+    // Exit map could do different things?
     // Dispatch event for tasks downstream
-    dispatchEvent(window, 'exitmap')
+    dispatchEvent(window, 'mapexit')
   }
 
   this.openKey = function () {

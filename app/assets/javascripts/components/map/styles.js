@@ -82,7 +82,7 @@ window.flood.maps.styles = {
       return new Style({})
     }
     // Hide warning symbols when polygon is shown
-    if (resolution < window.flood.maps.symbolThreshold) {
+    if (resolution < window.flood.maps.liveMapSymbolBreakpoint) {
       return new Style({})
     }
 
@@ -139,7 +139,7 @@ window.flood.maps.styles = {
     }
     const state = feature.get('state')
     const isSelected = feature.get('isSelected')
-    const isBigSymbol = resolution <= window.flood.maps.symbolThreshold
+    const isBigSymbol = resolution <= window.flood.maps.liveMapSymbolBreakpoint
     return icons.png
     /*
     const dataUri = {
@@ -191,7 +191,7 @@ window.flood.maps.styles = {
     let offset = [0, 500]
 
     // Use large symbols
-    if (resolution > window.flood.maps.symbolThreshold) {
+    if (resolution > window.flood.maps.liveMapSymbolBreakpoint) {
       offset[0] += 200
       anchor = [0.5, 0.5]
     }
@@ -225,7 +225,7 @@ window.flood.maps.styles = {
     let offset = [0, 1500]
 
     // Use large symbols
-    if (resolution > window.flood.maps.symbolThreshold) {
+    if (resolution > window.flood.maps.liveMapSymbolBreakpoint) {
       offset[0] += 200
       anchor = [0.5, 0.5]
     }
