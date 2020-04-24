@@ -534,7 +534,6 @@ maps.initLiveMaps = function () {
 
   // Set dcument title and hide non-map mapopen
   window.addEventListener('mapopen', function (e) {
-    console.log('Map open')
     const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
     document.title = `Map view: ${document.title}`
     bodyElements.forEach(function (element) {
