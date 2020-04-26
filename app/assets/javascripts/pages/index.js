@@ -19,7 +19,7 @@ const targetArea = {
   // polygon: [] Required if not using vector tiles
 }
 
-window.flood.maps.createLiveMap('map1', { // Map Id / Button Id / Map container Id (Required)
+window.flood.maps.createLiveMap('map1', { // Button Id (Required)
   // btnText: 'View map' // Overide map button text
   btnClasses: 'defra-button-map govuk-!-margin-bottom-4', // Overide map button styling
   queryParams: { // Properties persist in the querystring

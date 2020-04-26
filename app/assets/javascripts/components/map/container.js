@@ -14,7 +14,7 @@ import { KeyboardPan, DragPan } from 'ol/interaction'
 
 const { dispatchEvent } = window.flood.utils
 
-window.flood.maps.MapContainer = function MapContainer (mapId, options) {
+window.flood.maps.MapContainer = function MapContainer (containerElement, options) {
   // Setup defaults
   const defaults = {
     minIconResolution: window.flood.maps.minResolution,
@@ -24,17 +24,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
 
   // Prorotype kit only - remove in production
   options.keyTemplate = `public/templates/${options.keyTemplate}`
-
-  // Create container element
-  const containerElement = document.createElement('div')
-  containerElement.id = mapId + '-container'
-  containerElement.className = 'defra-map'
-  containerElement.setAttribute('role', 'dialog')
-  containerElement.tabIndex = 0
-  containerElement.setAttribute('open', true)
-  containerElement.setAttribute('aria-modal', true)
-  containerElement.setAttribute('aria-label', 'Map view')
-  document.body.appendChild(containerElement)
 
   // Set states
   let isKeyOpen, isInfoOpen, isTooltipOpen, isMobile, isTablet
@@ -59,7 +48,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
 
   // Get reference to viewport
   const viewport = document.getElementsByClassName('ol-viewport')[0]
-  viewport.id = mapId + '-viewport'
+  viewport.id = 'viewport'
   viewport.setAttribute('role', 'region')
   viewport.className = `defra-map-viewport ${viewport.className}`
 
@@ -90,7 +79,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Create viewport keyboard access tooltip
   const tooltipElement = document.createElement('div')
   tooltipElement.className = 'defra-map-tooltip'
-  tooltipElement.id = mapId + '-tooltip'
+  tooltipElement.id = 'tooltip'
   tooltipElement.setAttribute('role', 'tooltip')
   tooltipElement.hidden = true
   tooltipElement.innerHTML = 'Keyboard access guidelines'
@@ -106,7 +95,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Create feature information panel
   const infoElement = document.createElement('div')
   infoElement.className = 'defra-map-info'
-  infoElement.id = mapId + '-info'
+  infoElement.id = 'info'
   infoElement.setAttribute('role', 'dialog')
   infoElement.setAttribute('open', false)
   infoElement.setAttribute('aria-modal', false)
@@ -124,11 +113,11 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Create key
   const keyElement = document.createElement('div')
   keyElement.className = 'defra-map-key'
-  keyElement.id = mapId + '-key'
+  keyElement.id = 'key'
   keyElement.setAttribute('aria-labelledby', 'mapKeyLabel')
   keyElement.tabIndex = 0
   const keyTitle = document.createElement('span')
-  keyTitle.id = mapId + '-mapKeyLabel'
+  keyTitle.id = 'mapKeyLabel'
   keyTitle.className = 'defra-map-key__title'
   keyTitle.innerHTML = 'Key'
   keyElement.appendChild(keyTitle)
@@ -151,7 +140,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
 
   this.map = map
   this.viewport = viewport
-  this.containerElement = containerElement
   this.closeInfoButton = closeInfoButton
   this.isMouseOverButton = false
 
@@ -162,7 +150,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   this.exitMap = function () {
     // Exit map could do different things?
     // Dispatch event for tasks downstream
-    dispatchEvent(window, 'mapexit')
+    dispatchEvent(containerElement, 'mapremove')
   }
 
   this.openKey = function () {

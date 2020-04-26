@@ -66,15 +66,15 @@ window.flood = {
         nav.insertBefore(hyperlink, nav.childNodes[0])
       }
     },
-    dispatchEvent: (element, name) => {
+    dispatchEvent: (target, name) => {
       let event
       if (typeof (Event) === 'function') {
-        event = new window.Event(name)
+        event = new window.Event(name, { bubbles: true, cancelable: true })
       } else {
         event = document.createEvent('Event')
         event.initEvent(name, true, true)
       }
-      element.dispatchEvent(event)
+      target.dispatchEvent(event)
     }
   }
 }

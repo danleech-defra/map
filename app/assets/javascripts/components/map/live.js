@@ -17,6 +17,21 @@ const { addOrUpdateParameter, getParameterByName, forEach, dispatchEvent } = win
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
+  // Create the map container element
+  const containerElement = document.createElement('div')
+  containerElement.id = mapId
+  containerElement.className = 'defra-map'
+  containerElement.setAttribute('role', 'dialog')
+  containerElement.tabIndex = 0
+  containerElement.setAttribute('open', true)
+  containerElement.setAttribute('aria-modal', true)
+  containerElement.setAttribute('aria-label', 'Map view')
+  document.body.appendChild(containerElement)
+  this.containerElement = containerElement
+
+  // Dispatch initialise event
+  dispatchEvent(containerElement, 'mapinit')
+
   // Defiitive list of query params
   const defautlQueryParams = {
     v: '', // Used to flag map view
@@ -93,9 +108,8 @@ function LiveMap (mapId, options) {
   }
 
   // Create MapContainer
-  const container = new MapContainer(mapId, containerOptions)
+  const container = new MapContainer(containerElement, containerOptions)
   const map = container.map
-  const containerElement = container.containerElement
   const closeInfoButton = container.closeInfoButton
 
   // Set selected feature id from querystring
@@ -117,9 +131,6 @@ function LiveMap (mapId, options) {
       keyItem.style.display = 'none'
     })
   }
-
-  // Dispatch event for tasks downstream
-  dispatchEvent(window, 'mapopen')
 
   //
   // Private methods
@@ -491,7 +502,7 @@ maps.createLiveMap = function (mapId, options = {}) {
   // Create map button
   const btnContainer = document.getElementById(mapId)
   const button = document.createElement('button')
-  button.id = mapId + '-button'
+  button.id = mapId + '-btn'
   button.innerText = options.btnText || 'View map'
   button.className = options.btnClasses || 'defra-button-map'
   btnContainer.parentNode.replaceChild(button, btnContainer)
@@ -526,17 +537,6 @@ maps.createLiveMap = function (mapId, options = {}) {
 
 // Add to address multiple maps on the same page
 maps.initLiveMaps = function () {
-  // Set document title and hide non-map mapopen
-  window.addEventListener('mapopen', function (e) {
-    console.log('mapopen')
-    console.log(window.history.state)
-    const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
-    document.title = `Map view: ${document.title}`
-    bodyElements.forEach(function (element) {
-      element.classList.add('defra-map-hidden')
-    })
-  })
-
   // Recreate or remove map on browser backward/forward
   window.addEventListener('popstate', function (e) {
     const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
@@ -569,8 +569,17 @@ maps.initLiveMaps = function () {
     }
   })
 
-  // Remove map on exit button press
-  window.addEventListener('mapexit', function (e) {
+  // Initialise map
+  window.addEventListener('mapinit', function (e) {
+    const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
+    document.title = `Map view: ${document.title}`
+    bodyElements.forEach(function (element) {
+      element.classList.add('defra-map-hidden')
+    })
+  })
+
+  // Remove map
+  window.addEventListener('mapremove', function (e) {
     const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
     if (window.history.state.isBack) {
       window.history.back()
