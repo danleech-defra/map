@@ -17,12 +17,15 @@ const { addOrUpdateParameter, getParameterByName, forEach, dispatchEvent } = win
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
+  // Set active map
+  this.mapId = mapId
+  window.flood.activeMap = this
+
   // Create the map container element
   const containerElement = document.createElement('div')
   containerElement.id = mapId
   containerElement.className = 'defra-map'
   containerElement.setAttribute('role', 'dialog')
-  containerElement.tabIndex = 0
   containerElement.setAttribute('open', true)
   containerElement.setAttribute('aria-modal', true)
   containerElement.setAttribute('aria-label', 'Map view')
@@ -87,8 +90,10 @@ function LiveMap (mapId, options) {
 
   const layers = defaultLayers.concat(dataLayers)
 
-  // Interactions with reference to keyboardPan
-  const interactions = defaultInteractions()
+  // Configure default interactions
+  const interactions = defaultInteractions({
+    pinchRotate: false
+  })
 
   // Detect keyboard interaction on features
   let isKeyboardInteraction
@@ -131,6 +136,9 @@ function LiveMap (mapId, options) {
       keyItem.style.display = 'none'
     })
   }
+
+  // Move focus to container element
+  containerElement.focus()
 
   //
   // Private methods
@@ -340,7 +348,6 @@ function LiveMap (mapId, options) {
   // Public properties
   //
 
-  this.id = mapId
   this.container = container
   this.map = map
   this.queryParamKeys = Object.keys(queryParams)
@@ -495,7 +502,7 @@ function LiveMap (mapId, options) {
 // "do not use 'new' for side effects. (no-new)")
 maps.createLiveMap = function (mapId, options = {}) {
   // Add window events before maps are created
-  if (!window.flood.maps.isLiveMapsInitialised) {
+  if (!window.flood.isLiveMapsInitialised) {
     window.flood.maps.initLiveMaps()
   }
 
@@ -508,41 +515,58 @@ maps.createLiveMap = function (mapId, options = {}) {
   btnContainer.parentNode.replaceChild(button, btnContainer)
 
   // Create map on button press
-  button.addEventListener('click', function (e) {
+  const newLiveMap = function (e) {
+    // Exit if keypress but not enter or return pressed
+    /*
+    if (e.type === 'keyup' && (e.keyCode !== 13 || e.keyCode !== 32)) {
+      return
+    }
+    **** Returns and runs click event anyway????
+    */
+    console.log(e.type)
     // Advance history
     const data = { v: mapId, isBack: true }
     const title = document.title
     let url = window.location.pathname + window.location.search
     url = addOrUpdateParameter(url, 'v', mapId)
-    // Add any querystring parameters that may have been passed in
+    // Add any querystring parameters from constructor
     if (options.queryParams) {
       Object.keys(options.queryParams).forEach(function (key, index) {
         url = addOrUpdateParameter(url, key, options.queryParams[key])
       })
     }
     window.history.pushState(data, title, url)
+    options.isBack = true
+    // options.isKeyboard
     // Create map instance
-    options.isBack = data.isBack
     return new LiveMap(mapId, options)
-  })
+  }
+  button.addEventListener('keyup', newLiveMap)
+  button.addEventListener('click', newLiveMap)
 
   // Create map on direct or refresh
   if (window.flood.utils.getParameterByName('v') === mapId) {
     return new LiveMap(mapId, {
-      isBack: window.history.state ? window.history.state.isBack || false : false,
-      targetArea: options.targetArea
+      isBack: window.history.state && window.history.state.isBack
     })
   }
 }
 
-// Add to address multiple maps on the same page
+// Add window evewnts once for multiple maps
 maps.initLiveMaps = function () {
+  // Set initial history state if not already set
+  if (!window.history.state) {
+    const data = { v: '', isBack: false }
+    const title = document.title
+    let url = window.location.pathname + window.location.search
+    window.history.replaceState(data, title, url)
+  }
+
   // Recreate or remove map on browser backward/forward
   window.addEventListener('popstate', function (e) {
     const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
-    const container = document.querySelector('.defra-map')
     if (e.state.v !== '') {
-      if (container) { // * Safari fires popstate on page load?
+      if (window.flood.activeMap) { // * Safari fires popstate on page load?
         return
       }
       // Set document properties
@@ -561,10 +585,10 @@ maps.initLiveMaps = function () {
         node.classList.remove('defra-map-hidden')
       })
       // Remove the map and return focus
-      if (container) { // * Safari fires popstate on page load?
-        const btnId = container.id.substr(0, container.id.indexOf('-')) + '-button'
-        container.remove()
-        document.getElementById(btnId).focus()
+      if (window.flood.activeMap) { // * Safari fires popstate on page load?
+        window.flood.activeMap.containerElement.remove()
+        document.getElementById(window.flood.activeMap.mapId + '-btn').focus()
+        window.flood.activeMap = null
       }
     }
   })
@@ -601,12 +625,11 @@ maps.initLiveMaps = function () {
         element.classList.remove('defra-map-hidden')
       })
       // Remove the map and return focus
-      const container = document.querySelector('.defra-map')
-      const btnId = container.id.substr(0, container.id.indexOf('-')) + '-button'
-      container.remove()
-      document.getElementById(btnId).focus()
+      window.flood.activeMap.containerElement.remove()
+      document.getElementById(window.flood.activeMap.mapId + '-btn').focus()
+      window.flood.activeMap = null
     }
   })
 
-  window.flood.maps.isLiveMapsInitialised = true
+  window.flood.isLiveMapsInitialised = true
 }

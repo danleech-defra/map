@@ -19,6 +19,13 @@ const targetArea = {
   // polygon: [] Required if not using vector tiles
 }
 
+// Add target area to map before crerateLiveMap
+window.addEventListener('mapinit', function (e) {
+  if (window.flood.activeMap.mapId === 'map2') {
+    // Add target area
+  }
+})
+
 window.flood.maps.createLiveMap('map1', { // Button Id (Required)
   // btnText: 'View map' // Overide map button text
   btnClasses: 'defra-button-map govuk-!-margin-bottom-4', // Overide map button styling
@@ -28,8 +35,7 @@ window.flood.maps.createLiveMap('map1', { // Button Id (Required)
     // sid: 'ta.122WAF946' // Optional intial selected feature
   }
   // center: [-1.548567, 53.801277], // Optional initial center will be converted to extent in querystring
-  // zoom: 12, // Optional initial zoom will be converted to extent in querystring
-  // targetArea: targetArea // Optional add a target area
+  // zoom: 12 // Optional initial zoom will be converted to extent in querystring
 })
 
 window.flood.maps.createLiveMap('map2', {

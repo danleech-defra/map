@@ -160,7 +160,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     keyElement.setAttribute('open', true)
     keyElement.setAttribute('aria-modal', true)
     this.closeInfo()
-    closeKeyButton.focus()
   }
 
   this.closeKey = function () {
@@ -169,14 +168,12 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     containerElement.tabIndex = 0
     keyElement.setAttribute('open', isKeyOpen)
     keyElement.setAttribute('aria-modal', isTablet)
-    openKeyButton.focus()
   }
 
   this.showInfo = function (id) {
     isInfoOpen = true
     infoElement.classList.add('defra-map-info--open')
     infoElement.setAttribute('open', true)
-    infoElement.focus()
     infoContainer.innerHTML = id
   }
 
@@ -185,7 +182,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     infoElement.classList.remove('defra-map-info--open')
     infoElement.setAttribute('open', false)
     infoContainer.innerHTML = ''
-    containerElement.focus()
   }
 
   this.showTooltip = function () {
@@ -256,7 +252,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
       keyElement.removeAttribute('open')
       keyElement.removeAttribute('aria-modal')
     }
-    containerElement.tabIndex = isTablet && isKeyOpen ? -1 : 0
+    // containerElement.tabIndex = isTablet && isKeyOpen ? -1 : 0
   }
   tabletListener(tabletMediaQuery)
   tabletMediaQuery.addListener(tabletListener)
@@ -271,6 +267,8 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     if (isInfoOpen) {
       container.closeInfo()
     }
+    // Touch interfaces
+    containerElement.focus()
   })
 
   // Exit map click
@@ -278,19 +276,23 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     container.exitMap()
   })
 
-  // Close key click
-  closeKeyButton.addEventListener('click', function (e) {
-    container.closeKey()
-  })
-
   // Open key click
   openKeyButton.addEventListener('click', function (e) {
     container.openKey()
   })
 
+  // Close key click
+  closeKeyButton.addEventListener('click', function (e) {
+    container.closeKey()
+    // Touch interfaces
+    containerElement.focus()
+  })
+
   // Close info click
   closeInfoButton.addEventListener('click', function (e) {
     container.closeInfo()
+    // Touch interfaces
+    containerElement.focus()
   })
 
   // Escape key behaviour
@@ -300,18 +302,14 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
         container.hideTooltip()
       } else if (isInfoOpen) {
         container.closeInfo()
-        containerElement.focus()
+        containerElement.focus() // May chnage to feature
       } else if (isTablet && isKeyOpen) {
         container.closeKey()
+        openKeyButton.focus()
       } else {
         container.exitMap()
       }
     }
-  })
-
-  // Remove focus on container click
-  containerElement.addEventListener('pointerdown', function (e) {
-    document.activeElement.blur() // Safari perfromacne bug if viewport or parent has focus
   })
 
   // Constrain tab focus within dialog
