@@ -36,12 +36,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   containerElement.tabIndex = 0
   containerElement.focus()
 
-  // Addresses Ol specifics around focus element and Safari performance issue with tabindex
-  if (!containerElement.hasAttribute('keyboard-focus')) {
-    containerElement.removeAttribute('tabindex')
-    this.isKeyboardEvent = false
-  }
-
   // Remove default controls
   const controls = defaultControls({
     zoom: false,
@@ -141,6 +135,12 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Move focus to first focusable element within dialog
   containerElement.focus()
+
+  // Addresses Ol specifics around focus element and Safari performance issue with tabindex
+  if (!containerElement.hasAttribute('keyboard-focus')) {
+    containerElement.removeAttribute('tabindex')
+    this.isKeyboardEvent = false
+  }
 
   //
   // Public properties
@@ -308,6 +308,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     container.isKeyboardEvent = false
     containerElement.removeAttribute('tabindex')
     containerElement.removeAttribute('keyboard-focus')
+    containerElement.blur()
     keyElement.blur()
     infoElement.blur()
   })
