@@ -167,7 +167,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     containerElement.classList.add('defra-map--key-open')
     keyElement.setAttribute('open', true)
     keyElement.setAttribute('aria-modal', true)
-    console.log(keyElement.hasAttribute('keyboard-focus'))
     if (container.isKeyboardEvent) {
       containerElement.tabIndex = -1
       keyElement.focus()
@@ -306,7 +305,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Mouse or touch interaction
   containerElement.addEventListener('pointerdown', function (e) {
-    console.log('Pointerdown')
     container.isKeyboardEvent = false
     containerElement.removeAttribute('tabindex')
     containerElement.removeAttribute('keyboard-focus')
