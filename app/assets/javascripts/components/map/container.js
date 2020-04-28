@@ -389,4 +389,12 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
       console.log('Next region')
     }
   })
+
+  // Disable pinch zoom
+  keyElement.addEventListener('gesturestart', function (e) {
+    e.preventDefault()
+  })
+  infoElement.addEventListener('gesturestart', function (e) {
+    e.preventDefault()
+  })
 }
