@@ -155,6 +155,8 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   //
 
   this.exitMap = function () {
+    // Remove any document event listeners
+    document.removeEventListener('keydown', keyboardInteraction)
     // Exit map could do different things?
     // Dispatch event for tasks downstream
     dispatchEvent(containerElement, 'mapremove')
@@ -302,6 +304,29 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     container.closeInfo()
   })
 
+  // Mouse or touch interaction
+  containerElement.addEventListener('pointerdown', function (e) {
+    container.isKeyboardEvent = false
+    containerElement.removeAttribute('tabindex')
+    containerElement.removeAttribute('keyboard-focus')
+  })
+
+  // Keyboard interaction
+  const keyboardInteraction = function (e) {
+    if (!container.isKeyboardEvent) {
+      container.isKeyboardEvent = true
+      // Tabindex is added with appropriate value
+      tabletListener(tabletMediaQuery)
+      // Correct focus  on first tab press
+      if (e.keyCode === 9 && (document.activeElement === document.body || document.activeElement === containerElement)) {
+        e.preventDefault()
+        containerElement.focus()
+        containerElement.setAttribute('keyboard-focus', '')
+      }
+    }
+  }
+  document.addEventListener('keydown', keyboardInteraction)
+
   // Escape key behaviour
   containerElement.addEventListener('keyup', function (e) {
     if (e.keyCode === 27) {
@@ -314,22 +339,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
       } else {
         container.exitMap()
       }
-    }
-  })
-
-  // Remove keyboard focus and tabindex
-  containerElement.addEventListener('click', function (e) {
-    container.isKeyboardEvent = false
-    containerElement.removeAttribute('tabindex')
-  })
-
-  // Reinstate tabindex and element focus
-  containerElement.addEventListener('keyup', function (e) {
-    if (!container.isKeyboardEvent) {
-      container.isKeyboardEvent = true
-      // Tabindex is added with appropriate value
-      tabletListener(tabletMediaQuery)
-      // Focus reverts to document.activeElement
     }
   })
 
