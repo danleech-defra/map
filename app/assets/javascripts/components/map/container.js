@@ -8,7 +8,7 @@
 // ***To include a key, include an element with `.map-key__container` in the main inner element.
 // To include a key pass its template name as an option
 
-import { defaults as defaultControls, Zoom } from 'ol/control'
+import { defaults as defaultControls, Zoom, Control } from 'ol/control'
 import { Map } from 'ol'
 import { DragPan } from 'ol/interaction'
 
@@ -30,7 +30,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Public states
   this.isKeyboardEvent = true
-  this.isMouseOverButton = false
 
   // Manage focus
   containerElement.tabIndex = 0
@@ -66,17 +65,23 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     }
   })
 
-  // Create open key button
-  const openKeyButton = document.createElement('button')
-  openKeyButton.className = 'defra-map__open-key'
-  openKeyButton.innerHTML = 'Open key'
-  viewport.insertBefore(openKeyButton, viewport.firstChild)
-
   // Create exit map button
-  const exitMapButton = document.createElement('button')
-  exitMapButton.className = options.exitButtonClass || 'defra-map__exit'
-  exitMapButton.appendChild(document.createTextNode('Exit map'))
-  viewport.insertBefore(exitMapButton, viewport.firstChild)
+  const exitMapButtonElement = document.createElement('button')
+  exitMapButtonElement.className = options.exitButtonClass || 'defra-map__exit'
+  exitMapButtonElement.appendChild(document.createTextNode('Exit map'))
+  const exitMapButton = new Control({
+    element: exitMapButtonElement
+  })
+  map.addControl(exitMapButton)
+
+  // Create open key button
+  const openKeyButtonElement = document.createElement('button')
+  openKeyButtonElement.className = 'defra-map__open-key'
+  openKeyButtonElement.innerHTML = 'Open key'
+  const openKeyButton = new Control({
+    element: openKeyButtonElement
+  })
+  map.addControl(openKeyButton)
 
   // Create viewport keyboard access tooltip
   const tooltipElement = document.createElement('div')
@@ -89,8 +94,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Create zoom controls
   const zoom = new Zoom({
-    className: 'defra-map-zoom',
-    target: viewport
+    className: 'defra-map-zoom'
   })
   map.addControl(zoom)
 
@@ -180,7 +184,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     keyElement.setAttribute('aria-modal', isTablet)
     if (container.isKeyboardEvent) {
       containerElement.tabIndex = 0
-      openKeyButton.focus()
+      openKeyButton.element.focus()
     }
   }
 
@@ -221,19 +225,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   // Get a reference to this
   const container = this
 
-  // Handle event propogation to map from overlayed buttons
-  const buttons = viewport.querySelectorAll('.defra-map__back, .defra-map__exit, .defra-map-zoom, .defra-map-reset')
-  buttons.forEach(function (button) {
-    button.addEventListener('mouseenter', function (e) {
-      dragPan.setActive(false)
-      container.isMouseOverButton = true
-    })
-    button.addEventListener('mouseleave', function (e) {
-      dragPan.setActive(true)
-      container.isMouseOverButton = false
-    })
-  })
-
   // Mobile behavior
   const mobileMediaQuery = window.matchMedia('(max-width: 40.0525em)')
   const zoomButtons = document.querySelectorAll('.defra-map-zoom button')
@@ -271,6 +262,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Map click
   map.on('click', function (e) {
+    console.log('Map click')
     // Hide key
     if (isTablet && isKeyOpen) {
       container.closeKey()
@@ -284,12 +276,13 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   })
 
   // Exit map click
-  exitMapButton.addEventListener('click', function (e) {
+  exitMapButton.element.addEventListener('click', function (e) {
     container.exitMap()
   })
 
   // Open key click
-  openKeyButton.addEventListener('click', function (e) {
+  openKeyButton.element.addEventListener('click', function (e) {
+    console.log('Button click')
     container.openKey()
   })
 
@@ -378,7 +371,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   })
 
   // Move tab focus between regions
-  containerElement.addEventListener('keydown', function (e) {
+  containerElement.addEventListener('keyup', function (e) {
     const isRegionKeyPressed = e.which === 117
     if (!isRegionKeyPressed) {
       return
@@ -390,11 +383,10 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     }
   })
 
-  // Disable pinch zoom
-  keyElement.addEventListener('gesturestart', function (e) {
-    e.preventDefault()
-  })
+  // Disable pinch zoom (doesnt disale )
+  /*
   infoElement.addEventListener('gesturestart', function (e) {
     e.preventDefault()
   })
+  */
 }

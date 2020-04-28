@@ -108,6 +108,8 @@
 }
 // Map keyboard access overlays
 .defra-map-overlay {
+  position:relative;
+  z-index:2;
   @include govuk-font($size: 19, $weight: bold);
   text-align:center;
   width:20px;

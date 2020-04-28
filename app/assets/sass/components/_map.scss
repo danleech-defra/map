@@ -36,6 +36,7 @@
   display:none;
   background-color:white;
   position:absolute;
+  z-index:2;
   @include mq ($from: desktop) {
     display: block;
     left:100%;
@@ -253,6 +254,7 @@
   @include mq ($from: tablet) {
     display: block;
     position:absolute;
+    z-index: 2;
     bottom:10px;
     right:10px;
     width:41px;
@@ -308,6 +310,7 @@
   &--open {
     display: block;
     position:absolute;
+    z-index:2;
     background-color:white;
     bottom:0;
     left:0;
@@ -389,7 +392,12 @@
 
 // ol 6.2.0 mouse events bug fix
 // https://github.com/jumpinjackie/mapguide-react-layout/commit/eb6b3fdfe8f85e2050bf65d28dd13f9d9d47bad3
-.ol-overlaycontainer,
-.ol-overlaycontainer-stopevent {
-  pointer-events: none;
+.ol-overlaycontainer, .ol-overlaycontainer-stopevent {
+  z-index: auto!important;
+}
+.ol-viewport .ol-layers {
+    z-index: 1!important;
+}
+.ol-overlay container {
+  z-index: 2!important;
 }

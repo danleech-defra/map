@@ -417,10 +417,6 @@ function LiveMap (mapId, options) {
 
   // Select feature if map is clicked
   map.addEventListener('click', function (e) {
-    // Need to use flag instead of stopevent container
-    if (container.isMouseOverButton) {
-      return false
-    }
     // Get mouse coordinates and check for feature
     const feature = map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
       if (!defaultLayers.includes(layer)) {
@@ -452,19 +448,14 @@ function LiveMap (mapId, options) {
   })
 
   // Detect keyboard interaction and show overlays
-  containerElement.addEventListener('keyup', function (e) {
+  const keyup = function (e) {
+    // Show overlays
     showOverlays()
-  })
-
-  // Clear selected feature when pressing escape
-  containerElement.addEventListener('keyup', function (e) {
+    // Clear selected feature when pressing escape
     if (e.keyCode === 27 && selectedFeatureId !== '') {
       setSelectedFeature()
     }
-  })
-
-  // Listen for number keys
-  containerElement.addEventListener('keyup', function (e) {
+    // Listen for number keys
     if (visibleFeatures.length <= 9) {
       let index = -1
       if ((e.keyCode - 48) >= 1 && (e.keyCode - 48) <= visibleFeatures.length) {
@@ -476,7 +467,8 @@ function LiveMap (mapId, options) {
         setSelectedFeature(visibleFeatures[index].id)
       }
     }
-  })
+  }
+  document.addEventListener('keyup', keyup)
 
   // Hide overlays when any part of the map is clicked
   map.addEventListener('click', function (e) {

@@ -41,7 +41,6 @@ window.flood.maps.layers = {
     })
   },
 
-  /*
   targetAreaPolygons: () => {
     return new VectorTileLayer({
       ref: 'targetAreaPolygons',
@@ -49,7 +48,8 @@ window.flood.maps.layers = {
         format: new MVT({
           idProperty: 'id'
         }),
-        url: 'http://localhost:8080/geoserver/gwc/service/wmts?request=GetTile&service=wmts&version=1.0.0&layer=flood:target_area&tilematrix=EPSG:900913:{z}&tilematrixset=EPSG:900913&format=application/vnd.mapbox-vector-tile&tilecol={x}&tilerow={y}'
+        // url: 'http://localhost:8080/geoserver/gwc/service/wmts?request=GetTile&service=wmts&version=1.0.0&layer=flood:target_area&tilematrix=EPSG:900913:{z}&tilematrixset=EPSG:900913&format=application/vnd.mapbox-vector-tile&tilecol={x}&tilerow={y}'
+        url: 'http://dansmac.local:8080/geoserver/gwc/service/wmts?request=GetTile&service=wmts&version=1.0.0&layer=flood:target_area&tilematrix=EPSG:900913:{z}&tilematrixset=EPSG:900913&format=application/vnd.mapbox-vector-tile&tilecol={x}&tilerow={y}'
       }),
       renderMode: 'hybrid',
       extent: window.flood.maps.extent,
@@ -58,8 +58,8 @@ window.flood.maps.layers = {
       zIndex: 1
     })
   },
-  */
 
+  /*
   targetAreaPolygons: () => {
     return new VectorLayer({
       ref: 'targetAreaPolygons',
@@ -75,6 +75,7 @@ window.flood.maps.layers = {
       zIndex: 1
     })
   },
+  */
 
   warnings: () => {
     return new VectorLayer({
@@ -83,8 +84,9 @@ window.flood.maps.layers = {
       source: new VectorSource({
         format: new GeoJSON(),
         projection: 'EPSG:3857',
-        url: '/api/warnings.geojson'
+        // url: '/api/warnings.geojson'
         // url: 'http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=flood:ta&srsName=EPSG:3857&outputFormat=application/json'
+        url: 'http://dansmac.local:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=flood:ta&srsName=EPSG:3857&outputFormat=application/json'
       }),
       style: window.flood.maps.styles.warnings,
       visible: false,
@@ -99,8 +101,9 @@ window.flood.maps.layers = {
       source: new VectorSource({
         format: new GeoJSON(),
         projection: 'EPSG:3857',
-        url: '/api/stations.geojson'
+        // url: '/api/stations.geojson'
         // url: 'http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=flood:st&srsName=EPSG:3857&outputFormat=application/json'
+        url: 'http://dansmac.local:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=flood:st&srsName=EPSG:3857&outputFormat=application/json'
       }),
       style: window.flood.maps.styles.stations,
       visible: false,
