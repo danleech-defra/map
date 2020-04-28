@@ -59,7 +59,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   })
 
   // Get reference to viewport
-  const viewport = document.getElementsByClassName('ol-viewport')[0]
+  const viewport = containerElement.getElementsByClassName('ol-viewport')[0]
   viewport.id = 'viewport'
   viewport.setAttribute('role', 'region')
   viewport.className = `defra-map-viewport ${viewport.className}`
@@ -306,9 +306,12 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Mouse or touch interaction
   containerElement.addEventListener('pointerdown', function (e) {
+    console.log('Pointerdown')
     container.isKeyboardEvent = false
     containerElement.removeAttribute('tabindex')
     containerElement.removeAttribute('keyboard-focus')
+    keyElement.blur()
+    infoElement.blur()
   })
 
   // Keyboard interaction
