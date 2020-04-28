@@ -21,7 +21,7 @@ function LiveMap (mapId, options) {
   this.mapId = mapId
   window.flood.activeMap = this
 
-  // Create the map container element
+  // Create the map container element (tabindex is managed by container)
   const containerElement = document.createElement('div')
   containerElement.id = mapId
   containerElement.className = 'defra-map'
@@ -30,7 +30,6 @@ function LiveMap (mapId, options) {
   containerElement.setAttribute('aria-modal', true)
   containerElement.setAttribute('aria-label', 'Map view')
   document.body.appendChild(containerElement)
-  this.containerElement = containerElement
 
   // Dispatch initialise event
   dispatchEvent(containerElement, 'mapinit')
@@ -95,9 +94,6 @@ function LiveMap (mapId, options) {
     pinchRotate: false
   })
 
-  // Detect keyboard interaction on features
-  let isKeyboardInteraction
-
   // Store features that are visible in the viewport
   let visibleFeatures = []
 
@@ -136,9 +132,6 @@ function LiveMap (mapId, options) {
       keyItem.style.display = 'none'
     })
   }
-
-  // Move focus to container element
-  containerElement.focus()
 
   //
   // Private methods
@@ -297,20 +290,22 @@ function LiveMap (mapId, options) {
 
   // Show overlays
   function showOverlays () {
-    hideOverlays()
-    visibleFeatures = getVisibleFeatures()
-    if (visibleFeatures.length <= 9) {
-      visibleFeatures.forEach(function (feature, i) {
-        const overlayElement = document.createTextNode(i + 1)
-        map.addOverlay(
-          new Overlay({
-            element: overlayElement,
-            position: feature.centre,
-            className: `defra-map-overlay defra-map-overlay--${feature.state}${feature.isBigZoom ? '-bigZoom' : ''}`,
-            offset: [0, 0]
-          })
-        )
-      })
+    if (container.isKeyboardEvent) {
+      hideOverlays()
+      visibleFeatures = getVisibleFeatures()
+      if (visibleFeatures.length <= 9) {
+        visibleFeatures.forEach(function (feature, i) {
+          const overlayElement = document.createTextNode(i + 1)
+          map.addOverlay(
+            new Overlay({
+              element: overlayElement,
+              position: feature.centre,
+              className: `defra-map-overlay defra-map-overlay--${feature.state}${feature.isBigZoom ? '-bigZoom' : ''}`,
+              offset: [0, 0]
+            })
+          )
+        })
+      }
     }
   }
 
@@ -350,6 +345,7 @@ function LiveMap (mapId, options) {
 
   this.container = container
   this.map = map
+  this.containerElement = containerElement
   this.queryParamKeys = Object.keys(queryParams)
 
   //
@@ -378,9 +374,7 @@ function LiveMap (mapId, options) {
         // Attempt to set selected feature when layer is ready
         setSelectedFeature(selectedFeatureId)
         // Show overlays
-        if (isKeyboardInteraction) {
-          showOverlays()
-        }
+        showOverlays()
       }
     })
   })
@@ -402,9 +396,7 @@ function LiveMap (mapId, options) {
     clearTimeout(timer)
     timer = setTimeout(function () {
       // Show overlays for visible features
-      if (isKeyboardInteraction) {
-        showOverlays()
-      }
+      showOverlays()
       // Is map view
       if (getParameterByName('v')) {
         replaceHistory('ext', ext)
@@ -440,7 +432,7 @@ function LiveMap (mapId, options) {
 
   // Toggle layers/features if key item changed
   const key = document.querySelector('.defra-map-key')
-  key.addEventListener('change', function (e) {
+  key.addEventListener('click', function (e) {
     if (e.target.nodeName === 'INPUT' && e.target.type === 'checkbox') {
       const checkbox = e.target
       let lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
@@ -450,11 +442,9 @@ function LiveMap (mapId, options) {
       toggleLayerVisibility()
       toggleFeatureVisibility()
       restyleTargetAreaPolygons()
-      if (isKeyboardInteraction) {
-        showOverlays()
-      }
+      showOverlays()
     }
-  })
+  }, true)
 
   // Clear selectedfeature when info is closed
   closeInfoButton.addEventListener('click', function (e) {
@@ -463,7 +453,6 @@ function LiveMap (mapId, options) {
 
   // Detect keyboard interaction and show overlays
   containerElement.addEventListener('keyup', function (e) {
-    isKeyboardInteraction = true
     showOverlays()
   })
 
@@ -491,7 +480,6 @@ function LiveMap (mapId, options) {
 
   // Hide overlays when any part of the map is clicked
   map.addEventListener('click', function (e) {
-    isKeyboardInteraction = false
     hideOverlays()
   })
 }
@@ -515,15 +503,7 @@ maps.createLiveMap = function (mapId, options = {}) {
   btnContainer.parentNode.replaceChild(button, btnContainer)
 
   // Create map on button press
-  const newLiveMap = function (e) {
-    // Exit if keypress but not enter or return pressed
-    /*
-    if (e.type === 'keyup' && (e.keyCode !== 13 || e.keyCode !== 32)) {
-      return
-    }
-    **** Returns and runs click event anyway????
-    */
-    console.log(e.type)
+  button.addEventListener('click', function (e) {
     // Advance history
     const data = { v: mapId, isBack: true }
     const title = document.title
@@ -540,9 +520,7 @@ maps.createLiveMap = function (mapId, options = {}) {
     // options.isKeyboard
     // Create map instance
     return new LiveMap(mapId, options)
-  }
-  button.addEventListener('keyup', newLiveMap)
-  button.addEventListener('click', newLiveMap)
+  })
 
   // Create map on direct or refresh
   if (window.flood.utils.getParameterByName('v') === mapId) {

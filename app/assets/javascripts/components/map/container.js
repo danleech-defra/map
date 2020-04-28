@@ -10,7 +10,7 @@
 
 import { defaults as defaultControls, Zoom } from 'ol/control'
 import { Map } from 'ol'
-import { KeyboardPan, DragPan } from 'ol/interaction'
+import { DragPan } from 'ol/interaction'
 
 const { dispatchEvent } = window.flood.utils
 
@@ -25,14 +25,27 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   // Prorotype kit only - remove in production
   options.keyTemplate = `public/templates/${options.keyTemplate}`
 
-  // Set states
+  // Private states
   let isKeyOpen, isInfoOpen, isTooltipOpen, isMobile, isTablet
+
+  // Public states
+  this.isKeyboardEvent = true
+  this.isMouseOverButton = false
+
+  // Manage focus
+  containerElement.tabIndex = 0
+  containerElement.focus()
+
+  // Addresses Ol specifics around focus element and Safari performance issue with tabindex
+  if (!containerElement.hasAttribute('keyboard-focus')) {
+    containerElement.removeAttribute('tabindex')
+    this.isKeyboardEvent = false
+  }
 
   // Remove default controls
   const controls = defaultControls({
     zoom: false,
     rotate: false,
-    keyboardPan: false,
     attribution: false
   })
 
@@ -42,7 +55,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     layers: options.layers,
     view: options.view,
     controls: controls,
-    keyboardEventTarget: document,
     interactions: options.interactions
   })
 
@@ -52,13 +64,9 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   viewport.setAttribute('role', 'region')
   viewport.className = `defra-map-viewport ${viewport.className}`
 
-  // Get a reference to KeyboardPan and DragPan interactions
-  let keyboardPan
+  // Get a reference to DragPan interactions
   let dragPan
   map.getInteractions().forEach(interaction => {
-    if (interaction instanceof KeyboardPan) {
-      keyboardPan = interaction
-    }
     if (interaction instanceof DragPan) {
       dragPan = interaction
     }
@@ -141,7 +149,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   this.map = map
   this.viewport = viewport
   this.closeInfoButton = closeInfoButton
-  this.isMouseOverButton = false
 
   //
   // Public methods
@@ -156,18 +163,24 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   this.openKey = function () {
     isKeyOpen = true
     containerElement.classList.add('defra-map--key-open')
-    containerElement.tabIndex = -1
     keyElement.setAttribute('open', true)
     keyElement.setAttribute('aria-modal', true)
-    this.closeInfo()
+    console.log(keyElement.hasAttribute('keyboard-focus'))
+    if (container.isKeyboardEvent) {
+      containerElement.tabIndex = -1
+      keyElement.focus()
+    }
   }
 
   this.closeKey = function () {
     isKeyOpen = !isTablet
     containerElement.classList.remove('defra-map--key-open')
-    containerElement.tabIndex = 0
     keyElement.setAttribute('open', isKeyOpen)
     keyElement.setAttribute('aria-modal', isTablet)
+    if (container.isKeyboardEvent) {
+      containerElement.tabIndex = 0
+      openKeyButton.focus()
+    }
   }
 
   this.showInfo = function (id) {
@@ -175,6 +188,9 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     infoElement.classList.add('defra-map-info--open')
     infoElement.setAttribute('open', true)
     infoContainer.innerHTML = id
+    if (container.isKeyboardEvent) {
+      infoElement.focus()
+    }
   }
 
   this.closeInfo = function (id) {
@@ -182,6 +198,9 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     infoElement.classList.remove('defra-map-info--open')
     infoElement.setAttribute('open', false)
     infoContainer.innerHTML = ''
+    if (container.isKeyboardEvent) {
+      containerElement.focus()
+    }
   }
 
   this.showTooltip = function () {
@@ -200,17 +219,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Get a reference to this
   const container = this
-
-  // Radio group focus/blur
-  const radios = containerElement.querySelectorAll('input[type="radio"]')
-  radios.forEach(function (radio) {
-    radio.addEventListener('focus', (e) => {
-      keyboardPan.setActive(false)
-    })
-    radio.addEventListener('blur', (e) => {
-      keyboardPan.setActive(true)
-    })
-  })
 
   // Handle event propogation to map from overlayed buttons
   const buttons = viewport.querySelectorAll('.defra-map__back, .defra-map__exit, .defra-map-zoom, .defra-map-reset')
@@ -252,7 +260,10 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
       keyElement.removeAttribute('open')
       keyElement.removeAttribute('aria-modal')
     }
-    // containerElement.tabIndex = isTablet && isKeyOpen ? -1 : 0
+    // Detect keyboard events
+    if (container.isKeyboardEvent) {
+      containerElement.tabIndex = isTablet && isKeyOpen ? -1 : 0
+    }
   }
   tabletListener(tabletMediaQuery)
   tabletMediaQuery.addListener(tabletListener)
@@ -284,15 +295,11 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   // Close key click
   closeKeyButton.addEventListener('click', function (e) {
     container.closeKey()
-    // Touch interfaces
-    containerElement.focus()
   })
 
   // Close info click
   closeInfoButton.addEventListener('click', function (e) {
     container.closeInfo()
-    // Touch interfaces
-    containerElement.focus()
   })
 
   // Escape key behaviour
@@ -302,13 +309,27 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
         container.hideTooltip()
       } else if (isInfoOpen) {
         container.closeInfo()
-        containerElement.focus() // May chnage to feature
       } else if (isTablet && isKeyOpen) {
         container.closeKey()
-        openKeyButton.focus()
       } else {
         container.exitMap()
       }
+    }
+  })
+
+  // Remove keyboard focus and tabindex
+  containerElement.addEventListener('click', function (e) {
+    container.isKeyboardEvent = false
+    containerElement.removeAttribute('tabindex')
+  })
+
+  // Reinstate tabindex and element focus
+  containerElement.addEventListener('keyup', function (e) {
+    if (!container.isKeyboardEvent) {
+      container.isKeyboardEvent = true
+      // Tabindex is added with appropriate value
+      tabletListener(tabletMediaQuery)
+      // Focus reverts to document.activeElement
     }
   })
 
