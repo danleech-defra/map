@@ -10,7 +10,6 @@
 
 import { defaults as defaultControls, Zoom, Control } from 'ol/control'
 import { Map } from 'ol'
-import { DragPan } from 'ol/interaction'
 
 const { dispatchEvent } = window.flood.utils
 
@@ -56,14 +55,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   viewport.id = 'viewport'
   viewport.setAttribute('role', 'region')
   viewport.className = `defra-map-viewport ${viewport.className}`
-
-  // Get a reference to DragPan interactions
-  let dragPan
-  map.getInteractions().forEach(interaction => {
-    if (interaction instanceof DragPan) {
-      dragPan = interaction
-    }
-  })
 
   // Create exit map button
   const exitMapButtonElement = document.createElement('button')
@@ -171,6 +162,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     containerElement.classList.add('defra-map--key-open')
     keyElement.setAttribute('open', true)
     keyElement.setAttribute('aria-modal', true)
+    container.closeInfo()
     if (container.isKeyboardEvent) {
       containerElement.tabIndex = -1
       keyElement.focus()
@@ -282,7 +274,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Open key click
   openKeyButton.element.addEventListener('click', function (e) {
-    console.log('Button click')
     container.openKey()
   })
 
@@ -299,11 +290,11 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   // Mouse or touch interaction
   containerElement.addEventListener('pointerdown', function (e) {
     container.isKeyboardEvent = false
-    containerElement.removeAttribute('tabindex')
-    containerElement.removeAttribute('keyboard-focus')
-    containerElement.blur()
     keyElement.blur()
     infoElement.blur()
+    containerElement.removeAttribute('tabindex')
+    containerElement.removeAttribute('keyboard-focus')
+    containerElement.blur() // Fix: IOS performance issue
   })
 
   // Keyboard interaction
@@ -312,11 +303,13 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
       container.isKeyboardEvent = true
       // Tabindex is added with appropriate value
       tabletListener(tabletMediaQuery)
-      // Correct focus  on first tab press
-      if (e.keyCode === 9 && (document.activeElement === document.body || document.activeElement === containerElement)) {
-        e.preventDefault()
-        containerElement.focus()
-        containerElement.setAttribute('keyboard-focus', '')
+      // Reset focus to container on first tab press
+      if (e.keyCode === 9) {
+        if (!containerElement.hasAttribute('keyboard-focus') && (document.activeElement === document.body || document.activeElement === containerElement)) {
+          e.preventDefault()
+          containerElement.focus()
+          containerElement.setAttribute('keyboard-focus', '')
+        }
       }
     }
   }
@@ -383,10 +376,8 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     }
   })
 
-  // Disable pinch zoom (doesnt disale )
-  /*
-  infoElement.addEventListener('gesturestart', function (e) {
+  // Disable pinch and double tap zoom
+  infoElement.addEventListener('touchmove', function (e) {
     e.preventDefault()
-  })
-  */
+  }, { passive: false })
 }

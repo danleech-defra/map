@@ -472,7 +472,7 @@ function LiveMap (mapId, options) {
   }
   document.addEventListener('keyup', keyup)
 
-  // Hide overlays when any part of the map is clicked
+  // Hide overlays when the map is clicked
   map.addEventListener('click', function (e) {
     hideOverlays()
   })
@@ -483,7 +483,7 @@ function LiveMap (mapId, options) {
 // (This is done mainly to avoid the rule
 // "do not use 'new' for side effects. (no-new)")
 maps.createLiveMap = function (mapId, options = {}) {
-  // Add window events before maps are created
+  // Set initial history state and window events once for all maps
   if (!window.flood.isLiveMapsInitialised) {
     window.flood.maps.initLiveMaps()
   }
@@ -558,14 +558,15 @@ maps.initLiveMaps = function () {
       })
       // Remove the map and return focus
       if (window.flood.activeMap) { // * Safari fires popstate on page load?
-        window.flood.activeMap.containerElement.remove()
+        const parentElement = window.flood.activeMap.containerElement.parentNode
+        parentElement.removeChild(window.flood.activeMap.containerElement)
         document.getElementById(window.flood.activeMap.mapId + '-btn').focus()
         window.flood.activeMap = null
       }
     }
   })
 
-  // Initialise map
+  // Hide non-map elements and change document title when map initialises
   window.addEventListener('mapinit', function (e) {
     const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
     document.title = `Map view: ${document.title}`
@@ -597,7 +598,8 @@ maps.initLiveMaps = function () {
         element.classList.remove('defra-map-hidden')
       })
       // Remove the map and return focus
-      window.flood.activeMap.containerElement.remove()
+      const parentElement = window.flood.activeMap.containerElement.parentNode
+      parentElement.removeChild(window.flood.activeMap.containerElement)
       document.getElementById(window.flood.activeMap.mapId + '-btn').focus()
       window.flood.activeMap = null
     }

@@ -52,6 +52,7 @@
   }
   &:focus[keyboard-focus]:after {
     position:absolute;
+    pointer-events: none;
     content:'';
     left:3px;
     right:3px;
@@ -322,6 +323,7 @@
     }
     &:focus[keyboard-focus]:after {
       position:absolute;
+      pointer-events: none;
       content:'';
       left:3px;
       right:3px;
