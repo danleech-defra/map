@@ -21,8 +21,9 @@ $govuk-images-path: '/public/images/';
 
 // Components that aren't in Frontend
 @import "components/cookie-banner";
-@import "components/map";
-@import "components/map-live";
+@import "components/map/ol";
+@import "components/map/map";
+@import "components/map/map-live";
 
 
 

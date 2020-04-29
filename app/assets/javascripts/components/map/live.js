@@ -116,10 +116,12 @@ function LiveMap (mapId, options) {
   // Set selected feature id from querystring
   let selectedFeatureId = getParameterByName('sid') || ''
 
-  // Set layers, extent and key items from querystring
+  // Set extent from querystring
   if (getParameterByName('ext')) {
     setExtent()
   }
+
+  // Set layers from querystring
   if (getParameterByName('lyr')) {
     toggleLayerVisibility()
     setCheckboxes()
