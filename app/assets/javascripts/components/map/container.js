@@ -254,7 +254,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Map click
   map.on('click', (e) => {
-    console.log('Map click')
     // Hide key
     if (isTablet && isKeyOpen) {
       container.closeKey()
@@ -299,41 +298,43 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Keyboard interaction
   const keyboardInteraction = (e) => {
-    if (!container.isKeyboardEvent) {
-      container.isKeyboardEvent = true
-      // Tabindex is added with appropriate value
-      tabletListener(tabletMediaQuery)
-      // Reset focus to container on first tab press
-      if (e.keyCode === 9) {
-        if (!containerElement.hasAttribute('keyboard-focus') && (document.activeElement === document.body || document.activeElement === containerElement)) {
-          e.preventDefault()
-          containerElement.focus()
-          containerElement.setAttribute('keyboard-focus', '')
-        }
-      }
+    if (container.isKeyboardEvent) {
+      return
+    }
+    container.isKeyboardEvent = true
+    // Tabindex is added with appropriate value
+    tabletListener(tabletMediaQuery)
+    // Reset focus to container on first tab press
+    if (e.key !== 'Tab') {
+      return
+    }
+    if (!containerElement.hasAttribute('keyboard-focus') && (document.activeElement === document.body || document.activeElement === containerElement)) {
+      e.preventDefault()
+      containerElement.focus()
+      containerElement.setAttribute('keyboard-focus', '')
     }
   }
   document.addEventListener('keydown', keyboardInteraction)
 
   // Escape key behaviour
   containerElement.addEventListener('keyup', (e) => {
-    if (e.keyCode === 27) {
-      if (isTooltipOpen) {
-        container.hideTooltip()
-      } else if (isInfoOpen) {
-        container.closeInfo()
-      } else if (isTablet && isKeyOpen) {
-        container.closeKey()
-      } else {
-        container.exitMap()
-      }
+    if (e.key !== 'Escape') {
+      return
+    }
+    if (isTooltipOpen) {
+      container.hideTooltip()
+    } else if (isInfoOpen) {
+      container.closeInfo()
+    } else if (isTablet && isKeyOpen) {
+      container.closeKey()
+    } else {
+      container.exitMap()
     }
   })
 
   // Constrain tab focus within dialog
   containerElement.addEventListener('keydown', (e) => {
-    const isTabPressed = e.which === 9
-    if (!isTabPressed) {
+    if (e.key !== 'Tab') {
       return
     }
     const tabring = document.activeElement.closest('[role="dialog"]')
@@ -365,8 +366,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Move tab focus between regions
   containerElement.addEventListener('keyup', (e) => {
-    const isRegionKeyPressed = e.which === 117
-    if (!isRegionKeyPressed) {
+    if (e.key !== 'F6') {
       return
     }
     if (e.shiftKey) /* shift + F6 */ {

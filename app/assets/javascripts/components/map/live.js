@@ -457,20 +457,12 @@ function LiveMap (mapId, options) {
     // Show overlays
     showOverlays()
     // Clear selected feature when pressing escape
-    if (e.keyCode === 27 && selectedFeatureId !== '') {
+    if (e.key === 'Escape' && selectedFeatureId !== '') {
       setSelectedFeature()
     }
     // Listen for number keys
-    if (visibleFeatures.length <= 9) {
-      let index = -1
-      if ((e.keyCode - 48) >= 1 && (e.keyCode - 48) <= visibleFeatures.length) {
-        index = e.keyCode - 49
-      } else if ((e.keyCode - 96) >= 1 && (e.keyCode - 96) <= visibleFeatures.length) {
-        index = e.keyCode - 97
-      }
-      if (index >= 0) {
-        setSelectedFeature(visibleFeatures[index].id)
-      }
+    if (!isNaN(e.key) && e.key >= 1 && visibleFeatures.length && visibleFeatures.length <= 9) {
+      setSelectedFeature(visibleFeatures[e.key - 1].id)
     }
   }
   document.addEventListener('keyup', keyup)
