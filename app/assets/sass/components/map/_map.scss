@@ -143,9 +143,10 @@
   color: white;
   font-size:16px;
   line-height:39px;
-  background-image: svg-url('<svg width="18" height="17" viewBox="0 0 20 19" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M9,0l-9,6l9,6l9,-6l-9,-6Z" fill="#ffffff"/><path d="M15.75,9.5l2.25,1.5l-9,6l-9,-6l2.25,-1.5l6.75,4.5l6.75,-4.5Z" fill="#ffffff"/></svg>');
+  // background-image: svg-url('<svg width="18" height="17" viewBox="0 0 18 17" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><path d="M16.125,9.75l1.875,1.25l-9,6l-9,-6l1.875,-1.25l7.125,4.75l7.125,-4.75" style="fill:#fff;"/><path d="M9,0l-9,6l9,6l9,-6l-9,-6Zm0,2.5l-5.25,3.5l5.25,3.5l5.25,-3.5l-5.25,-3.5Z" style="fill:#fff;"/></svg>');
+  background-image: svg-url('<svg width="18" height="17" viewBox="0 0 18 17" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><path d="M16.125,9.75l1.875,1.25l-9,6l-9,-6l1.875,-1.25l7.125,4.75l7.125,-4.75" style="fill:#fff;"/><path d="M9,0l-9,6l9,6l9,-6l-9,-6Z" style="fill:#fff;"/></svg>');
   background-size: 18px 17px;
-  background-position: 11px 12px;
+  background-position: 11px 11px;
   background-repeat: no-repeat;
   padding-left:35px;
   padding-right:11px;
