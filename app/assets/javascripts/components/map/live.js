@@ -11,6 +11,7 @@ import { unByKey } from 'ol/Observable'
 import { defaults as defaultInteractions } from 'ol/interaction'
 import { Point } from 'ol/geom'
 import { buffer, containsExtent } from 'ol/extent'
+import { Vector as VectorSource } from 'ol/source'
 
 const maps = window.flood.maps
 const { addOrUpdateParameter, getParameterByName, forEach, dispatchEvent } = window.flood.utils
@@ -31,9 +32,6 @@ function LiveMap (mapId, options) {
   containerElement.setAttribute('aria-label', 'Map view')
   document.body.appendChild(containerElement)
 
-  // Dispatch initialise event
-  dispatchEvent(containerElement, 'mapinit')
-
   // Defiitive list of query params
   const defautlQueryParams = {
     v: '', // Used to flag map view
@@ -44,7 +42,6 @@ function LiveMap (mapId, options) {
 
   // Options
   const queryParams = Object.assign({}, defautlQueryParams, options.queryParams)
-  const targetArea = options.targetArea
   const smartKey = false
   const isBack = options.isBack
 
@@ -115,6 +112,9 @@ function LiveMap (mapId, options) {
   // Set selected feature id from querystring
   let selectedFeatureId = getParameterByName('sid') || ''
 
+  // Optional target area can be added at runtime
+  let targetArea
+
   //
   // Private methods
   //
@@ -139,13 +139,21 @@ function LiveMap (mapId, options) {
   // Add a target area feature
   const addTargetArea = () => {
     if (!warnings.getSource().getFeatureById(targetArea.id)) {
-      const feature = new Feature({
+      const pointFeature = new Feature({
         name: targetArea.name,
         state: 14
       })
-      feature.setId(targetArea.id)
-      feature.setGeometry(new Point(transform(targetArea.coordinates, 'EPSG:4326', 'EPSG:3857')))
-      warnings.getSource().addFeature(feature)
+      pointFeature.setId(targetArea.id)
+      pointFeature.setGeometry(new Point(transform(targetArea.centre, 'EPSG:4326', 'EPSG:3857')))
+      warnings.getSource().addFeature(pointFeature)
+    }
+    if (targetArea.geometry && targetAreaPolygons.getSource() instanceof VectorSource) {
+      console.log('Adding geometry to vector source')
+      /*
+      const polygonFeature = new Feature({
+
+      })
+      */
     }
   }
 
@@ -354,7 +362,18 @@ function LiveMap (mapId, options) {
   this.queryParamKeys = Object.keys(queryParams)
 
   //
-  // Events
+  // Public methods
+  //
+
+  this.setTargetArea = (newTargetArea) => {
+    targetArea = newTargetArea
+  }
+
+  // Dispatch initialise event
+  dispatchEvent(containerElement, 'mapinit')
+
+  //
+  // Event listeners
   //
 
   // Set selected feature and vector tile states when features have loaded
@@ -364,6 +383,7 @@ function LiveMap (mapId, options) {
         // Remove ready event when layer is ready
         unByKey(change)
         if (layer.get('ref') === 'warnings') {
+          console.log('Ready to add target area')
           // Add optional target area
           if (targetArea) {
             addTargetArea()
