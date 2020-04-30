@@ -20,7 +20,7 @@ const targetArea = {
 }
 
 // Add target area to map before crerateLiveMap
-window.addEventListener('mapinit', function (e) {
+window.addEventListener('mapinit', (e) => {
   if (window.flood.activeMap.mapId === 'map2') {
     // Add target area
   }

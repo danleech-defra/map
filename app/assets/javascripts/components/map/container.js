@@ -149,7 +149,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   // Public methods
   //
 
-  this.exitMap = function () {
+  this.exitMap = () => {
     // Remove any document event listeners
     document.removeEventListener('keydown', keyboardInteraction)
     // Exit map could do different things?
@@ -157,7 +157,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     dispatchEvent(containerElement, 'mapremove')
   }
 
-  this.openKey = function () {
+  this.openKey = () => {
     isKeyOpen = true
     containerElement.classList.add('defra-map--key-open')
     keyElement.setAttribute('open', true)
@@ -169,7 +169,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     }
   }
 
-  this.closeKey = function () {
+  this.closeKey = () => {
     isKeyOpen = !isTablet
     containerElement.classList.remove('defra-map--key-open')
     keyElement.setAttribute('open', isKeyOpen)
@@ -180,7 +180,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     }
   }
 
-  this.showInfo = function (id) {
+  this.showInfo = (id) => {
     isInfoOpen = true
     infoElement.classList.add('defra-map-info--open')
     infoElement.setAttribute('open', true)
@@ -190,7 +190,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     }
   }
 
-  this.closeInfo = function (id) {
+  this.closeInfo = (id) => {
     isInfoOpen = false
     infoElement.classList.remove('defra-map-info--open')
     infoElement.setAttribute('open', false)
@@ -200,12 +200,12 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     }
   }
 
-  this.showTooltip = function () {
+  this.showTooltip = () => {
     isTooltipOpen = true
     tooltipElement.hidden = false
   }
 
-  this.hideTooltip = function () {
+  this.hideTooltip = () => {
     isTooltipOpen = false
     tooltipElement.hidden = true
   }
@@ -220,18 +220,18 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   // Mobile behavior
   const mobileMediaQuery = window.matchMedia('(max-width: 40.0525em)')
   const zoomButtons = document.querySelectorAll('.defra-map-zoom button')
-  const mobileListener = function (mobileMediaQuery) {
+  const mobileListener = (mobileMediaQuery) => {
     isMobile = mobileMediaQuery.matches
-    zoomButtons.forEach(function (button) {
+    zoomButtons.forEach((button) => {
       button.hidden = isMobile
     })
   }
-  mobileListener(mobileMediaQuery)
   mobileMediaQuery.addListener(mobileListener)
+  mobileListener(mobileMediaQuery)
 
   // Tablet (upto portrait) behavior
   const tabletMediaQuery = window.matchMedia('(max-width: 48.0625em)')
-  const tabletListener = function (tabletMediaQuery) {
+  const tabletListener = (tabletMediaQuery) => {
     isTablet = tabletMediaQuery.matches
     isKeyOpen = (containerElement.classList.contains('defra-map--key-open') && isTablet) || !isTablet
     keyElement.setAttribute('role', isTablet ? 'dialog' : 'region')
@@ -249,11 +249,11 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
       containerElement.tabIndex = isTablet && isKeyOpen ? -1 : 0
     }
   }
-  tabletListener(tabletMediaQuery)
   tabletMediaQuery.addListener(tabletListener)
+  tabletListener(tabletMediaQuery)
 
   // Map click
-  map.on('click', function (e) {
+  map.on('click', (e) => {
     console.log('Map click')
     // Hide key
     if (isTablet && isKeyOpen) {
@@ -268,27 +268,27 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   })
 
   // Exit map click
-  exitMapButton.element.addEventListener('click', function (e) {
+  exitMapButton.element.addEventListener('click', (e) => {
     container.exitMap()
   })
 
   // Open key click
-  openKeyButton.element.addEventListener('click', function (e) {
+  openKeyButton.element.addEventListener('click', (e) => {
     container.openKey()
   })
 
   // Close key click
-  closeKeyButton.addEventListener('click', function (e) {
+  closeKeyButton.addEventListener('click', (e) => {
     container.closeKey()
   })
 
   // Close info click
-  closeInfoButton.addEventListener('click', function (e) {
+  closeInfoButton.addEventListener('click', (e) => {
     container.closeInfo()
   })
 
   // Mouse or touch interaction
-  containerElement.addEventListener('pointerdown', function (e) {
+  containerElement.addEventListener('pointerdown', (e) => {
     container.isKeyboardEvent = false
     keyElement.blur()
     infoElement.blur()
@@ -298,7 +298,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   })
 
   // Keyboard interaction
-  const keyboardInteraction = function (e) {
+  const keyboardInteraction = (e) => {
     if (!container.isKeyboardEvent) {
       container.isKeyboardEvent = true
       // Tabindex is added with appropriate value
@@ -316,7 +316,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   document.addEventListener('keydown', keyboardInteraction)
 
   // Escape key behaviour
-  containerElement.addEventListener('keyup', function (e) {
+  containerElement.addEventListener('keyup', (e) => {
     if (e.keyCode === 27) {
       if (isTooltipOpen) {
         container.hideTooltip()
@@ -331,7 +331,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   })
 
   // Constrain tab focus within dialog
-  containerElement.addEventListener('keydown', function (e) {
+  containerElement.addEventListener('keydown', (e) => {
     const isTabPressed = e.which === 9
     if (!isTabPressed) {
       return
@@ -364,7 +364,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   })
 
   // Move tab focus between regions
-  containerElement.addEventListener('keyup', function (e) {
+  containerElement.addEventListener('keyup', (e) => {
     const isRegionKeyPressed = e.which === 117
     if (!isRegionKeyPressed) {
       return
@@ -377,7 +377,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   })
 
   // Disable pinch and double tap zoom
-  infoElement.addEventListener('touchmove', function (e) {
+  infoElement.addEventListener('touchmove', (e) => {
     e.preventDefault()
   }, { passive: false })
 }

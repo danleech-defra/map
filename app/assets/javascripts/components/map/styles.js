@@ -6,20 +6,6 @@ import { Style, Icon, Fill, Stroke } from 'ol/style'
 
 window.flood.maps.styles = {
   // Primarily vector tiles
-  nuts1: (feature) => {
-    // Generate style
-    return new Style({
-      fill: new Fill({
-        color: '#f3f2f1'
-      }),
-      stroke: new Stroke({
-        color: '#f3f2f1',
-        width: 0
-      })
-    })
-  },
-
-  // Primarily vector tiles
   targetAreaPolygons: (feature) => {
     // Use corresposnding warning feature propeties for styling
     const warningsSource = window.flood.maps.warningsSource

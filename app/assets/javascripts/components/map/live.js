@@ -65,7 +65,6 @@ function LiveMap (mapId, options) {
   // Layers
   const road = maps.layers.road()
   const satellite = maps.layers.satellite()
-  const nuts1 = maps.layers.nuts1()
   const targetAreaPolygons = maps.layers.targetAreaPolygons()
   const warnings = maps.layers.warnings()
   const stations = maps.layers.stations()
@@ -116,31 +115,12 @@ function LiveMap (mapId, options) {
   // Set selected feature id from querystring
   let selectedFeatureId = getParameterByName('sid') || ''
 
-  // Set extent from querystring
-  if (getParameterByName('ext')) {
-    setExtent()
-  }
-
-  // Set layers from querystring
-  if (getParameterByName('lyr')) {
-    toggleLayerVisibility()
-    setCheckboxes()
-  }
-
-  // Set smart key visibility
-  if (smartKey) {
-    const keyItems = document.querySelectorAll('.defra-map-key__section--layers .defra-map-key__item')
-    keyItems.forEach(function (keyItem) {
-      keyItem.style.display = 'none'
-    })
-  }
-
   //
   // Private methods
   //
 
   // Set map extent from querystring
-  function setExtent (padding = [0, 0, 0, 0]) {
+  const setExtent = (padding = [0, 0, 0, 0]) => {
     const ext = getParameterByName('ext')
     let extent = ext.split(',').map(Number)
     extent = transformExtent(extent, 'EPSG:4326', 'EPSG:3857')
@@ -148,16 +128,16 @@ function LiveMap (mapId, options) {
   }
 
   // Show or hide layers
-  function toggleLayerVisibility () {
+  const toggleLayerVisibility = () => {
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
-    dataLayers.forEach(function (layer) {
+    dataLayers.forEach((layer) => {
       const isVisible = lyrs.some(lyr => layer.get('featureCodes').includes(lyr))
       layer.setVisible(isVisible)
     })
   }
 
   // Add a target area feature
-  function addTargetArea () {
+  const addTargetArea = () => {
     if (!warnings.getSource().getFeatureById(targetArea.id)) {
       const feature = new Feature({
         name: targetArea.name,
@@ -170,10 +150,10 @@ function LiveMap (mapId, options) {
   }
 
   // Show or hide features within layers
-  function toggleFeatureVisibility () {
+  const toggleFeatureVisibility = () => {
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
-    dataLayers.forEach(function (layer) {
-      layer.getSource().forEachFeature(function (feature) {
+    dataLayers.forEach((layer) => {
+      layer.getSource().forEachFeature((feature) => {
         const ref = layer.get('ref')
         const state = feature.get('state')
         const isVisible = (
@@ -196,8 +176,8 @@ function LiveMap (mapId, options) {
   }
 
   // Toggle features selected state
-  function toggleFeatureSelected (id, state) {
-    dataLayers.forEach(function (layer) {
+  const toggleFeatureSelected = (id, state) => {
+    dataLayers.forEach((layer) => {
       const feature = layer.getSource().getFeatureById(id)
       if (feature) {
         feature.set('isSelected', state)
@@ -210,8 +190,8 @@ function LiveMap (mapId, options) {
   }
 
   // Add a feature to the selected layer
-  function cloneFeature (id) {
-    dataLayers.forEach(function (layer) {
+  const cloneFeature = (id) => {
+    dataLayers.forEach((layer) => {
       const feature = layer.getSource().getFeatureById(id)
       if (feature) {
         selected.getSource().addFeature(feature)
@@ -221,7 +201,7 @@ function LiveMap (mapId, options) {
   }
 
   // Set selected feature (includes opening and closing info panel)
-  function setSelectedFeature (id) {
+  const setSelectedFeature = (id) => {
     toggleFeatureSelected(selectedFeatureId, false)
     selected.getSource().clear()
     if (id) {
@@ -237,17 +217,17 @@ function LiveMap (mapId, options) {
   }
 
   // Set key checkboxes
-  function setCheckboxes () {
+  const setCheckboxes = () => {
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
     const checkboxes = document.querySelectorAll('.defra-map-key input[type=checkbox]')
-    checkboxes.forEach(function (checkbox) {
+    checkboxes.forEach((checkbox) => {
       checkbox.checked = lyrs.includes(checkbox.id)
     })
   }
 
   // Toggle key symbols based on resolution
-  function toggleKeySymbol (resolution) {
-    forEach(containerElement.querySelectorAll('.defra-map-key__symbol'), function (symbol) {
+  const toggleKeySymbol = (resolution) => {
+    forEach(containerElement.querySelectorAll('.defra-map-key__symbol'), (symbol) => {
       const isBigZoom = resolution <= containerOptions.maxBigZoom
       if (isBigZoom) {
         symbol.classList.add('defra-map-key__symbol--big')
@@ -257,8 +237,8 @@ function LiveMap (mapId, options) {
     })
   }
 
-  // Function update url and replace history state
-  function replaceHistory (queryParam, value) {
+  // Update url and replace history state
+  const replaceHistory = (queryParam, value) => {
     const data = { v: mapId, isBack: isBack }
     const url = addOrUpdateParameter(window.location.pathname + window.location.search, queryParam, value)
     const title = document.title
@@ -266,16 +246,16 @@ function LiveMap (mapId, options) {
   }
 
   // Get visible features
-  function getVisibleFeatures () {
+  const getVisibleFeatures = () => {
     const visibleFeatures = []
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
     const resolution = map.getView().getResolution()
     const extent = map.getView().calculateExtent(map.getSize())
     const isBigZoom = resolution <= containerOptions.maxBigZoom
     const layers = dataLayers.filter(layer => lyrs.some(lyr => layer.get('featureCodes').includes(lyr)))
-    layers.forEach(function (layer) {
+    layers.forEach((layer) => {
       if (visibleFeatures.length > 9) return true
-      layer.getSource().forEachFeatureIntersectingExtent(extent, function (feature) {
+      layer.getSource().forEachFeatureIntersectingExtent(extent, (feature) => {
         if (!feature.get('isVisible')) {
           return false
         }
@@ -291,12 +271,12 @@ function LiveMap (mapId, options) {
   }
 
   // Show overlays
-  function showOverlays () {
+  const showOverlays = () => {
     if (container.isKeyboardEvent) {
       hideOverlays()
       visibleFeatures = getVisibleFeatures()
       if (visibleFeatures.length <= 9) {
-        visibleFeatures.forEach(function (feature, i) {
+        visibleFeatures.forEach((feature, i) => {
           const overlayElement = document.createTextNode(i + 1)
           map.addOverlay(
             new Overlay({
@@ -312,18 +292,18 @@ function LiveMap (mapId, options) {
   }
 
   // Hide overlays
-  function hideOverlays () {
+  const hideOverlays = () => {
     map.getOverlays().clear()
   }
 
   // Restyle polygons
-  function restyleTargetAreaPolygons () {
+  const restyleTargetAreaPolygons = () => {
     // Triggers layer to be restyled
     targetAreaPolygons.setStyle(maps.styles.targetAreaPolygons)
   }
 
   // Set target area polygon opacity
-  function setOpacityTargetAreaPolygons () {
+  const setOpacityTargetAreaPolygons = () => {
     if (targetAreaPolygons.getVisible()) {
       const resolution = Math.floor(map.getView().getResolution())
       // Opacity graduates between 1 and 0.4 with resolution
@@ -333,12 +313,35 @@ function LiveMap (mapId, options) {
   }
 
   // Pan map
-  function panToFeature (feature) {
+  const panToFeature = (feature) => {
     let extent = map.getView().calculateExtent(map.getSize())
     extent = buffer(extent, -1000)
     if (!containsExtent(extent, feature.getGeometry().getExtent())) {
       map.getView().setCenter(feature.getGeometry().getCoordinates())
     }
+  }
+
+  //
+  // Setup
+  //
+
+  // Set extent from querystring
+  if (getParameterByName('ext')) {
+    setExtent()
+  }
+
+  // Set layers from querystring
+  if (getParameterByName('lyr')) {
+    toggleLayerVisibility()
+    setCheckboxes()
+  }
+
+  // Set smart key visibility
+  if (smartKey) {
+    const keyItems = document.querySelectorAll('.defra-map-key__section--layers .defra-map-key__item')
+    keyItems.forEach((keyItem) => {
+      keyItem.style.display = 'none'
+    })
   }
 
   //
@@ -355,9 +358,9 @@ function LiveMap (mapId, options) {
   //
 
   // Set selected feature and vector tile states when features have loaded
-  dataLayers.forEach(function (layer) {
-    const change = layer.getSource().on('change', function (e) {
-      if (this.getState() === 'ready') {
+  dataLayers.forEach((layer) => {
+    const change = layer.getSource().on('change', (e) => {
+      if (e.target.getState() === 'ready') {
         // Remove ready event when layer is ready
         unByKey(change)
         if (layer.get('ref') === 'warnings') {
@@ -383,20 +386,20 @@ function LiveMap (mapId, options) {
 
   // Pan or zoom map (fires on map load aswell)
   let timer = null
-  map.addEventListener('moveend', function (e) {
+  map.addEventListener('moveend', (e) => {
     const resolution = map.getView().getResolution()
     // Toggle key symbols depending on resolution
     toggleKeySymbol(resolution)
     // Update url (history state) to reflect new extent
     const extent = map.getView().calculateExtent(map.getSize())
     let ext = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
-    ext = ext.map(function (x) { return Number(x.toFixed(6)) })
+    ext = ext.map((x) => { return Number(x.toFixed(6)) })
     ext = ext.join(',')
     // Set polygon layer opacity
     setOpacityTargetAreaPolygons()
     // Timer used to stop 100 url replaces in 30 seconds limit
     clearTimeout(timer)
-    timer = setTimeout(function () {
+    timer = setTimeout(() => {
       // Show overlays for visible features
       showOverlays()
       // Is map view
@@ -407,9 +410,9 @@ function LiveMap (mapId, options) {
   })
 
   // Show cursor when hovering over features
-  map.addEventListener('pointermove', function (e) {
+  map.addEventListener('pointermove', (e) => {
     // Detect vector feature at mouse coords
-    const hit = map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
+    const hit = map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
       if (!defaultLayers.includes(layer)) {
         return true
       }
@@ -418,9 +421,9 @@ function LiveMap (mapId, options) {
   })
 
   // Select feature if map is clicked
-  map.addEventListener('click', function (e) {
+  map.addEventListener('click', (e) => {
     // Get mouse coordinates and check for feature
-    const feature = map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
+    const feature = map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
       if (!defaultLayers.includes(layer)) {
         return feature
       }
@@ -430,7 +433,7 @@ function LiveMap (mapId, options) {
 
   // Toggle layers/features if key item changed
   const key = document.querySelector('.defra-map-key')
-  key.addEventListener('click', function (e) {
+  key.addEventListener('click', (e) => {
     if (e.target.nodeName === 'INPUT' && e.target.type === 'checkbox') {
       const checkbox = e.target
       let lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
@@ -445,12 +448,12 @@ function LiveMap (mapId, options) {
   }, true)
 
   // Clear selectedfeature when info is closed
-  closeInfoButton.addEventListener('click', function (e) {
+  closeInfoButton.addEventListener('click', (e) => {
     setSelectedFeature()
   })
 
   // Detect keyboard interaction and show overlays
-  const keyup = function (e) {
+  const keyup = (e) => {
     // Show overlays
     showOverlays()
     // Clear selected feature when pressing escape
@@ -473,7 +476,7 @@ function LiveMap (mapId, options) {
   document.addEventListener('keyup', keyup)
 
   // Hide overlays when the map is clicked
-  map.addEventListener('click', function (e) {
+  map.addEventListener('click', (e) => {
     hideOverlays()
   })
 }
@@ -482,7 +485,7 @@ function LiveMap (mapId, options) {
 // onto the `maps` object.
 // (This is done mainly to avoid the rule
 // "do not use 'new' for side effects. (no-new)")
-maps.createLiveMap = function (mapId, options = {}) {
+maps.createLiveMap = (mapId, options = {}) => {
   // Set initial history state and window events once for all maps
   if (!window.flood.isLiveMapsInitialised) {
     window.flood.maps.initLiveMaps()
@@ -497,7 +500,7 @@ maps.createLiveMap = function (mapId, options = {}) {
   btnContainer.parentNode.replaceChild(button, btnContainer)
 
   // Create map on button press
-  button.addEventListener('click', function (e) {
+  button.addEventListener('click', (e) => {
     // Advance history
     const data = { v: mapId, isBack: true }
     const title = document.title
@@ -505,7 +508,7 @@ maps.createLiveMap = function (mapId, options = {}) {
     url = addOrUpdateParameter(url, 'v', mapId)
     // Add any querystring parameters from constructor
     if (options.queryParams) {
-      Object.keys(options.queryParams).forEach(function (key, index) {
+      Object.keys(options.queryParams).forEach((key) => {
         url = addOrUpdateParameter(url, key, options.queryParams[key])
       })
     }
@@ -525,7 +528,7 @@ maps.createLiveMap = function (mapId, options = {}) {
 }
 
 // Add window evewnts once for multiple maps
-maps.initLiveMaps = function () {
+maps.initLiveMaps = () => {
   // Set initial history state if not already set
   if (!window.history.state) {
     const data = { v: '', isBack: false }
@@ -535,7 +538,7 @@ maps.initLiveMaps = function () {
   }
 
   // Recreate or remove map on browser backward/forward
-  window.addEventListener('popstate', function (e) {
+  window.addEventListener('popstate', (e) => {
     const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
     if (e.state.v !== '') {
       if (window.flood.activeMap) { // * Safari fires popstate on page load?
@@ -543,7 +546,7 @@ maps.initLiveMaps = function () {
       }
       // Set document properties
       document.title = `Map view: ${document.title}`
-      bodyElements.forEach(function (element) {
+      bodyElements.forEach((element) => {
         element.classList.add('defra-map-hidden')
       })
       // Recreate the map
@@ -553,8 +556,8 @@ maps.initLiveMaps = function () {
     } else {
       // Reinstate document properties and non-map elements
       document.title = document.title.replace('Map view: ', '')
-      bodyElements.forEach(function (node) {
-        node.classList.remove('defra-map-hidden')
+      bodyElements.forEach((element) => {
+        element.classList.remove('defra-map-hidden')
       })
       // Remove the map and return focus
       if (window.flood.activeMap) { // * Safari fires popstate on page load?
@@ -567,16 +570,16 @@ maps.initLiveMaps = function () {
   })
 
   // Hide non-map elements and change document title when map initialises
-  window.addEventListener('mapinit', function (e) {
+  window.addEventListener('mapinit', (e) => {
     const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
     document.title = `Map view: ${document.title}`
-    bodyElements.forEach(function (element) {
+    bodyElements.forEach((element) => {
       element.classList.add('defra-map-hidden')
     })
   })
 
   // Remove map
-  window.addEventListener('mapremove', function (e) {
+  window.addEventListener('mapremove', (e) => {
     const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
     if (window.history.state.isBack) {
       window.history.back()
@@ -594,7 +597,7 @@ maps.initLiveMaps = function () {
       window.history.replaceState(data, title, url)
       // Reinstate document properties and non-map elements
       document.title = title
-      bodyElements.forEach(function (element) {
+      bodyElements.forEach((element) => {
         element.classList.remove('defra-map-hidden')
       })
       // Remove the map and return focus
