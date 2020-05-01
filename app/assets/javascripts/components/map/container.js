@@ -11,8 +11,6 @@
 import { defaults as defaultControls, Zoom, Control } from 'ol/control'
 import { Map } from 'ol'
 
-const { dispatchEvent } = window.flood.utils
-
 window.flood.maps.MapContainer = function MapContainer (containerElement, options) {
   // Setup defaults
   const defaults = {
@@ -26,13 +24,6 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Private states
   let isKeyOpen, isInfoOpen, isTooltipOpen, isMobile, isTablet
-
-  // Public states
-  this.isKeyboardEvent = true
-
-  // Manage focus
-  containerElement.tabIndex = 0
-  containerElement.focus()
 
   // Remove default controls
   const controls = defaultControls({
@@ -58,7 +49,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Create exit map button
   const exitMapButtonElement = document.createElement('button')
-  exitMapButtonElement.className = options.exitButtonClass || 'defra-map__exit'
+  exitMapButtonElement.className = 'defra-map__' + (options.isBack ? 'back' : 'exit')
   exitMapButtonElement.appendChild(document.createTextNode('Exit map'))
   const exitMapButton = new Control({
     element: exitMapButtonElement
@@ -128,19 +119,15 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   keyElement.appendChild(keyContainer)
   containerElement.appendChild(keyElement)
 
-  // Move focus to first focusable element within dialog
+  // Move focus to first focusable element within dialog if keyboard interaction
   containerElement.focus()
-
-  // Addresses Ol specifics around focus element and Safari performance issue with tabindex
+  this.isKeyboard = true
   if (!containerElement.hasAttribute('keyboard-focus')) {
-    containerElement.removeAttribute('tabindex')
-    this.isKeyboardEvent = false
+    containerElement.tabIndex = -1
+    this.isKeyboard = false
   }
 
-  //
   // Public properties
-  //
-
   this.map = map
   this.viewport = viewport
   this.closeInfoButton = closeInfoButton
@@ -150,11 +137,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   //
 
   this.exitMap = () => {
-    // Remove any document event listeners
-    document.removeEventListener('keydown', keyboardInteraction)
-    // Exit map could do different things?
-    // Dispatch event for tasks downstream
-    dispatchEvent(containerElement, 'mapremove')
+    // Different things can happen. Behaviour deferred to instance.
   }
 
   this.openKey = () => {
@@ -163,7 +146,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     keyElement.setAttribute('open', true)
     keyElement.setAttribute('aria-modal', true)
     container.closeInfo()
-    if (container.isKeyboardEvent) {
+    if (container.isKeyboard) {
       containerElement.tabIndex = -1
       keyElement.focus()
     }
@@ -174,7 +157,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     containerElement.classList.remove('defra-map--key-open')
     keyElement.setAttribute('open', isKeyOpen)
     keyElement.setAttribute('aria-modal', isTablet)
-    if (container.isKeyboardEvent) {
+    if (container.isKeyboard) {
       containerElement.tabIndex = 0
       openKeyButton.element.focus()
     }
@@ -185,7 +168,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     infoElement.classList.add('defra-map-info--open')
     infoElement.setAttribute('open', true)
     infoContainer.innerHTML = id
-    if (container.isKeyboardEvent) {
+    if (container.isKeyboard) {
       infoElement.focus()
     }
   }
@@ -195,7 +178,7 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     infoElement.classList.remove('defra-map-info--open')
     infoElement.setAttribute('open', false)
     infoContainer.innerHTML = ''
-    if (container.isKeyboardEvent) {
+    if (container.isKeyboard) {
       containerElement.focus()
     }
   }
@@ -244,8 +227,8 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
       keyElement.removeAttribute('open')
       keyElement.removeAttribute('aria-modal')
     }
-    // Detect keyboard events
-    if (container.isKeyboardEvent) {
+    // Remove tabindex if keyboard and key is open
+    if (container.isKeyboard) {
       containerElement.tabIndex = isTablet && isKeyOpen ? -1 : 0
     }
   }
@@ -288,33 +271,31 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Mouse or touch interaction
   containerElement.addEventListener('pointerdown', (e) => {
-    container.isKeyboardEvent = false
+    container.isKeyboard = false
     keyElement.blur()
     infoElement.blur()
-    containerElement.removeAttribute('tabindex')
-    containerElement.removeAttribute('keyboard-focus')
+    containerElement.tabIndex = -1
     containerElement.blur() // Fix: IOS performance issue
   })
 
   // Keyboard interaction
-  const keyboardInteraction = (e) => {
-    if (container.isKeyboardEvent) {
+  containerElement.addEventListener('keydown', (e) => {
+    if (container.isKeyboard) {
       return
     }
-    container.isKeyboardEvent = true
+    container.isKeyboard = true
     // Tabindex is added with appropriate value
     tabletListener(tabletMediaQuery)
     // Reset focus to container on first tab press
     if (e.key !== 'Tab') {
       return
     }
-    if (!containerElement.hasAttribute('keyboard-focus') && (document.activeElement === document.body || document.activeElement === containerElement)) {
+    if (document.activeElement === document.body || document.activeElement === containerElement) {
       e.preventDefault()
       containerElement.focus()
       containerElement.setAttribute('keyboard-focus', '')
     }
-  }
-  document.addEventListener('keydown', keyboardInteraction)
+  })
 
   // Escape key behaviour
   containerElement.addEventListener('keyup', (e) => {

@@ -14,15 +14,11 @@ import { buffer, containsExtent } from 'ol/extent'
 import { Vector as VectorSource } from 'ol/source'
 
 const maps = window.flood.maps
-const { addOrUpdateParameter, getParameterByName, forEach, dispatchEvent } = window.flood.utils
+const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
-  // Set active map
-  this.mapId = mapId
-  window.flood.activeMap = this
-
-  // Create the map container element (tabindex is managed by container)
+  // Create the map container element
   const containerElement = document.createElement('div')
   containerElement.id = mapId
   containerElement.className = 'defra-map'
@@ -30,7 +26,15 @@ function LiveMap (mapId, options) {
   containerElement.setAttribute('open', true)
   containerElement.setAttribute('aria-modal', true)
   containerElement.setAttribute('aria-label', 'Map view')
+  containerElement.tabIndex = 0
   document.body.appendChild(containerElement)
+
+  // Set document properties
+  const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
+  document.title = `Map view: ${document.title}`
+  bodyElements.forEach((element) => {
+    element.classList.add('defra-map-hidden')
+  })
 
   // Defiitive list of query params
   const defautlQueryParams = {
@@ -40,7 +44,7 @@ function LiveMap (mapId, options) {
     sid: '' // Store the current selecxted feature Id
   }
 
-  // Options
+  // LiveMap options
   const queryParams = Object.assign({}, defautlQueryParams, options.queryParams)
   const smartKey = false
   const isBack = options.isBack
@@ -69,6 +73,7 @@ function LiveMap (mapId, options) {
   const impacts = maps.layers.impacts()
   const selected = maps.layers.selected()
 
+  // These layers are static
   const defaultLayers = [
     road,
     satellite,
@@ -76,13 +81,13 @@ function LiveMap (mapId, options) {
     selected
   ]
 
+  // These layers can be manipulated
   const dataLayers = [
     rainfall,
     stations,
     warnings,
     impacts
   ]
-
   const layers = defaultLayers.concat(dataLayers)
 
   // Configure default interactions
@@ -90,8 +95,11 @@ function LiveMap (mapId, options) {
     pinchRotate: false
   })
 
-  // Store features that are visible in the viewport
+  // Reference features that are visible in the viewport
   let visibleFeatures = []
+
+  // Reference to current select feature
+  let selectedFeatureId = getParameterByName('sid') || ''
 
   // Options to pass to the MapContainer constructor
   const containerOptions = {
@@ -101,7 +109,7 @@ function LiveMap (mapId, options) {
     queryParams: queryParams,
     interactions: interactions,
     keyTemplate: 'key-live.html',
-    exitButtonClass: isBack ? 'defra-map__back' : 'defra-map__exit'
+    isBack: isBack
   }
 
   // Create MapContainer
@@ -109,11 +117,35 @@ function LiveMap (mapId, options) {
   const map = container.map
   const closeInfoButton = container.closeInfoButton
 
-  // Set selected feature id from querystring
-  let selectedFeatureId = getParameterByName('sid') || ''
-
-  // Optional target area can be added at runtime
-  let targetArea
+  // Define container exitMap behavior
+  container.exitMap = () => {
+    if (isBack) {
+      // Browser back
+      window.history.back()
+    } else {
+      // Remove map
+      containerElement.parentNode.removeChild(containerElement)
+      // Remove url parameters
+      let search = window.location.search
+      const paramKeys = ['v', 'lyr', 'ext', 'sid']
+      paramKeys.forEach(paramKey => {
+        search = addOrUpdateParameter(search, paramKey, '')
+      })
+      // Reset history
+      const data = { v: '', isBack: false }
+      const url = window.location.pathname + search
+      const title = document.title.replace('Map view: ', '')
+      window.history.replaceState(data, title, url)
+      // Reinstate document properties and non-map elements
+      document.title = title
+      bodyElements.forEach((element) => {
+        element.classList.remove('defra-map-hidden')
+      })
+      // Return focus
+      document.getElementById(mapId + '-btn').focus()
+      window.flood.activeMap = null
+    }
+  }
 
   //
   // Private methods
@@ -138,6 +170,8 @@ function LiveMap (mapId, options) {
 
   // Add a target area feature
   const addTargetArea = () => {
+    const targetArea = options.targetArea
+    /*
     if (!warnings.getSource().getFeatureById(targetArea.id)) {
       const pointFeature = new Feature({
         name: targetArea.name,
@@ -148,13 +182,11 @@ function LiveMap (mapId, options) {
       warnings.getSource().addFeature(pointFeature)
     }
     if (targetArea.geometry && targetAreaPolygons.getSource() instanceof VectorSource) {
-      console.log('Adding geometry to vector source')
-      /*
       const polygonFeature = new Feature({
 
       })
-      */
     }
+    */
   }
 
   // Show or hide features within layers
@@ -247,7 +279,7 @@ function LiveMap (mapId, options) {
 
   // Update url and replace history state
   const replaceHistory = (queryParam, value) => {
-    const data = { v: mapId, isBack: isBack }
+    const data = { v: mapId, isBack: options.isBack }
     const url = addOrUpdateParameter(window.location.pathname + window.location.search, queryParam, value)
     const title = document.title
     window.history.replaceState(data, title, url)
@@ -280,7 +312,7 @@ function LiveMap (mapId, options) {
 
   // Show overlays
   const showOverlays = () => {
-    if (container.isKeyboardEvent) {
+    if (container.isKeyboard) {
       hideOverlays()
       visibleFeatures = getVisibleFeatures()
       if (visibleFeatures.length <= 9) {
@@ -353,26 +385,6 @@ function LiveMap (mapId, options) {
   }
 
   //
-  // Public properties
-  //
-
-  this.container = container
-  this.map = map
-  this.containerElement = containerElement
-  this.queryParamKeys = Object.keys(queryParams)
-
-  //
-  // Public methods
-  //
-
-  this.setTargetArea = (newTargetArea) => {
-    targetArea = newTargetArea
-  }
-
-  // Dispatch initialise event
-  dispatchEvent(containerElement, 'mapinit')
-
-  //
   // Event listeners
   //
 
@@ -383,9 +395,8 @@ function LiveMap (mapId, options) {
         // Remove ready event when layer is ready
         unByKey(change)
         if (layer.get('ref') === 'warnings') {
-          console.log('Ready to add target area')
           // Add optional target area
-          if (targetArea) {
+          if (options.targetArea) {
             addTargetArea()
           }
         }
@@ -481,7 +492,7 @@ function LiveMap (mapId, options) {
       setSelectedFeature()
     }
     // Listen for number keys
-    if (!isNaN(e.key) && e.key >= 1 && visibleFeatures.length && visibleFeatures.length <= 9) {
+    if (!isNaN(e.key) && e.key >= 1 && e.key <= visibleFeatures.length && visibleFeatures.length <= 9) {
       setSelectedFeature(visibleFeatures[e.key - 1].id)
     }
   }
@@ -498,9 +509,12 @@ function LiveMap (mapId, options) {
 // (This is done mainly to avoid the rule
 // "do not use 'new' for side effects. (no-new)")
 maps.createLiveMap = (mapId, options = {}) => {
-  // Set initial history state and window events once for all maps
-  if (!window.flood.isLiveMapsInitialised) {
-    window.flood.maps.initLiveMaps()
+  // Set initial history state once
+  if (!window.history.state) {
+    const data = { v: '', isBack: false }
+    const title = document.title
+    let url = window.location.pathname + window.location.search
+    window.history.replaceState(data, title, url)
   }
 
   // Create map button
@@ -526,36 +540,24 @@ maps.createLiveMap = (mapId, options = {}) => {
     }
     window.history.pushState(data, title, url)
     options.isBack = true
-    // options.isKeyboard
-    // Create map instance
+    // Create the map
     return new LiveMap(mapId, options)
   })
 
-  // Create map on direct or refresh
-  if (window.flood.utils.getParameterByName('v') === mapId) {
-    return new LiveMap(mapId, {
-      isBack: window.history.state && window.history.state.isBack
-    })
-  }
-}
-
-// Add window evewnts once for multiple maps
-maps.initLiveMaps = () => {
-  // Set initial history state if not already set
-  if (!window.history.state) {
-    const data = { v: '', isBack: false }
-    const title = document.title
-    let url = window.location.pathname + window.location.search
-    window.history.replaceState(data, title, url)
-  }
-
-  // Recreate or remove map on browser backward/forward
+  // Recreate or remove map on browser backward/forward attached for each
   window.addEventListener('popstate', (e) => {
+    const containerElement = document.querySelector('#' + mapId)
     const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
-    if (e.state.v !== '') {
-      if (window.flood.activeMap) { // * Safari fires popstate on page load?
-        return
-      }
+    if (containerElement && e.state.v !== mapId) {
+      // Reinstate document properties and non-map elements
+      document.title = document.title.replace('Map view: ', '')
+      bodyElements.forEach((element) => {
+        element.classList.remove('defra-map-hidden')
+      })
+      // Remove the map and return focus
+      containerElement.parentNode.removeChild(containerElement)
+      document.getElementById(mapId + '-btn').focus()
+    } else if (e.state.v === mapId) {
       // Set document properties
       document.title = `Map view: ${document.title}`
       bodyElements.forEach((element) => {
@@ -563,62 +565,18 @@ maps.initLiveMaps = () => {
       })
       // Recreate the map
       return new LiveMap(e.state.v, {
-        isBack: e.state.isBack
+        isBack: window.history.state.isBack,
+        targetArea: options.targetArea || null
       })
-    } else {
-      // Reinstate document properties and non-map elements
-      document.title = document.title.replace('Map view: ', '')
-      bodyElements.forEach((element) => {
-        element.classList.remove('defra-map-hidden')
-      })
-      // Remove the map and return focus
-      if (window.flood.activeMap) { // * Safari fires popstate on page load?
-        const parentElement = window.flood.activeMap.containerElement.parentNode
-        parentElement.removeChild(window.flood.activeMap.containerElement)
-        document.getElementById(window.flood.activeMap.mapId + '-btn').focus()
-        window.flood.activeMap = null
-      }
     }
   })
 
-  // Hide non-map elements and change document title when map initialises
-  window.addEventListener('mapinit', (e) => {
-    const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
-    document.title = `Map view: ${document.title}`
-    bodyElements.forEach((element) => {
-      element.classList.add('defra-map-hidden')
+  // Create map on refresh or direct
+  if (window.flood.utils.getParameterByName('v') === mapId) {
+    // Create the map
+    return new LiveMap(mapId, {
+      isBack: window.history.state.isBack,
+      targetArea: options.targetArea || null
     })
-  })
-
-  // Remove map
-  window.addEventListener('mapremove', (e) => {
-    const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
-    if (window.history.state.isBack) {
-      window.history.back()
-    } else {
-      // Remove url parameters
-      let search = window.location.search
-      const paramKeys = ['v', 'lyr', 'ext', 'sid']
-      paramKeys.forEach(paramKey => {
-        search = addOrUpdateParameter(search, paramKey, '')
-      })
-      // Reset history
-      const data = { v: '', isBack: false }
-      const url = window.location.pathname + search
-      const title = document.title.replace('Map view: ', '')
-      window.history.replaceState(data, title, url)
-      // Reinstate document properties and non-map elements
-      document.title = title
-      bodyElements.forEach((element) => {
-        element.classList.remove('defra-map-hidden')
-      })
-      // Remove the map and return focus
-      const parentElement = window.flood.activeMap.containerElement.parentNode
-      parentElement.removeChild(window.flood.activeMap.containerElement)
-      document.getElementById(window.flood.activeMap.mapId + '-btn').focus()
-      window.flood.activeMap = null
-    }
-  })
-
-  window.flood.isLiveMapsInitialised = true
+  }
 }

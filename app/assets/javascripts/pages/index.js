@@ -1,7 +1,7 @@
 'use strict'
 // import '../components/nunjucks'
-import keyboardFocus from 'keyboard-focus'
 import '../core'
+import keyboardFocus from 'keyboard-focus'
 import '../components/map/maps'
 import '../components/map/styles'
 import '../components/map/layers'
@@ -9,10 +9,8 @@ import '../components/map/container'
 import '../components/map/live'
 import './model' // Temporary geometry
 
-// Activate keyboard focus
-keyboardFocus(document)
-
 // Add target area to map each time it is opened
+/*
 window.addEventListener('mapinit', (e) => {
   if (window.flood.activeMap.mapId === 'map1') {
     window.flood.activeMap.setTargetArea({
@@ -23,6 +21,10 @@ window.addEventListener('mapinit', (e) => {
     })
   }
 })
+*/
+
+// Detects whether active element received keyboard event
+keyboardFocus(document)
 
 // Create a map
 window.flood.maps.createLiveMap('map1', { // Button Id (Required)
@@ -32,7 +34,8 @@ window.flood.maps.createLiveMap('map1', { // Button Id (Required)
     lyr: 'ts,tw,ta', // Default layers to display (tr removed)
     ext: [-1.326567, 53.871946, -0.953128, 54.149476] // Optional initial zoom to extent
     // sid: 'ta.122WAF946' // Optional intial selected feature
-  }
+  },
+  targetArea: 'TA1'
   // center: [-1.548567, 53.801277], // Optional initial center will be converted to extent in querystring
   // zoom: 12 // Optional initial zoom will be converted to extent in querystring
 })
