@@ -11,7 +11,7 @@
 import { defaults as defaultControls, Zoom, Control } from 'ol/control'
 import { Map } from 'ol'
 
-window.flood.maps.MapContainer = function MapContainer (containerElement, options) {
+window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Setup defaults
   const defaults = {
     minIconResolution: window.flood.maps.minResolution,
@@ -24,6 +24,17 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
 
   // Private states
   let isKeyOpen, isInfoOpen, isTooltipOpen, isMobile, isTablet
+
+  // Create the map container element
+  const containerElement = document.createElement('div')
+  containerElement.id = mapId
+  containerElement.className = 'defra-map'
+  containerElement.setAttribute('role', 'dialog')
+  containerElement.setAttribute('open', true)
+  containerElement.setAttribute('aria-modal', true)
+  containerElement.setAttribute('aria-label', 'Map view')
+  containerElement.tabIndex = 0
+  document.body.appendChild(containerElement)
 
   // Remove default controls
   const controls = defaultControls({
@@ -123,13 +134,14 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
   containerElement.focus()
   this.isKeyboard = true
   if (!containerElement.hasAttribute('keyboard-focus')) {
-    containerElement.tabIndex = -1
     this.isKeyboard = false
   }
 
   // Public properties
   this.map = map
+  this.containerElement = containerElement
   this.viewport = viewport
+  this.keyElement = keyElement
   this.closeInfoButton = closeInfoButton
 
   //
@@ -269,32 +281,17 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     container.closeInfo()
   })
 
+  // Disable pinch and double tap zoom
+  infoElement.addEventListener('touchmove', (e) => {
+    e.preventDefault()
+  }, { passive: false })
+
   // Mouse or touch interaction
   containerElement.addEventListener('pointerdown', (e) => {
     container.isKeyboard = false
-    keyElement.blur()
     infoElement.blur()
-    containerElement.tabIndex = -1
-    containerElement.blur() // Fix: IOS performance issue
-  })
-
-  // Keyboard interaction
-  containerElement.addEventListener('keydown', (e) => {
-    if (container.isKeyboard) {
-      return
-    }
-    container.isKeyboard = true
-    // Tabindex is added with appropriate value
-    tabletListener(tabletMediaQuery)
-    // Reset focus to container on first tab press
-    if (e.key !== 'Tab') {
-      return
-    }
-    if (document.activeElement === document.body || document.activeElement === containerElement) {
-      e.preventDefault()
-      containerElement.focus()
-      containerElement.setAttribute('keyboard-focus', '')
-    }
+    keyElement.blur()
+    containerElement.removeAttribute('tabindex') // Performance issue in Safari
   })
 
   // Escape key behaviour
@@ -332,12 +329,12 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     const focusableEls = document.querySelectorAll(`#${tabring.id}, ` + selectors.map(i => `#${tabring.id} ${specificity}` + i).join(','))
     const firstFocusableEl = focusableEls[0]
     const lastFocusableEl = focusableEls[focusableEls.length - 1]
-    if (e.shiftKey) /* shift + tab */ {
+    if (e.shiftKey) {
       if (document.activeElement === firstFocusableEl) {
         lastFocusableEl.focus()
         e.preventDefault()
       }
-    } else /* tab */ {
+    } else {
       if (document.activeElement === lastFocusableEl) {
         firstFocusableEl.focus()
         e.preventDefault()
@@ -357,8 +354,21 @@ window.flood.maps.MapContainer = function MapContainer (containerElement, option
     }
   })
 
-  // Disable pinch and double tap zoom
-  infoElement.addEventListener('touchmove', (e) => {
-    e.preventDefault()
-  }, { passive: false })
+  // Keyboard interaction (*** needs removing on map exit)
+  document.addEventListener('keydown', (e) => {
+    if (container.isKeyboard) {
+      return
+    }
+    container.isKeyboard = true
+    // Tabindex is added with appropriate value
+    tabletListener(tabletMediaQuery)
+    // Reset focus to container on first tab press
+    console.log(document.activeElement)
+    console.log(document.activeElement === (document.body || containerElement))
+    if (e.key === 'Tab' && (document.activeElement === document.body || document.activeElement === containerElement)) {
+      e.preventDefault()
+      containerElement.focus()
+      containerElement.setAttribute('keyboard-focus', '')
+    }
+  })
 }

@@ -18,17 +18,6 @@ const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
-  // Create the map container element
-  const containerElement = document.createElement('div')
-  containerElement.id = mapId
-  containerElement.className = 'defra-map'
-  containerElement.setAttribute('role', 'dialog')
-  containerElement.setAttribute('open', true)
-  containerElement.setAttribute('aria-modal', true)
-  containerElement.setAttribute('aria-label', 'Map view')
-  containerElement.tabIndex = 0
-  document.body.appendChild(containerElement)
-
   // Set document properties
   const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
   document.title = `Map view: ${document.title}`
@@ -113,8 +102,10 @@ function LiveMap (mapId, options) {
   }
 
   // Create MapContainer
-  const container = new MapContainer(containerElement, containerOptions)
+  const container = new MapContainer(mapId, containerOptions)
   const map = container.map
+  const containerElement = container.containerElement
+  const keyElement = container.keyElement
   const closeInfoButton = container.closeInfoButton
 
   // Define container exitMap behavior
@@ -463,8 +454,7 @@ function LiveMap (mapId, options) {
   })
 
   // Toggle layers/features if key item changed
-  const key = document.querySelector('.defra-map-key')
-  key.addEventListener('click', (e) => {
+  keyElement.addEventListener('click', (e) => {
     if (e.target.nodeName === 'INPUT' && e.target.type === 'checkbox') {
       const checkbox = e.target
       let lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
@@ -478,13 +468,8 @@ function LiveMap (mapId, options) {
     }
   }, true)
 
-  // Clear selectedfeature when info is closed
-  closeInfoButton.addEventListener('click', (e) => {
-    setSelectedFeature()
-  })
-
-  // Detect keyboard interaction and show overlays
-  const keyup = (e) => {
+  // Show overlays
+  containerElement.addEventListener('keyup', (e) => {
     // Show overlays
     showOverlays()
     // Clear selected feature when pressing escape
@@ -495,12 +480,16 @@ function LiveMap (mapId, options) {
     if (!isNaN(e.key) && e.key >= 1 && e.key <= visibleFeatures.length && visibleFeatures.length <= 9) {
       setSelectedFeature(visibleFeatures[e.key - 1].id)
     }
-  }
-  document.addEventListener('keyup', keyup)
+  })
 
-  // Hide overlays when the map is clicked
-  map.addEventListener('click', (e) => {
+  // Hide overlays
+  containerElement.addEventListener('click', (e) => {
     hideOverlays()
+  })
+
+  // Clear selectedfeature when info is closed
+  closeInfoButton.addEventListener('click', (e) => {
+    setSelectedFeature()
   })
 }
 
