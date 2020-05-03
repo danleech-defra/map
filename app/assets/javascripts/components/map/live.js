@@ -304,7 +304,7 @@ function LiveMap (mapId, options) {
   // Show overlays
   const showOverlays = () => {
     if (container.isKeyboard) {
-      hideOverlays()
+      container.hideOverlays()
       visibleFeatures = getVisibleFeatures()
       if (visibleFeatures.length <= 9) {
         visibleFeatures.forEach((feature, i) => {
@@ -320,11 +320,6 @@ function LiveMap (mapId, options) {
         })
       }
     }
-  }
-
-  // Hide overlays
-  const hideOverlays = () => {
-    map.getOverlays().clear()
   }
 
   // Restyle polygons
@@ -453,25 +448,12 @@ function LiveMap (mapId, options) {
     setSelectedFeature(feature ? feature.getId() : '')
   })
 
-  // Toggle layers/features if key item changed
-  keyElement.addEventListener('click', (e) => {
-    if (e.target.nodeName === 'INPUT' && e.target.type === 'checkbox') {
-      const checkbox = e.target
-      let lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
-      checkbox.checked ? lyrs.push(checkbox.id) : lyrs.splice(lyrs.indexOf(checkbox.id), 1)
-      lyrs = lyrs.join(',')
-      replaceHistory('lyr', lyrs)
-      toggleLayerVisibility()
-      toggleFeatureVisibility()
-      restyleTargetAreaPolygons()
+  // Handle all key presses
+  containerElement.addEventListener('keyup', (e) => {
+    // Show overlays when tab, enter or space is press
+    if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ') {
       showOverlays()
     }
-  }, true)
-
-  // Show overlays
-  containerElement.addEventListener('keyup', (e) => {
-    // Show overlays
-    showOverlays()
     // Clear selected feature when pressing escape
     if (e.key === 'Escape' && selectedFeatureId !== '') {
       setSelectedFeature()
@@ -484,7 +466,33 @@ function LiveMap (mapId, options) {
 
   // Hide overlays
   containerElement.addEventListener('click', (e) => {
+    console.log('Container click')
     hideOverlays()
+  })
+
+  // Hide overlays on checkbox pointerup
+  keyElement.addEventListener('pointerup', (e) => {
+    if (e.target.nodeName === 'INPUT' && e.target.type === 'checkbox') {
+      console.log('Checkbox pointerup')
+      hideOverlays()
+    }
+  })
+
+  // Toggle layers/features if key item changed
+  keyElement.addEventListener('click', (e) => {
+    if (e.target.nodeName === 'INPUT' && e.target.type === 'checkbox') {
+      console.log('Checkbox click')
+      e.stopPropagation()
+      const checkbox = e.target
+      let lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
+      checkbox.checked ? lyrs.push(checkbox.id) : lyrs.splice(lyrs.indexOf(checkbox.id), 1)
+      lyrs = lyrs.join(',')
+      replaceHistory('lyr', lyrs)
+      toggleLayerVisibility()
+      toggleFeatureVisibility()
+      restyleTargetAreaPolygons()
+      showOverlays()
+    }
   })
 
   // Clear selectedfeature when info is closed

@@ -23,7 +23,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   options.keyTemplate = `public/templates/${options.keyTemplate}`
 
   // Private states
-  let isKeyOpen, isInfoOpen, isTooltipOpen, isMobile, isTablet
+  let isKeyOpen, isInfoOpen, isTooltipOpen, hasOverlays, isMobile, isTablet
 
   // Create the map container element
   const containerElement = document.createElement('div')
@@ -132,39 +132,31 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
 
   // Move focus to first focusable element within dialog if keyboard interaction
   containerElement.focus()
-  this.isKeyboard = true
-  if (!containerElement.hasAttribute('keyboard-focus')) {
-    this.isKeyboard = false
-  }
-
-  // Public properties
-  this.map = map
-  this.containerElement = containerElement
-  this.viewport = viewport
-  this.keyElement = keyElement
-  this.closeInfoButton = closeInfoButton
 
   //
-  // Public methods
+  // Private methods
   //
 
-  this.exitMap = () => {
-    // Different things can happen. Behaviour deferred to instance.
+  const exitMap = () => {
+    // Remove window event listeners
+    window.addEventListener('keydown', keydown)
+    // Expose public method for instance specific tasks
+    this.exitMap()
   }
 
-  this.openKey = () => {
+  const openKey = () => {
     isKeyOpen = true
     containerElement.classList.add('defra-map--key-open')
     keyElement.setAttribute('open', true)
     keyElement.setAttribute('aria-modal', true)
-    container.closeInfo()
+    closeInfo()
     if (container.isKeyboard) {
       containerElement.tabIndex = -1
       keyElement.focus()
     }
   }
 
-  this.closeKey = () => {
+  const closeKey = () => {
     isKeyOpen = !isTablet
     containerElement.classList.remove('defra-map--key-open')
     keyElement.setAttribute('open', isKeyOpen)
@@ -173,6 +165,50 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
       containerElement.tabIndex = 0
       openKeyButton.element.focus()
     }
+  }
+
+  const closeInfo = () => {
+    isInfoOpen = false
+    infoElement.classList.remove('defra-map-info--open')
+    infoElement.setAttribute('open', false)
+    infoContainer.innerHTML = ''
+    if (container.isKeyboard) {
+      containerElement.focus()
+    }
+  }
+
+  const hideTooltip = () => {
+    isTooltipOpen = false
+    tooltipElement.hidden = true
+  }
+
+  const hideOverlays = () => {
+    hasOverlays = false
+    map.getOverlays().clear()
+  }
+
+  //
+  // Public properties
+  //
+
+  this.map = map
+  this.containerElement = containerElement
+  this.viewport = viewport
+  this.keyElement = keyElement
+  this.closeInfoButton = closeInfoButton
+  this.hasOverlays = hasOverlays
+  this.hasOverlays = false
+  this.isKeyboard = true
+  if (!containerElement.hasAttribute('keyboard-focus')) {
+    this.isKeyboard = false
+  }
+
+  //
+  // Public methods
+  //
+
+  this.exitMap = () => {
+    // Different things can happen. Behaviour deferred to instance.
   }
 
   this.showInfo = (id) => {
@@ -185,24 +221,17 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     }
   }
 
-  this.closeInfo = (id) => {
-    isInfoOpen = false
-    infoElement.classList.remove('defra-map-info--open')
-    infoElement.setAttribute('open', false)
-    infoContainer.innerHTML = ''
-    if (container.isKeyboard) {
-      containerElement.focus()
-    }
-  }
-
   this.showTooltip = () => {
     isTooltipOpen = true
     tooltipElement.hidden = false
   }
 
-  this.hideTooltip = () => {
-    isTooltipOpen = false
-    tooltipElement.hidden = true
+  this.hideOverlays = () => {
+
+  }
+
+  this.showOverlays = () => {
+    
   }
 
   //
@@ -251,11 +280,11 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   map.on('click', (e) => {
     // Hide key
     if (isTablet && isKeyOpen) {
-      container.closeKey()
+      closeKey()
     }
     // Close info panel
     if (isInfoOpen) {
-      container.closeInfo()
+      closeInfo()
     }
     // Touch interfaces
     containerElement.focus()
@@ -263,22 +292,22 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
 
   // Exit map click
   exitMapButton.element.addEventListener('click', (e) => {
-    container.exitMap()
+    exitMap()
   })
 
   // Open key click
   openKeyButton.element.addEventListener('click', (e) => {
-    container.openKey()
+    openKey()
   })
 
   // Close key click
   closeKeyButton.addEventListener('click', (e) => {
-    container.closeKey()
+    closeKey()
   })
 
   // Close info click
   closeInfoButton.addEventListener('click', (e) => {
-    container.closeInfo()
+    closeInfo()
   })
 
   // Disable pinch and double tap zoom
@@ -299,14 +328,16 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     if (e.key !== 'Escape') {
       return
     }
-    if (isTooltipOpen) {
-      container.hideTooltip()
+    if (hasOverlays) {
+      hideOverlays()
+    } else if (isTooltipOpen) {
+      hideTooltip()
     } else if (isInfoOpen) {
-      container.closeInfo()
+      closeInfo()
     } else if (isTablet && isKeyOpen) {
-      container.closeKey()
+      closeKey()
     } else {
-      container.exitMap()
+      exitMap()
     }
   })
 
@@ -354,8 +385,8 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     }
   })
 
-  // Keyboard interaction (*** needs removing on map exit)
-  document.addEventListener('keydown', (e) => {
+  // Keyboard interaction - removed map exit
+  const keydown = (e) => {
     if (container.isKeyboard) {
       return
     }
@@ -363,12 +394,11 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     // Tabindex is added with appropriate value
     tabletListener(tabletMediaQuery)
     // Reset focus to container on first tab press
-    console.log(document.activeElement)
-    console.log(document.activeElement === (document.body || containerElement))
     if (e.key === 'Tab' && (document.activeElement === document.body || document.activeElement === containerElement)) {
       e.preventDefault()
       containerElement.focus()
       containerElement.setAttribute('keyboard-focus', '')
     }
-  })
+  }
+  window.addEventListener('keydown', keydown)
 }
