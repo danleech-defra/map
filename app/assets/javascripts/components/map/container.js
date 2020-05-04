@@ -27,8 +27,12 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Private states
   let isKeyOpen, isInfoOpen, isTooltipOpen, isMobile, isTablet
 
-  // Get a reference to all non-map elements
+  // Hide all non-map elements and prefix title
   const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
+  document.title = `Map view: ${document.title}`
+  bodyElements.forEach((element) => {
+    element.classList.add('defra-map-hidden')
+  })
 
   // Create the map container element
   const containerElement = document.createElement('div')
@@ -135,7 +139,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   keyElement.appendChild(keyContainer)
   containerElement.appendChild(keyElement)
 
-  // Move focus to first focusable element within dialog if keyboard interaction
+  // Start focus (will be removed if not keyboard)
   containerElement.focus()
 
   //
@@ -225,10 +229,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   this.viewport = viewport
   this.keyElement = keyElement
   this.closeInfoButton = closeInfoButton
-  this.isKeyboard = true
-  if (!containerElement.hasAttribute('keyboard-focus')) {
-    this.isKeyboard = false
-  }
+  this.isKeyboard = !!containerElement.hasAttribute('keyboard-focus')
 
   //
   // Public methods

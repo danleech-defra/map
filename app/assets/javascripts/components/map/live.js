@@ -18,25 +18,14 @@ const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
-  // Set document properties
-  const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
-  document.title = `Map view: ${document.title}`
-  bodyElements.forEach((element) => {
-    element.classList.add('defra-map-hidden')
-  })
-
-  // Defiitive list of query params
-  const defautlQueryParams = {
-    v: '', // Used to flag map view
-    lyr: '', // Store the current active layers
-    ext: [], // Store the current extent
-    sid: '' // Store the current selecxted feature Id
+  // Query params used in liveMap
+  const defaultQueryParams = {
+    v: '', // Used to determine which map to view
+    lyr: '', // Current active layers
+    ext: [], // Current extent
+    sid: '' // Current selecxted feature Id
   }
-
-  // LiveMap options
-  const queryParams = Object.assign({}, defautlQueryParams, options.queryParams)
-  const smartKey = false
-  const isBack = options.isBack
+  const queryParams = Object.assign({}, defaultQueryParams, options.queryParams)
 
   // View
   const view = new View({
@@ -84,10 +73,10 @@ function LiveMap (mapId, options) {
     pinchRotate: false
   })
 
-  // Reference features that are visible in the viewport
+  // Features that are visible in the viewport
   let visibleFeatures = []
 
-  // Reference to current select feature
+  // Current select feature id
   let selectedFeatureId = getParameterByName('sid') || ''
 
   // Options to pass to the MapContainer constructor
@@ -98,7 +87,7 @@ function LiveMap (mapId, options) {
     queryParamKeys: Object.keys(queryParams),
     interactions: interactions,
     keyTemplate: 'key-live.html',
-    isBack: isBack
+    isBack: options.isBack
   }
 
   // Create MapContainer
@@ -338,7 +327,7 @@ function LiveMap (mapId, options) {
   }
 
   // Set smart key visibility
-  if (smartKey) {
+  if (options.hasSmartKey) {
     const keyItems = document.querySelectorAll('.defra-map-key__section--layers .defra-map-key__item')
     keyItems.forEach((keyItem) => {
       keyItem.style.display = 'none'
@@ -439,7 +428,7 @@ function LiveMap (mapId, options) {
     }
   })
 
-  // Hide overlays on all events (excludes checkbox click)
+  // Hide overlays (excludes checkbox click)
   containerElement.addEventListener('click', (e) => {
     hideOverlays()
   })
@@ -517,7 +506,7 @@ maps.createLiveMap = (mapId, options = {}) => {
     if (e.state.v === mapId) {
       return new LiveMap(e.state.v, {
         isBack: window.history.state.isBack,
-        targetArea: options.targetArea || null
+        targetArea: options.targetArea
       })
     }
   })
@@ -526,7 +515,7 @@ maps.createLiveMap = (mapId, options = {}) => {
   if (window.flood.utils.getParameterByName('v') === mapId) {
     return new LiveMap(mapId, {
       isBack: window.history.state.isBack,
-      targetArea: options.targetArea || null
+      targetArea: options.targetArea
     })
   }
 }
