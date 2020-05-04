@@ -391,7 +391,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // All keypress (keyup) events
   containerElement.addEventListener('keyup', (e) => {
     // Escape key behavior
-    if (e.key === 'Escape') {
+    if (e.key === 'Escape' || e.key === 'Esc') {
       if (isTooltipOpen) {
         hideTooltip()
       } else if (isInfoOpen) {

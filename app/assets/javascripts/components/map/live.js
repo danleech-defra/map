@@ -511,7 +511,7 @@ maps.createLiveMap = (mapId, options = {}) => {
     }
   })
 
-  // Create map on refresh or direct
+  // Recreate map on refresh or direct
   if (window.flood.utils.getParameterByName('v') === mapId) {
     return new LiveMap(mapId, {
       isBack: window.history.state.isBack,
