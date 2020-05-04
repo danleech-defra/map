@@ -43,7 +43,6 @@ window.flood.maps.layers = {
   },
   */
 
-  /*
   targetAreaPolygons: () => {
     return new VectorTileLayer({
       ref: 'targetAreaPolygons',
@@ -60,8 +59,8 @@ window.flood.maps.layers = {
       zIndex: 1
     })
   },
-  */
 
+  /*
   targetAreaPolygons: () => {
     return new VectorLayer({
       ref: 'targetAreaPolygons',
@@ -77,11 +76,12 @@ window.flood.maps.layers = {
       zIndex: 1
     })
   },
+  */
 
   warnings: () => {
     return new VectorLayer({
       ref: 'warnings',
-      featureCodes: 'ts, tw, ta, tr',
+      featureCodes: 'ts, tw, ta, tr, ti',
       source: new VectorSource({
         format: new GeoJSON(),
         projection: 'EPSG:3857',

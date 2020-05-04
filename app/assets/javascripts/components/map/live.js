@@ -9,7 +9,7 @@ import { View, Overlay, Feature } from 'ol'
 import { transformExtent, transform } from 'ol/proj'
 import { unByKey } from 'ol/Observable'
 import { defaults as defaultInteractions } from 'ol/interaction'
-import { Point } from 'ol/geom'
+import { Point, MultiPolygon } from 'ol/geom'
 import { buffer, containsExtent } from 'ol/extent'
 import { Vector as VectorSource } from 'ol/source'
 
@@ -32,13 +32,8 @@ function LiveMap (mapId, options) {
     zoom: options.zoom || 6,
     minZoom: 6,
     maxZoom: 18,
-    center: options.center ? transform(options.center, 'EPSG:4326', 'EPSG:3857') : maps.center,
-    extent: transformExtent([
-      -13.930664,
-      47.428087,
-      8.920898,
-      59.040555
-    ], 'EPSG:4326', 'EPSG:3857')
+    center: options.centre ? transform(options.centre, 'EPSG:4326', 'EPSG:3857') : maps.centre,
+    extent: transformExtent([-13.930664, 47.428087, 8.920898, 59.040555], 'EPSG:4326', 'EPSG:3857')
   })
 
   // Layers
@@ -109,6 +104,32 @@ function LiveMap (mapId, options) {
     map.getView().fit(extent, { constrainResolution: false, padding: padding })
   }
 
+  // Add a target area feature
+  const addTargetArea = () => {
+    if (!warnings.getSource().getFeatureById(options.targetArea.id)) {
+      // Add point feature
+      const pointFeature = new Feature({
+        geometry: new Point(transform(options.targetArea.centre, 'EPSG:4326', 'EPSG:3857')),
+        name: options.targetArea.name,
+        state: 15 // Inactive
+      })
+      pointFeature.setId(options.targetArea.id)
+      warnings.getSource().addFeature(pointFeature)
+      // Add Polygon if vector layer
+      if (options.targetArea.polygon && targetAreaPolygons.getSource() instanceof VectorSource) {
+        const polygonFeature = new Feature({
+          geometry: new MultiPolygon(options.targetArea.polygon)
+        })
+        polygonFeature.setId(options.targetArea.id)
+        targetAreaPolygons.getSource().addFeature(polygonFeature)
+        console.log(polygonFeature)
+      }
+      // Set extent
+      addOrUpdateParameter(window.location.pathname + window.location.search, 'ext', '')
+      // feature.getExtent()
+    }
+  }
+
   // Show or hide layers
   const toggleLayerVisibility = () => {
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
@@ -116,27 +137,6 @@ function LiveMap (mapId, options) {
       const isVisible = lyrs.some(lyr => layer.get('featureCodes').includes(lyr))
       layer.setVisible(isVisible)
     })
-  }
-
-  // Add a target area feature
-  const addTargetArea = () => {
-    const targetArea = options.targetArea
-    /*
-    if (!warnings.getSource().getFeatureById(targetArea.id)) {
-      const pointFeature = new Feature({
-        name: targetArea.name,
-        state: 14
-      })
-      pointFeature.setId(targetArea.id)
-      pointFeature.setGeometry(new Point(transform(targetArea.centre, 'EPSG:4326', 'EPSG:3857')))
-      warnings.getSource().addFeature(pointFeature)
-    }
-    if (targetArea.geometry && targetAreaPolygons.getSource() instanceof VectorSource) {
-      const polygonFeature = new Feature({
-
-      })
-    }
-    */
   }
 
   // Show or hide features within layers
@@ -152,6 +152,7 @@ function LiveMap (mapId, options) {
           (state === 12 && lyrs.includes('tw')) ||
           (state === 13 && lyrs.includes('ta')) ||
           (state === 14 && lyrs.includes('tr')) ||
+          (state === 15 && lyrs.includes('ti')) ||
           // Stations
           (state === 21 && lyrs.includes('sh')) ||
           (ref === 'stations' && state !== 21 && lyrs.includes('st')) ||

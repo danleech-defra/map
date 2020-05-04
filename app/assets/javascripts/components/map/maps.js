@@ -13,7 +13,7 @@ window.flood.maps = {
     55.8409309387207
   ], 'EPSG:4326', 'EPSG:3857'),
 
-  center: transform([
+  centre: transform([
     -1.4758,
     52.9219
   ], 'EPSG:4326', 'EPSG:3857'),

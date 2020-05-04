@@ -39,11 +39,10 @@ window.flood.maps.styles = {
         fillColour = pattern('alert', isSelected)
         zIndex = isGroundwater ? 1 : 2
         break
-      case 14: // Removed
+      default: // Removed or inactive
         strokeColour = isSelected ? '#FFDD00' : '#626A6E'
         fillColour = pattern('removed', isSelected)
         zIndex = 3
-        break
     }
 
     // Generate style
@@ -84,9 +83,8 @@ window.flood.maps.styles = {
       case 13: // Alert
         style = isSelected ? styleCache.alertSelected : styleCache.alert
         break
-      case 14: // Removed
+      default: // Removed or inactive
         style = isSelected ? styleCache.targetAreaSelected : styleCache.targetArea
-        break
     }
     return style
   },
