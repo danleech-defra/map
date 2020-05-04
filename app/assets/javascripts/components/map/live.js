@@ -95,7 +95,7 @@ function LiveMap (mapId, options) {
     maxBigZoom: window.flood.maps.liveMapSymbolBreakpoint,
     view: view,
     layers: layers,
-    queryParams: queryParams,
+    queryParamKeys: Object.keys(queryParams),
     interactions: interactions,
     keyTemplate: 'key-live.html',
     isBack: isBack
@@ -107,36 +107,6 @@ function LiveMap (mapId, options) {
   const containerElement = container.containerElement
   const keyElement = container.keyElement
   const closeInfoButton = container.closeInfoButton
-
-  // Define container exitMap behavior
-  container.exitMap = () => {
-    if (isBack) {
-      // Browser back
-      window.history.back()
-    } else {
-      // Remove map
-      containerElement.parentNode.removeChild(containerElement)
-      // Remove url parameters
-      let search = window.location.search
-      const paramKeys = ['v', 'lyr', 'ext', 'sid']
-      paramKeys.forEach(paramKey => {
-        search = addOrUpdateParameter(search, paramKey, '')
-      })
-      // Reset history
-      const data = { v: '', isBack: false }
-      const url = window.location.pathname + search
-      const title = document.title.replace('Map view: ', '')
-      window.history.replaceState(data, title, url)
-      // Reinstate document properties and non-map elements
-      document.title = title
-      bodyElements.forEach((element) => {
-        element.classList.remove('defra-map-hidden')
-      })
-      // Return focus
-      document.getElementById(mapId + '-btn').focus()
-      window.flood.activeMap = null
-    }
-  }
 
   //
   // Private methods
@@ -539,30 +509,12 @@ maps.createLiveMap = (mapId, options = {}) => {
     }
     window.history.pushState(data, title, url)
     options.isBack = true
-    // Create the map
     return new LiveMap(mapId, options)
   })
 
-  // Recreate or remove map on browser backward/forward attached for each
+  // Recreate map on popstate
   window.addEventListener('popstate', (e) => {
-    const containerElement = document.querySelector('#' + mapId)
-    const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
-    if (containerElement && e.state.v !== mapId) {
-      // Reinstate document properties and non-map elements
-      document.title = document.title.replace('Map view: ', '')
-      bodyElements.forEach((element) => {
-        element.classList.remove('defra-map-hidden')
-      })
-      // Remove the map and return focus
-      containerElement.parentNode.removeChild(containerElement)
-      document.getElementById(mapId + '-btn').focus()
-    } else if (e.state.v === mapId) {
-      // Set document properties
-      document.title = `Map view: ${document.title}`
-      bodyElements.forEach((element) => {
-        element.classList.add('defra-map-hidden')
-      })
-      // Recreate the map
+    if (e.state.v === mapId) {
       return new LiveMap(e.state.v, {
         isBack: window.history.state.isBack,
         targetArea: options.targetArea || null
@@ -572,7 +524,6 @@ maps.createLiveMap = (mapId, options = {}) => {
 
   // Create map on refresh or direct
   if (window.flood.utils.getParameterByName('v') === mapId) {
-    // Create the map
     return new LiveMap(mapId, {
       isBack: window.history.state.isBack,
       targetArea: options.targetArea || null

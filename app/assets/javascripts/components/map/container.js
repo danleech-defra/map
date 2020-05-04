@@ -11,6 +11,8 @@
 import { defaults as defaultControls, Zoom, Control } from 'ol/control'
 import { Map } from 'ol'
 
+const { addOrUpdateParameter } = window.flood.utils
+
 window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Setup defaults
   const defaults = {
@@ -24,6 +26,9 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
 
   // Private states
   let isKeyOpen, isInfoOpen, isTooltipOpen, isMobile, isTablet
+
+  // Get a reference to all non-map elements
+  const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
 
   // Create the map container element
   const containerElement = document.createElement('div')
@@ -138,10 +143,39 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   //
 
   const exitMap = () => {
-    // Remove window event listeners
+    // Tidy up any document or window listeners
     window.addEventListener('keydown', keydown)
-    // Expose public method for instance specific tasks
-    this.exitMap()
+    if (options.isBack) {
+      // Browser back
+      window.history.back()
+    } else {
+      // Remove url parameters
+      let search = window.location.search
+      options.queryParamKeys.forEach(paramKey => {
+        search = addOrUpdateParameter(search, paramKey, '')
+      })
+      // Reset history
+      const data = { v: '', isBack: false }
+      const url = window.location.pathname + search
+      const title = document.title.replace('Map view: ', '')
+      window.history.replaceState(data, title, url)
+      // Reset document
+      removeContainer()
+    }
+  }
+
+  const removeContainer = () => {
+    if (containerElement) { // Safari fires popstate on page load
+      const title = document.title.replace('Map view: ', '')
+      // Reinstate document properties and non-map elements
+      document.title = title
+      bodyElements.forEach((element) => {
+        element.classList.remove('defra-map-hidden')
+      })
+      // Remove map and return focus
+      containerElement.parentNode.removeChild(containerElement)
+      document.getElementById(mapId + '-btn').focus()
+    }
   }
 
   const openKey = () => {
@@ -199,10 +233,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   //
   // Public methods
   //
-
-  this.exitMap = () => {
-    // Different things can happen. Behaviour deferred to instance.
-  }
 
   this.showInfo = (id) => {
     isInfoOpen = true
@@ -308,29 +338,22 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     containerElement.removeAttribute('tabindex') // Performance issue in Safari
   })
 
-  // All keyboard (keyup) events
-  containerElement.addEventListener('keyup', (e) => {
-    // Escape key behavior
-    if (e.key === 'Escape') {
-      if (isTooltipOpen) {
-        hideTooltip()
-      } else if (isInfoOpen) {
-        closeInfo()
-      } else if (isTablet && isKeyOpen) {
-        closeKey()
-      } else {
-        exitMap()
+  // First tab press after mouse or touch interaction
+  const keydown = (e) => {
+    if (!container.isKeyboard) {
+      // previously mouse or touch interaction
+      container.isKeyboard = true
+      // tabindex is added with appropriate value
+      tabletListener(tabletMediaQuery)
+      // reset focus to container on first tab press
+      if (e.key === 'Tab' && (document.activeElement === document.body || document.activeElement === containerElement)) {
+        e.preventDefault()
+        containerElement.focus()
+        containerElement.setAttribute('keyboard-focus', '')
       }
     }
-    // Move tab ring between regions
-    if (e.key === 'F6') {
-      if (e.shiftKey) /* shift + F6 */ {
-        console.log('Previous region')
-      } else /* F6 */ {
-        console.log('Next region')
-      }
-    }
-  })
+  }
+  window.addEventListener('keydown', keydown)
 
   // Constrain tab focus within dialog
   containerElement.addEventListener('keydown', (e) => {
@@ -364,21 +387,34 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     }
   })
 
-  // First tab press when container has no tabindex (required for Safari performance issue)
-  const keydown = (e) => {
-    if (!container.isKeyboard) {
-      // ie. was mouse or touch interaction
-      container.isKeyboard = true
-      // tabindex is added with appropriate value
-      tabletListener(tabletMediaQuery)
-      // Reset focus to container on first tab press
-      if (e.key === 'Tab' && (document.activeElement === document.body || document.activeElement === containerElement)) {
-        e.preventDefault()
-        containerElement.focus()
-        containerElement.setAttribute('keyboard-focus', '')
+  // All keypress (keyup) events
+  containerElement.addEventListener('keyup', (e) => {
+    // Escape key behavior
+    if (e.key === 'Escape') {
+      if (isTooltipOpen) {
+        hideTooltip()
+      } else if (isInfoOpen) {
+        closeInfo()
+      } else if (isTablet && isKeyOpen) {
+        closeKey()
+      } else {
+        exitMap()
       }
     }
+    // Move tab ring between regions
+    if (e.key === 'F6') {
+      if (e.shiftKey) /* shift + F6 */ {
+        console.log('Previous region')
+      } else /* F6 */ {
+        console.log('Next region')
+      }
+    }
+  })
+
+  // Remove map on popsate change
+  const popstate = (e) => {
+    removeContainer()
+    window.removeEventListener('popstate', popstate)
   }
-  // Added to document or window and removed on map exit
-  window.addEventListener('keydown', keydown)
+  window.addEventListener('popstate', popstate)
 }
