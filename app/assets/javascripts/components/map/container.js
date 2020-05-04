@@ -23,7 +23,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   options.keyTemplate = `public/templates/${options.keyTemplate}`
 
   // Private states
-  let isKeyOpen, isInfoOpen, isTooltipOpen, hasOverlays, isMobile, isTablet
+  let isKeyOpen, isInfoOpen, isTooltipOpen, isMobile, isTablet
 
   // Create the map container element
   const containerElement = document.createElement('div')
@@ -182,11 +182,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     tooltipElement.hidden = true
   }
 
-  const hideOverlays = () => {
-    hasOverlays = false
-    map.getOverlays().clear()
-  }
-
   //
   // Public properties
   //
@@ -196,8 +191,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   this.viewport = viewport
   this.keyElement = keyElement
   this.closeInfoButton = closeInfoButton
-  this.hasOverlays = hasOverlays
-  this.hasOverlays = false
   this.isKeyboard = true
   if (!containerElement.hasAttribute('keyboard-focus')) {
     this.isKeyboard = false
@@ -224,14 +217,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   this.showTooltip = () => {
     isTooltipOpen = true
     tooltipElement.hidden = false
-  }
-
-  this.hideOverlays = () => {
-
-  }
-
-  this.showOverlays = () => {
-    
   }
 
   //
@@ -323,21 +308,27 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     containerElement.removeAttribute('tabindex') // Performance issue in Safari
   })
 
-  // Escape key behaviour
+  // All keyboard (keyup) events
   containerElement.addEventListener('keyup', (e) => {
-    if (e.key !== 'Escape') {
-      return
+    // Escape key behavior
+    if (e.key === 'Escape') {
+      if (isTooltipOpen) {
+        hideTooltip()
+      } else if (isInfoOpen) {
+        closeInfo()
+      } else if (isTablet && isKeyOpen) {
+        closeKey()
+      } else {
+        exitMap()
+      }
     }
-    if (hasOverlays) {
-      hideOverlays()
-    } else if (isTooltipOpen) {
-      hideTooltip()
-    } else if (isInfoOpen) {
-      closeInfo()
-    } else if (isTablet && isKeyOpen) {
-      closeKey()
-    } else {
-      exitMap()
+    // Move tab ring between regions
+    if (e.key === 'F6') {
+      if (e.shiftKey) /* shift + F6 */ {
+        console.log('Previous region')
+      } else /* F6 */ {
+        console.log('Next region')
+      }
     }
   })
 
@@ -373,32 +364,21 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     }
   })
 
-  // Move tab focus between regions
-  containerElement.addEventListener('keyup', (e) => {
-    if (e.key !== 'F6') {
-      return
-    }
-    if (e.shiftKey) /* shift + F6 */ {
-      console.log('Previous region')
-    } else /* F6 */ {
-      console.log('Next region')
-    }
-  })
-
-  // Keyboard interaction - removed map exit
+  // First tab press when container has no tabindex (required for Safari performance issue)
   const keydown = (e) => {
-    if (container.isKeyboard) {
-      return
-    }
-    container.isKeyboard = true
-    // Tabindex is added with appropriate value
-    tabletListener(tabletMediaQuery)
-    // Reset focus to container on first tab press
-    if (e.key === 'Tab' && (document.activeElement === document.body || document.activeElement === containerElement)) {
-      e.preventDefault()
-      containerElement.focus()
-      containerElement.setAttribute('keyboard-focus', '')
+    if (!container.isKeyboard) {
+      // ie. was mouse or touch interaction
+      container.isKeyboard = true
+      // tabindex is added with appropriate value
+      tabletListener(tabletMediaQuery)
+      // Reset focus to container on first tab press
+      if (e.key === 'Tab' && (document.activeElement === document.body || document.activeElement === containerElement)) {
+        e.preventDefault()
+        containerElement.focus()
+        containerElement.setAttribute('keyboard-focus', '')
+      }
     }
   }
+  // Added to document or window and removed on map exit
   window.addEventListener('keydown', keydown)
 }

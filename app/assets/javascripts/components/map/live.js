@@ -304,7 +304,7 @@ function LiveMap (mapId, options) {
   // Show overlays
   const showOverlays = () => {
     if (container.isKeyboard) {
-      container.hideOverlays()
+      hideOverlays()
       visibleFeatures = getVisibleFeatures()
       if (visibleFeatures.length <= 9) {
         visibleFeatures.forEach((feature, i) => {
@@ -320,6 +320,11 @@ function LiveMap (mapId, options) {
         })
       }
     }
+  }
+
+  // Hide overlays
+  const hideOverlays = () => {
+    map.getOverlays().clear()
   }
 
   // Restyle polygons
@@ -464,16 +469,14 @@ function LiveMap (mapId, options) {
     }
   })
 
-  // Hide overlays
+  // Hide overlays on all events (excludes checkbox click)
   containerElement.addEventListener('click', (e) => {
-    console.log('Container click')
     hideOverlays()
   })
 
   // Hide overlays on checkbox pointerup
   keyElement.addEventListener('pointerup', (e) => {
     if (e.target.nodeName === 'INPUT' && e.target.type === 'checkbox') {
-      console.log('Checkbox pointerup')
       hideOverlays()
     }
   })
@@ -481,7 +484,6 @@ function LiveMap (mapId, options) {
   // Toggle layers/features if key item changed
   keyElement.addEventListener('click', (e) => {
     if (e.target.nodeName === 'INPUT' && e.target.type === 'checkbox') {
-      console.log('Checkbox click')
       e.stopPropagation()
       const checkbox = e.target
       let lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
