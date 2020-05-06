@@ -21,19 +21,19 @@ function LiveMap (mapId, options) {
   // Query params used in liveMap
   const defaultQueryParams = {
     v: '', // Used to determine which map to view
-    lyr: '', // Current active layers
-    ext: [], // Current extent
-    sid: '' // Current selecxted feature Id
+    lyr: '', // Initial active layers
+    ext: [], // Initial extent
+    sid: '' // Initial selecxted feature Id
   }
-  const queryParams = Object.assign({}, defaultQueryParams, options.queryParams)
+  let queryParams = Object.assign({}, defaultQueryParams, options.queryParams)
 
   // View
   const view = new View({
-    zoom: options.zoom || 6,
-    minZoom: 6,
-    maxZoom: 18,
-    center: options.centre ? transform(options.centre, 'EPSG:4326', 'EPSG:3857') : maps.centre,
-    extent: transformExtent([-13.930664, 47.428087, 8.920898, 59.040555], 'EPSG:4326', 'EPSG:3857')
+    zoom: options.zoom || 6, // Default zoom if not set
+    minZoom: 6, // Minimum zoom level
+    maxZoom: 18, // Max zoom level
+    center: options.centre ? transform(options.centre, 'EPSG:4326', 'EPSG:3857') : maps.centre, // Requires a default centre
+    extent: transformExtent([-13.930664, 47.428087, 8.920898, 59.040555], 'EPSG:4326', 'EPSG:3857') // Constrains the view to the UK
   })
 
   // Layers
@@ -90,19 +90,26 @@ function LiveMap (mapId, options) {
   const map = container.map
   const containerElement = container.containerElement
   const keyElement = container.keyElement
+  const resetButton = container.resetButton
   const closeInfoButton = container.closeInfoButton
 
   //
   // Private methods
   //
 
-  // Set map extent from querystring
-  const setExtent = (padding = 0) => {
-    const ext = getParameterByName('ext')
+  // Sets the map view from an lonLat extent
+  const setExtent = (extent, padding = 0) => {
     padding = [padding, padding, padding, padding]
-    let extent = ext.split(',').map(Number)
     extent = transformExtent(extent, 'EPSG:4326', 'EPSG:3857')
     map.getView().fit(extent, { constrainResolution: false, padding: padding })
+  }
+
+  // Get the latLong projected extent from an extent object
+  const getExtent = (extent = []) => {
+    extent = extent.length ? extent : map.getView().calculateExtent(map.getSize())
+    extent = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
+    extent = extent.map(x => { return Number(x.toFixed(6)) })
+    return extent
   }
 
   // Add a target area feature
@@ -123,14 +130,19 @@ function LiveMap (mapId, options) {
         })
         polygon.setId(options.targetArea.id)
         targetAreaPolygons.getSource().addFeature(polygon)
-        // Set extent (first time only)
+        // Store the original extent
+        const extent = transformExtent(polygon.getGeometry().getExtent(), 'EPSG:3857', 'EPSG:4326')
+        console.log(extent)
+        /*
+        const ext = getExtent(extent)
+        queryParams.ext = ext
+        */
+        // Set extent first time only
         if (!getParameterByName('ext')) {
-          let extent = polygon.getGeometry().getExtent()
-          extent = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
-          let ext = extent.map((x) => { return Number(x.toFixed(6)) })
-          ext = ext.join(',')
-          replaceHistory('ext', ext)
-          setExtent()
+          setExtent(extent)
+          const ext = getExtent()
+          replaceHistory('ext', ext.join(','))
+          // We now have a new map extent that may differ from the feature extent
         }
       }
     }
@@ -322,9 +334,19 @@ function LiveMap (mapId, options) {
   // Setup
   //
 
-  // Set extent from querystring
+  // Store initial extent
+  if (!queryParams.ext.length) {
+    let ext = map.getView().calculateExtent(map.getSize())
+    ext = transformExtent(ext, 'EPSG:3857', 'EPSG:4326')
+    ext = ext.map((x) => { return Number(x.toFixed(6)) })
+    queryParams.ext = ext
+  }
+
+  // Set extent from query string
   if (getParameterByName('ext')) {
-    setExtent()
+    const ext = getParameterByName('ext')
+    let extent = ext.split(',').map(Number)
+    setExtent(extent)
   }
 
   // Set layers from querystring
@@ -378,11 +400,6 @@ function LiveMap (mapId, options) {
     const resolution = map.getView().getResolution()
     // Toggle key symbols depending on resolution
     toggleKeySymbol(resolution)
-    // Update url (history state) to reflect new extent
-    const extent = map.getView().calculateExtent(map.getSize())
-    let ext = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
-    ext = ext.map((x) => { return Number(x.toFixed(6)) })
-    ext = ext.join(',')
     // Set polygon layer opacity
     setOpacityTargetAreaPolygons()
     // Timer used to stop 100 url replaces in 30 seconds limit
@@ -390,9 +407,15 @@ function LiveMap (mapId, options) {
     timer = setTimeout(() => {
       // Show overlays for visible features
       showOverlays()
-      // Is map view
-      if (getParameterByName('v')) {
-        replaceHistory('ext', ext)
+      // Update url (history state) to reflect new extent
+      let ext = map.getView().calculateExtent(map.getSize())
+      ext = transformExtent(ext, 'EPSG:3857', 'EPSG:4326')
+      ext = ext.map((x) => { return Number(x.toFixed(6)) })
+      replaceHistory('ext', ext.join(','))
+      if (getParameterByName('ext') !== queryParams.ext) {
+        console.log('Extent changed')
+      } else {
+        console.log('No change')
       }
     }, 350)
   })
@@ -466,6 +489,14 @@ function LiveMap (mapId, options) {
   // Clear selectedfeature when info is closed
   closeInfoButton.addEventListener('click', (e) => {
     setSelectedFeature()
+  })
+
+  // Reset location button
+  resetButton.addEventListener('click', (e) => {
+    console.log(queryParams.ext)
+    setExtent(queryParams.ext)
+    const ext = getExtent()
+    replaceHistory('ext', ext.join(','))
   })
 }
 

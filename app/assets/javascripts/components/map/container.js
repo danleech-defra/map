@@ -94,6 +94,15 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   tooltipElement.innerHTML = 'Keyboard access guidelines'
   viewport.appendChild(tooltipElement)
 
+  // Create reset control
+  const resetButtonElement = document.createElement('button')
+  resetButtonElement.className = 'defra-map-reset'
+  resetButtonElement.innerHTML = 'Reset location'
+  const resetButton = new Control({
+    element: resetButtonElement
+  })
+  map.addControl(resetButton)
+
   // Create zoom controls
   const zoom = new Zoom({
     className: 'defra-map-zoom'
@@ -228,6 +237,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   this.containerElement = containerElement
   this.viewport = viewport
   this.keyElement = keyElement
+  this.resetButton = resetButtonElement
   this.closeInfoButton = closeInfoButton
   this.isKeyboard = !!containerElement.hasAttribute('keyboard-focus')
 
