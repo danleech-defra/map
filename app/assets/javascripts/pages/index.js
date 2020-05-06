@@ -25,8 +25,7 @@ window.flood.maps.createLiveMap('map1', { // Button Id (Required)
     id: 'ta.011FWFNC3A',
     name: 'River Eden at Carlisle, Rickerby Park, Swifts and Stoneyholme Golf Courses',
     centre: [-2.909899, 54.901598], // LonLat for centroid,
-    // bbox: [-2.936948, 54.895136, -2.887655, 54.909753], // LonLat bbox of Polygon for use with Vector Tiles
-    polygon: window.flood.model.polygon // Coordinates for Polygon or MultiPolygon
+    polygon: window.flood.model.geometry.coordinates // MultiPolygon coordinates array for boundary
   }
   // centre: [-1.548567, 53.801277], // Optional initial center will be converted to extent in querystring
   // zoom: 12 // Optional initial zoom will be converted to extent in querystring

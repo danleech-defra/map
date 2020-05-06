@@ -43,6 +43,7 @@ window.flood.maps.layers = {
   },
   */
 
+  /*
   targetAreaPolygons: () => {
     return new VectorTileLayer({
       ref: 'targetAreaPolygons',
@@ -59,8 +60,8 @@ window.flood.maps.layers = {
       zIndex: 1
     })
   },
+  */
 
-  /*
   targetAreaPolygons: () => {
     return new VectorLayer({
       ref: 'targetAreaPolygons',
@@ -76,7 +77,6 @@ window.flood.maps.layers = {
       zIndex: 1
     })
   },
-  */
 
   warnings: () => {
     return new VectorLayer({

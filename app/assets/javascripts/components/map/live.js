@@ -97,8 +97,9 @@ function LiveMap (mapId, options) {
   //
 
   // Set map extent from querystring
-  const setExtent = (padding = [0, 0, 0, 0]) => {
+  const setExtent = (padding = 0) => {
     const ext = getParameterByName('ext')
+    padding = [padding, padding, padding, padding]
     let extent = ext.split(',').map(Number)
     extent = transformExtent(extent, 'EPSG:4326', 'EPSG:3857')
     map.getView().fit(extent, { constrainResolution: false, padding: padding })
@@ -108,25 +109,30 @@ function LiveMap (mapId, options) {
   const addTargetArea = () => {
     if (!warnings.getSource().getFeatureById(options.targetArea.id)) {
       // Add point feature
-      const pointFeature = new Feature({
+      const point = new Feature({
         geometry: new Point(transform(options.targetArea.centre, 'EPSG:4326', 'EPSG:3857')),
         name: options.targetArea.name,
         state: 15 // Inactive
       })
-      pointFeature.setId(options.targetArea.id)
-      warnings.getSource().addFeature(pointFeature)
-      // Add Polygon if vector layer
+      point.setId(options.targetArea.id)
+      warnings.getSource().addFeature(point)
+      // Add Polygon (if vector source) and set extent
       if (options.targetArea.polygon && targetAreaPolygons.getSource() instanceof VectorSource) {
-        const polygonFeature = new Feature({
-          geometry: new MultiPolygon(options.targetArea.polygon)
+        const polygon = new Feature({
+          geometry: new MultiPolygon(options.targetArea.polygon).transform('EPSG:4326', 'EPSG:3857')
         })
-        polygonFeature.setId(options.targetArea.id)
-        targetAreaPolygons.getSource().addFeature(polygonFeature)
-        console.log(polygonFeature)
+        polygon.setId(options.targetArea.id)
+        targetAreaPolygons.getSource().addFeature(polygon)
+        // Set extent (first time only)
+        if (!getParameterByName('ext')) {
+          let extent = polygon.getGeometry().getExtent()
+          extent = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
+          let ext = extent.map((x) => { return Number(x.toFixed(6)) })
+          ext = ext.join(',')
+          replaceHistory('ext', ext)
+          setExtent()
+        }
       }
-      // Set extent
-      addOrUpdateParameter(window.location.pathname + window.location.search, 'ext', '')
-      // feature.getExtent()
     }
   }
 
