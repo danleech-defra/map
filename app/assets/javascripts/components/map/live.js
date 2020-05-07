@@ -10,7 +10,7 @@ import { transformExtent, transform } from 'ol/proj'
 import { unByKey } from 'ol/Observable'
 import { defaults as defaultInteractions } from 'ol/interaction'
 import { Point, MultiPolygon } from 'ol/geom'
-import { buffer, containsExtent } from 'ol/extent'
+import { buffer, containsExtent, boundingExtent } from 'ol/extent'
 import { Vector as VectorSource } from 'ol/source'
 
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
@@ -19,22 +19,24 @@ const { setExtentFromLonLat, getLonLatFromExtent, liveMapSymbolBreakpoint } = wi
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
-  // Query params used in liveMap
-  const defaultQueryParams = {
-    v: '', // Used to determine which map to view
-    lyr: '', // Initial active layers
-    ext: [], // Initial extent
-    sid: '' // Initial selecxted feature Id
+  // Query params used to store user display preferences
+  const queryParams = {
+    v: 'map', // Used to determine which map to view
+    lyr: options.layers || '', // Initial active layers
+    ext: options.extent || [], // Initial extent
+    sid: options.selectedId || '' // Initial selecxted feature Id
   }
-  let queryParams = Object.assign({}, defaultQueryParams, options.queryParams)
+
+  // Default map centre
+  const centre = options.centre ? transform(options.centre, 'EPSG:4326', 'EPSG:3857') : maps.centre
 
   // View
   const view = new View({
-    zoom: options.zoom || 6, // Default zoom if not set
+    zoom: 6, // Default zoom
     minZoom: 6, // Minimum zoom level
     maxZoom: 18, // Max zoom level
-    center: options.centre ? transform(options.centre, 'EPSG:4326', 'EPSG:3857') : maps.centre, // Requires a default centre
-    extent: transformExtent([-13.930664, 47.428087, 8.920898, 59.040555], 'EPSG:4326', 'EPSG:3857') // Constrains the view to the UK
+    center: centre, // Requires a default centre
+    extent: maps.extentLarge // Constrains extent
   })
 
   // Layers
@@ -326,10 +328,21 @@ function LiveMap (mapId, options) {
   // Setup
   //
 
-  // Store initial extent if not already set
+  // Store initial extent
   if (!queryParams.ext.length) {
-    let extent = map.getView().calculateExtent(map.getSize())
-    queryParams.ext = getLonLatFromExtent(extent)
+    if (options.ext) {
+      // LonLat extent passed in options
+      setExtentFromLonLat(options.ext)
+      queryParams.ext = options.ext
+    } else if (options.centre && options.buffer) {
+      // Centre and buffer
+      console.log('Setting from centre and buffer')
+    } else {
+      // Default England and Wales
+      const ext = getLonLatFromExtent(maps.extent)
+      setExtentFromLonLat(ext)
+      queryParams.ext = ext
+    }
   }
 
   // Set new extent from query string
@@ -517,11 +530,9 @@ maps.createLiveMap = (mapId, options = {}) => {
     let url = window.location.pathname + window.location.search
     url = addOrUpdateParameter(url, 'v', mapId)
     // Add any querystring parameters from constructor
-    if (options.queryParams) {
-      Object.keys(options.queryParams).forEach((key) => {
-        url = addOrUpdateParameter(url, key, options.queryParams[key])
-      })
-    }
+    if (options.layers) { url = addOrUpdateParameter(url, 'lyr', options.layers) }
+    if (options.extent) { url = addOrUpdateParameter(url, 'ext', options.extent) }
+    if (options.selectedId) { url = addOrUpdateParameter(url, 'sid', options.selectedId) }
     window.history.pushState(data, title, url)
     options.isBack = true
     return new LiveMap(mapId, options)
