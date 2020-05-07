@@ -18,6 +18,18 @@ window.flood.maps = {
     52.9219
   ], 'EPSG:4326', 'EPSG:3857'),
 
+  setExtentFromLonLat: (map, extent, padding = 0) => {
+    padding = [padding, padding, padding, padding]
+    extent = transformExtent(extent, 'EPSG:4326', 'EPSG:3857')
+    map.getView().fit(extent, { constrainResolution: false, padding: padding })
+  },
+
+  getLonLatFromExtent: (extent) => {
+    extent = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
+    const ext = extent.map(x => { return parseFloat(x.toFixed(5)) })
+    return ext
+  },
+
   liveMapSymbolBreakpoint: 100
 
 }

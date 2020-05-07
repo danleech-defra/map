@@ -98,6 +98,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   const resetButtonElement = document.createElement('button')
   resetButtonElement.className = 'defra-map-reset'
   resetButtonElement.innerHTML = 'Reset location'
+  resetButtonElement.title = 'Reset location'
   const resetButton = new Control({
     element: resetButtonElement
   })

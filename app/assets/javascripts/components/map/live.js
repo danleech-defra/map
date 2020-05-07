@@ -13,8 +13,9 @@ import { Point, MultiPolygon } from 'ol/geom'
 import { buffer, containsExtent } from 'ol/extent'
 import { Vector as VectorSource } from 'ol/source'
 
-const maps = window.flood.maps
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
+const maps = window.flood.maps
+const { setExtentFromLonLat, getLonLatFromExtent, liveMapSymbolBreakpoint } = window.flood.maps
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
@@ -76,7 +77,7 @@ function LiveMap (mapId, options) {
 
   // Options to pass to the MapContainer constructor
   const containerOptions = {
-    maxBigZoom: window.flood.maps.liveMapSymbolBreakpoint,
+    maxBigZoom: liveMapSymbolBreakpoint,
     view: view,
     layers: layers,
     queryParamKeys: Object.keys(queryParams),
@@ -97,21 +98,6 @@ function LiveMap (mapId, options) {
   // Private methods
   //
 
-  // Sets the map view from an lonLat extent
-  const setExtent = (extent, padding = 0) => {
-    padding = [padding, padding, padding, padding]
-    extent = transformExtent(extent, 'EPSG:4326', 'EPSG:3857')
-    map.getView().fit(extent, { constrainResolution: false, padding: padding })
-  }
-
-  // Get the latLong projected extent from an extent object
-  const getExtent = (extent = []) => {
-    extent = extent.length ? extent : map.getView().calculateExtent(map.getSize())
-    extent = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
-    extent = extent.map(x => { return Number(x.toFixed(6)) })
-    return extent
-  }
-
   // Add a target area feature
   const addTargetArea = () => {
     if (!warnings.getSource().getFeatureById(options.targetArea.id)) {
@@ -131,18 +117,12 @@ function LiveMap (mapId, options) {
         polygon.setId(options.targetArea.id)
         targetAreaPolygons.getSource().addFeature(polygon)
         // Store the original extent
-        const extent = transformExtent(polygon.getGeometry().getExtent(), 'EPSG:3857', 'EPSG:4326')
-        console.log(extent)
-        /*
-        const ext = getExtent(extent)
+        const ext = getLonLatFromExtent(polygon.getGeometry().getExtent())
         queryParams.ext = ext
-        */
         // Set extent first time only
         if (!getParameterByName('ext')) {
-          setExtent(extent)
-          const ext = getExtent()
+          setExtentFromLonLat(map, ext)
           replaceHistory('ext', ext.join(','))
-          // We now have a new map extent that may differ from the feature extent
         }
       }
     }
@@ -330,23 +310,33 @@ function LiveMap (mapId, options) {
     }
   }
 
+  // Compare two lonLat extent arrays and return false if they are different
+  const compareLonLatExtent = (ext1, ext2) => {
+    const isSameLon = ext1[0] === ext2[0] && ext1[2] === ext2[2]
+    const isSameLat = ext1[1] === ext2[1] && ext1[3] === ext2[3]
+    const ext1CentreLon = parseInt((((ext1[2] - ext1[0]) / 2) + ext1[0]) * 100000)
+    const ext2CentreLon = parseInt((((ext2[2] - ext2[0]) / 2) + ext2[0]) * 100000)
+    const ext1CentreLat = parseInt((((ext1[3] - ext1[1]) / 2) + ext1[1]) * 100000)
+    const ext2CentreLat = parseInt((((ext2[3] - ext2[1]) / 2) + ext2[1]) * 100000)
+    const isSameCentre = ext1CentreLon === ext2CentreLon && ext1CentreLat === ext2CentreLat
+    return isSameCentre && (isSameLon || isSameLat)
+  }
+
   //
   // Setup
   //
 
-  // Store initial extent
+  // Store initial extent if not already set
   if (!queryParams.ext.length) {
-    let ext = map.getView().calculateExtent(map.getSize())
-    ext = transformExtent(ext, 'EPSG:3857', 'EPSG:4326')
-    ext = ext.map((x) => { return Number(x.toFixed(6)) })
-    queryParams.ext = ext
+    let extent = map.getView().calculateExtent(map.getSize())
+    queryParams.ext = getLonLatFromExtent(extent)
   }
 
-  // Set extent from query string
+  // Set new extent from query string
   if (getParameterByName('ext')) {
-    const ext = getParameterByName('ext')
-    let extent = ext.split(',').map(Number)
-    setExtent(extent)
+    let ext = getParameterByName('ext')
+    ext = ext.split(',').map(Number)
+    setExtentFromLonLat(map, ext)
   }
 
   // Set layers from querystring
@@ -408,14 +398,13 @@ function LiveMap (mapId, options) {
       // Show overlays for visible features
       showOverlays()
       // Update url (history state) to reflect new extent
-      let ext = map.getView().calculateExtent(map.getSize())
-      ext = transformExtent(ext, 'EPSG:3857', 'EPSG:4326')
-      ext = ext.map((x) => { return Number(x.toFixed(6)) })
+      const extent = map.getView().calculateExtent(map.getSize())
+      const ext = getLonLatFromExtent(extent)
       replaceHistory('ext', ext.join(','))
-      if (getParameterByName('ext') !== queryParams.ext) {
-        console.log('Extent changed')
-      } else {
-        console.log('No change')
+      // Show reset button if extent has changed
+      const isSameExtent = compareLonLatExtent(ext, queryParams.ext)
+      if (!isSameExtent) {
+        resetButton.classList.add('defra-map-reset--visible')
       }
     }, 350)
   })
@@ -493,10 +482,9 @@ function LiveMap (mapId, options) {
 
   // Reset location button
   resetButton.addEventListener('click', (e) => {
-    console.log(queryParams.ext)
-    setExtent(queryParams.ext)
-    const ext = getExtent()
-    replaceHistory('ext', ext.join(','))
+    setExtentFromLonLat(map, queryParams.ext)
+    replaceHistory('ext', queryParams.ext.join(','))
+    resetButton.classList.remove('defra-map-reset--visible')
   })
 }
 
