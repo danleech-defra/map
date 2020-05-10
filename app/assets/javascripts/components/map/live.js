@@ -20,12 +20,12 @@ const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
   // Query params used to store user display preferences
-  const queryParams = {
-    v: 'map', // Used to determine which map to view
-    lyr: options.layers || '', // Initial active layers
-    ext: options.extent || [], // Initial extent
-    sid: options.selectedId || '' // Initial selecxted feature Id
-  }
+  const queryParams = [
+    'v', // Used to determine which map to view
+    'lyr', // Initial active layers
+    'ext', // Initial extent
+    'sid' // Initial selecxted feature Id
+  ]
 
   // Default map centre
   const centre = options.centre ? transform(options.centre, 'EPSG:4326', 'EPSG:3857') : maps.centre
@@ -77,12 +77,18 @@ function LiveMap (mapId, options) {
   // Current select feature id
   let selectedFeatureId = getParameterByName('sid') || ''
 
+  // Initial/original extent
+  let initialExtent
+
+  // Optional target area polygon
+  let targetAreaPolygon
+
   // Options to pass to the MapContainer constructor
   const containerOptions = {
     maxBigZoom: liveMapSymbolBreakpoint,
     view: view,
     layers: layers,
-    queryParamKeys: Object.keys(queryParams),
+    queryParamKeys: queryParams,
     interactions: interactions,
     keyTemplate: 'key-live.html',
     isBack: options.isBack
@@ -111,21 +117,9 @@ function LiveMap (mapId, options) {
       })
       point.setId(options.targetArea.id)
       warnings.getSource().addFeature(point)
-      // Add Polygon (if vector source) and set extent
-      if (options.targetArea.polygon && targetAreaPolygons.getSource() instanceof VectorSource) {
-        const polygon = new Feature({
-          geometry: new MultiPolygon(options.targetArea.polygon).transform('EPSG:4326', 'EPSG:3857')
-        })
-        polygon.setId(options.targetArea.id)
-        targetAreaPolygons.getSource().addFeature(polygon)
-        // Store the original extent
-        const ext = getLonLatFromExtent(polygon.getGeometry().getExtent())
-        queryParams.ext = ext
-        // Set extent first time only
-        if (!getParameterByName('ext')) {
-          setExtentFromLonLat(map, ext)
-          replaceHistory('ext', ext.join(','))
-        }
+      // Add Polygon (if vector source)
+      if (targetAreaPolygon && targetAreaPolygons.getSource() instanceof VectorSource) {
+        targetAreaPolygons.getSource().addFeature(targetAreaPolygon)
       }
     }
   }
@@ -328,28 +322,38 @@ function LiveMap (mapId, options) {
   // Setup
   //
 
-  // Store initial extent
-  if (!queryParams.ext.length) {
-    if (options.ext) {
-      // LonLat extent passed in options
-      setExtentFromLonLat(options.ext)
-      queryParams.ext = options.ext
+  // Create optional target area polygon
+  if (options.targetArea && options.targetArea.polygon) {
+    targetAreaPolygon = new Feature({
+      geometry: new MultiPolygon(options.targetArea.polygon).transform('EPSG:4326', 'EPSG:3857')
+    })
+    targetAreaPolygon.setId(options.targetArea.id)
+  }
+
+  // Store initial/original extent
+  if (!initialExtent) {
+    if (options.extent) {
+      // Explicit extent to 5 decimal places
+      initialExtent = options.extent.map(x => { return parseFloat(x.toFixed(5)) })
+    } else if (targetAreaPolygon) {
+      // Target area polygon
+      initialExtent = getLonLatFromExtent(targetAreaPolygon.getGeometry().getExtent())
     } else if (options.centre && options.buffer) {
       // Centre and buffer
-      console.log('Setting from centre and buffer')
+      initialExtent = getLonLatFromExtent(maps.extent)
     } else {
-      // Default England and Wales
-      const ext = getLonLatFromExtent(maps.extent)
-      setExtentFromLonLat(ext)
-      queryParams.ext = ext
+      // Default to England and Wales
+      initialExtent = getLonLatFromExtent(maps.extent)
     }
   }
 
-  // Set new extent from query string
+  // Set map extent
   if (getParameterByName('ext')) {
     let ext = getParameterByName('ext')
     ext = ext.split(',').map(Number)
     setExtentFromLonLat(map, ext)
+  } else {
+    setExtentFromLonLat(map, initialExtent)
   }
 
   // Set layers from querystring
@@ -415,7 +419,7 @@ function LiveMap (mapId, options) {
       const ext = getLonLatFromExtent(extent)
       replaceHistory('ext', ext.join(','))
       // Show reset button if extent has changed
-      const isSameExtent = compareLonLatExtent(ext, queryParams.ext)
+      const isSameExtent = compareLonLatExtent(ext, initialExtent)
       if (!isSameExtent) {
         resetButton.classList.add('defra-map-reset--visible')
       }
@@ -495,8 +499,8 @@ function LiveMap (mapId, options) {
 
   // Reset location button
   resetButton.addEventListener('click', (e) => {
-    setExtentFromLonLat(map, queryParams.ext)
-    replaceHistory('ext', queryParams.ext.join(','))
+    setExtentFromLonLat(map, initialExtent)
+    replaceHistory('ext', initialExtent.join(','))
     resetButton.classList.remove('defra-map-reset--visible')
   })
 }
@@ -541,18 +545,14 @@ maps.createLiveMap = (mapId, options = {}) => {
   // Recreate map on popstate
   window.addEventListener('popstate', (e) => {
     if (e.state.v === mapId) {
-      return new LiveMap(e.state.v, {
-        isBack: window.history.state.isBack,
-        targetArea: options.targetArea
-      })
+      options.isBack = window.history.state.isBack
+      return new LiveMap(e.state.v, options)
     }
   })
 
   // Recreate map on refresh or direct
   if (window.flood.utils.getParameterByName('v') === mapId) {
-    return new LiveMap(mapId, {
-      isBack: window.history.state.isBack,
-      targetArea: options.targetArea
-    })
+    options.isBack = window.history.state.isBack
+    return new LiveMap(mapId, options)
   }
 }
