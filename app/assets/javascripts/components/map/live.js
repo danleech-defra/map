@@ -6,11 +6,11 @@
 // It uses the MapContainer
 
 import { View, Overlay, Feature } from 'ol'
-import { transformExtent, transform } from 'ol/proj'
+import { transform } from 'ol/proj'
 import { unByKey } from 'ol/Observable'
 import { defaults as defaultInteractions } from 'ol/interaction'
 import { Point, MultiPolygon } from 'ol/geom'
-import { buffer, containsExtent, boundingExtent } from 'ol/extent'
+import { buffer, containsExtent } from 'ol/extent'
 import { Vector as VectorSource } from 'ol/source'
 
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
@@ -19,23 +19,18 @@ const { setExtentFromLonLat, getLonLatFromExtent, liveMapSymbolBreakpoint } = wi
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
-  // Query params used to store user display preferences
-  const queryParams = [
-    'v', // Used to determine which map to view
-    'lyr', // Initial active layers
-    'ext', // Initial extent
-    'sid' // Initial selecxted feature Id
-  ]
+  // Initial settings
+  let initialExtent, initialCentre, initialZoom, targetAreaPoint, targetAreaPolygon
 
-  // Default map centre
-  const centre = options.centre ? transform(options.centre, 'EPSG:4326', 'EPSG:3857') : maps.centre
+  // State properties
+  let visibleFeatures, selectedFeatureId
 
   // View
   const view = new View({
     zoom: 6, // Default zoom
     minZoom: 6, // Minimum zoom level
     maxZoom: 18, // Max zoom level
-    center: centre, // Requires a default centre
+    center: maps.centre, // Default centre required
     extent: maps.extentLarge // Constrains extent
   })
 
@@ -71,24 +66,12 @@ function LiveMap (mapId, options) {
     pinchRotate: false
   })
 
-  // Features that are visible in the viewport
-  let visibleFeatures = []
-
-  // Current select feature id
-  let selectedFeatureId = getParameterByName('sid') || ''
-
-  // Initial/original extent
-  let initialExtent
-
-  // Optional target area polygon
-  let targetAreaPolygon
-
   // Options to pass to the MapContainer constructor
   const containerOptions = {
     maxBigZoom: liveMapSymbolBreakpoint,
     view: view,
     layers: layers,
-    queryParamKeys: queryParams,
+    queryParamKeys: ['v', 'lyr', 'ext', 'sid'],
     interactions: interactions,
     keyTemplate: 'key-live.html',
     isBack: options.isBack
@@ -96,6 +79,7 @@ function LiveMap (mapId, options) {
 
   // Create MapContainer
   const container = new MapContainer(mapId, containerOptions)
+
   const map = container.map
   const containerElement = container.containerElement
   const keyElement = container.keyElement
@@ -106,119 +90,68 @@ function LiveMap (mapId, options) {
   // Private methods
   //
 
-  // Add a target area feature
-  const addTargetArea = () => {
-    if (!warnings.getSource().getFeatureById(options.targetArea.id)) {
-      // Add point feature
-      const point = new Feature({
-        geometry: new Point(transform(options.targetArea.centre, 'EPSG:4326', 'EPSG:3857')),
-        name: options.targetArea.name,
-        state: 15 // Inactive
-      })
-      point.setId(options.targetArea.id)
-      warnings.getSource().addFeature(point)
-      // Add Polygon (if vector source)
-      if (targetAreaPolygon && targetAreaPolygons.getSource() instanceof VectorSource) {
-        targetAreaPolygons.getSource().addFeature(targetAreaPolygon)
-      }
-    }
-  }
-
   // Show or hide layers
-  const toggleLayerVisibility = () => {
-    const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
+  const setLayerVisibility = (lyrCodes) => {
     dataLayers.forEach((layer) => {
-      const isVisible = lyrs.some(lyr => layer.get('featureCodes').includes(lyr))
+      const isVisible = lyrCodes.some(lyrCode => layer.get('featureCodes').includes(lyrCode))
       layer.setVisible(isVisible)
     })
   }
 
   // Show or hide features within layers
-  const toggleFeatureVisibility = () => {
-    const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
-    dataLayers.forEach((layer) => {
-      layer.getSource().forEachFeature((feature) => {
-        const ref = layer.get('ref')
-        const state = feature.get('state')
-        const isVisible = (
-          // Warnings
-          (state === 11 && lyrs.includes('ts')) ||
-          (state === 12 && lyrs.includes('tw')) ||
-          (state === 13 && lyrs.includes('ta')) ||
-          (state === 14 && lyrs.includes('tr')) ||
-          (state === 15 && lyrs.includes('ti')) ||
-          // Stations
-          (state === 21 && lyrs.includes('sh')) ||
-          (ref === 'stations' && state !== 21 && lyrs.includes('st')) ||
-          // Rainfall
-          (ref === 'rainfall' && lyrs.includes('rf')) ||
-          // Impacts
-          (ref === 'impacts' && lyrs.includes('hi'))
-        )
-        feature.set('isVisible', isVisible)
-      })
+  const setFeatureVisibility = (lyrCodes, layer) => {
+    layer.getSource().forEachFeature((feature) => {
+      const ref = layer.get('ref')
+      const state = feature.get('state')
+      const isVisible = (
+        // Warnings
+        (state === 11 && lyrCodes.includes('ts')) ||
+        (state === 12 && lyrCodes.includes('tw')) ||
+        (state === 13 && lyrCodes.includes('ta')) ||
+        (state === 14 && lyrCodes.includes('tr')) ||
+        (state === 15 && lyrCodes.includes('ti')) ||
+        // Stations
+        (state === 21 && lyrCodes.includes('sh')) ||
+        (ref === 'stations' && state !== 21 && lyrCodes.includes('st')) ||
+        // Rainfall
+        (ref === 'rainfall' && lyrCodes.includes('rf')) ||
+        // Impacts
+        (ref === 'impacts' && lyrCodes.includes('hi'))
+      )
+      feature.set('isVisible', isVisible)
     })
   }
 
-  // Toggle features selected state
-  const toggleFeatureSelected = (id, state) => {
-    dataLayers.forEach((layer) => {
-      const feature = layer.getSource().getFeatureById(id)
-      if (feature) {
-        feature.set('isSelected', state)
-        // Refresh vector tiles
-        if (layer.get('ref') === 'warnings') {
-          restyleTargetAreaPolygons()
-        }
-      }
-    })
-  }
-
-  // Add a feature to the selected layer
-  const cloneFeature = (id) => {
-    dataLayers.forEach((layer) => {
-      const feature = layer.getSource().getFeatureById(id)
-      if (feature) {
-        selected.getSource().addFeature(feature)
-        selected.setStyle(layer.getStyle())
-      }
-    })
-  }
-
-  // Set selected feature (includes opening and closing info panel)
-  const setSelectedFeature = (id) => {
-    toggleFeatureSelected(selectedFeatureId, false)
+  // Set and reset selected feature. Returns new selected feature id
+  const updateSelectedFeature = (originalFeatureId, newFeatureId) => {
     selected.getSource().clear()
-    if (id) {
-      selectedFeatureId = id
-      toggleFeatureSelected(id, true)
-      cloneFeature(id)
-      container.showInfo(id)
-    } else {
-      selectedFeatureId = ''
-    }
-    // Update url
-    replaceHistory('sid', selectedFeatureId)
-  }
-
-  // Set key checkboxes
-  const setCheckboxes = () => {
-    const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
-    const checkboxes = document.querySelectorAll('.defra-map-key input[type=checkbox]')
-    checkboxes.forEach((checkbox) => {
-      checkbox.checked = lyrs.includes(checkbox.id)
+    dataLayers.forEach((layer) => {
+      const originalFeature = layer.getSource().getFeatureById(originalFeatureId)
+      const newFeature = layer.getSource().getFeatureById(newFeatureId)
+      if (originalFeature) {
+        originalFeature.set('isSelected', false)
+      }
+      if (newFeature) {
+        newFeature.set('isSelected', true)
+        selected.getSource().addFeature(newFeature)
+        selected.setStyle(layer.getStyle())
+        container.showInfo(newFeatureId)
+      }
+      // Refresh target area polygons
+      if (layer.get('ref') === 'warnings') {
+        targetAreaPolygons.setStyle(maps.styles.targetAreaPolygons)
+      }
     })
+    // Update url
+    replaceHistory('sid', newFeatureId)
+    return newFeatureId
   }
 
   // Toggle key symbols based on resolution
   const toggleKeySymbol = (resolution) => {
     forEach(containerElement.querySelectorAll('.defra-map-key__symbol'), (symbol) => {
       const isBigZoom = resolution <= containerOptions.maxBigZoom
-      if (isBigZoom) {
-        symbol.classList.add('defra-map-key__symbol--big')
-      } else {
-        symbol.classList.remove('defra-map-key__symbol--big')
-      }
+      isBigZoom ? symbol.classList.add('defra-map-key__symbol--big') : symbol.classList.remove('defra-map-key__symbol--big')
     })
   }
 
@@ -230,21 +163,21 @@ function LiveMap (mapId, options) {
     window.history.replaceState(data, title, url)
   }
 
-  // Get visible features
+  // Get features visible in the current viewport
   const getVisibleFeatures = () => {
-    const visibleFeatures = []
+    const features = []
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
     const resolution = map.getView().getResolution()
     const extent = map.getView().calculateExtent(map.getSize())
     const isBigZoom = resolution <= containerOptions.maxBigZoom
     const layers = dataLayers.filter(layer => lyrs.some(lyr => layer.get('featureCodes').includes(lyr)))
     layers.forEach((layer) => {
-      if (visibleFeatures.length > 9) return true
+      if (features.length > 9) return true
       layer.getSource().forEachFeatureIntersectingExtent(extent, (feature) => {
         if (!feature.get('isVisible')) {
           return false
         }
-        visibleFeatures.push({
+        features.push({
           id: feature.getId(),
           state: layer.get('ref'), // Used to style the overlay
           isBigZoom: isBigZoom,
@@ -252,7 +185,7 @@ function LiveMap (mapId, options) {
         })
       })
     })
-    return visibleFeatures
+    return features
   }
 
   // Show overlays
@@ -281,12 +214,6 @@ function LiveMap (mapId, options) {
     map.getOverlays().clear()
   }
 
-  // Restyle polygons
-  const restyleTargetAreaPolygons = () => {
-    // Triggers layer to be restyled
-    targetAreaPolygons.setStyle(maps.styles.targetAreaPolygons)
-  }
-
   // Set target area polygon opacity
   const setOpacityTargetAreaPolygons = () => {
     if (targetAreaPolygons.getVisible()) {
@@ -306,14 +233,14 @@ function LiveMap (mapId, options) {
     }
   }
 
-  // Compare two lonLat extent arrays and return false if they are different
+  // Compare two lonLat extent arrays and return false if they 'different'
   const compareLonLatExtent = (ext1, ext2) => {
     const isSameLon = ext1[0] === ext2[0] && ext1[2] === ext2[2]
     const isSameLat = ext1[1] === ext2[1] && ext1[3] === ext2[3]
-    const ext1CentreLon = parseInt((((ext1[2] - ext1[0]) / 2) + ext1[0]) * 100000)
-    const ext2CentreLon = parseInt((((ext2[2] - ext2[0]) / 2) + ext2[0]) * 100000)
-    const ext1CentreLat = parseInt((((ext1[3] - ext1[1]) / 2) + ext1[1]) * 100000)
-    const ext2CentreLat = parseInt((((ext2[3] - ext2[1]) / 2) + ext2[1]) * 100000)
+    const ext1CentreLon = Math.ceil(Math.abs((((ext1[2] - ext1[0]) / 2) + ext1[0]) * 100000))
+    const ext2CentreLon = Math.ceil(Math.abs((((ext2[2] - ext2[0]) / 2) + ext2[0]) * 100000))
+    const ext1CentreLat = Math.ceil(Math.abs((((ext1[3] - ext1[1]) / 2) + ext1[1]) * 100000))
+    const ext2CentreLat = Math.ceil(Math.abs((((ext2[3] - ext2[1]) / 2) + ext2[1]) * 100000))
     const isSameCentre = ext1CentreLon === ext2CentreLon && ext1CentreLat === ext2CentreLat
     return isSameCentre && (isSameLon || isSameLat)
   }
@@ -322,15 +249,28 @@ function LiveMap (mapId, options) {
   // Setup
   //
 
-  // Create optional target area polygon
-  if (options.targetArea && options.targetArea.polygon) {
-    targetAreaPolygon = new Feature({
-      geometry: new MultiPolygon(options.targetArea.polygon).transform('EPSG:4326', 'EPSG:3857')
-    })
-    targetAreaPolygon.setId(options.targetArea.id)
+  // Set initial select feature
+  selectedFeatureId = getParameterByName('sid') || ''
+
+  // Create optional target area features
+  if (options.targetArea) {
+    if (options.targetArea.centre) {
+      targetAreaPoint = new Feature({
+        geometry: new Point(transform(options.targetArea.centre, 'EPSG:4326', 'EPSG:3857')),
+        name: options.targetArea.name,
+        state: 15 // Inactive
+      })
+      targetAreaPoint.setId(options.targetArea.id)
+    }
+    if (options.targetArea.polygon) {
+      targetAreaPolygon = new Feature({
+        geometry: new MultiPolygon(options.targetArea.polygon).transform('EPSG:4326', 'EPSG:3857')
+      })
+      targetAreaPolygon.setId(options.targetArea.id)
+    }
   }
 
-  // Store initial/original extent
+  // Store initial extent, zoom and centre
   if (!initialExtent) {
     if (options.extent) {
       // Explicit extent to 5 decimal places
@@ -338,7 +278,7 @@ function LiveMap (mapId, options) {
     } else if (targetAreaPolygon) {
       // Target area polygon
       initialExtent = getLonLatFromExtent(targetAreaPolygon.getGeometry().getExtent())
-    } else if (options.centre && options.buffer) {
+    } else if (options.centre) {
       // Centre and buffer
       initialExtent = getLonLatFromExtent(maps.extent)
     } else {
@@ -358,8 +298,12 @@ function LiveMap (mapId, options) {
 
   // Set layers from querystring
   if (getParameterByName('lyr')) {
-    toggleLayerVisibility()
-    setCheckboxes()
+    const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
+    setLayerVisibility(lyrs)
+    const checkboxes = document.querySelectorAll('.defra-map-key input[type=checkbox]')
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = lyrs.includes(checkbox.id)
+    })
   }
 
   // Set smart key visibility
@@ -382,19 +326,27 @@ function LiveMap (mapId, options) {
         unByKey(change)
         if (layer.get('ref') === 'warnings') {
           // Add optional target area
-          if (options.targetArea) {
-            addTargetArea()
+          if (targetAreaPoint) {
+            if (!warnings.getSource().getFeatureById(targetAreaPoint.id)) {
+              // Add point feature
+              warnings.getSource().addFeature(targetAreaPoint)
+              // Add polygon if destination VectorSource (not required if VectorTileSource)
+              if (targetAreaPolygon && targetAreaPolygons.getSource() instanceof VectorSource) {
+                targetAreaPolygons.getSource().addFeature(targetAreaPolygon)
+              }
+            }
           }
         }
         // Set feature visibility after all features have loaded
-        toggleFeatureVisibility()
+        const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
+        setFeatureVisibility(lyrs, layer)
         // Store reference to warnings source for use in vector tiles style function
         if (layer.get('ref') === 'warnings') {
           maps.warningsSource = warnings.getSource()
           map.addLayer(targetAreaPolygons)
         }
         // Attempt to set selected feature when layer is ready
-        setSelectedFeature(selectedFeatureId)
+        selectedFeatureId = updateSelectedFeature(selectedFeatureId, selectedFeatureId)
         // Show overlays
         showOverlays()
       }
@@ -445,7 +397,7 @@ function LiveMap (mapId, options) {
         return feature
       }
     })
-    setSelectedFeature(feature ? feature.getId() : '')
+    selectedFeatureId = updateSelectedFeature(selectedFeatureId, feature ? feature.getId() : '')
   })
 
   // Handle all key presses
@@ -456,11 +408,11 @@ function LiveMap (mapId, options) {
     }
     // Clear selected feature when pressing escape
     if (e.key === 'Escape' && selectedFeatureId !== '') {
-      setSelectedFeature()
+      selectedFeatureId = updateSelectedFeature(selectedFeatureId, '')
     }
     // Listen for number keys
     if (!isNaN(e.key) && e.key >= 1 && e.key <= visibleFeatures.length && visibleFeatures.length <= 9) {
-      setSelectedFeature(visibleFeatures[e.key - 1].id)
+      selectedFeatureId = updateSelectedFeature(selectedFeatureId, visibleFeatures[e.key - 1].id)
     }
   })
 
@@ -482,19 +434,21 @@ function LiveMap (mapId, options) {
       e.stopPropagation()
       const checkbox = e.target
       let lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
+      setLayerVisibility(lyrs)
       checkbox.checked ? lyrs.push(checkbox.id) : lyrs.splice(lyrs.indexOf(checkbox.id), 1)
+      dataLayers.forEach((layer) => {
+        setFeatureVisibility(lyrs, layer)
+      })
       lyrs = lyrs.join(',')
       replaceHistory('lyr', lyrs)
-      toggleLayerVisibility()
-      toggleFeatureVisibility()
-      restyleTargetAreaPolygons()
+      targetAreaPolygons.setStyle(maps.styles.targetAreaPolygons)
       showOverlays()
     }
   })
 
   // Clear selectedfeature when info is closed
   closeInfoButton.addEventListener('click', (e) => {
-    setSelectedFeature()
+    selectedFeatureId = updateSelectedFeature(selectedFeatureId, '')
   })
 
   // Reset location button
@@ -514,7 +468,7 @@ maps.createLiveMap = (mapId, options = {}) => {
   if (!window.history.state) {
     const data = { v: '', isBack: false }
     const title = document.title
-    let url = window.location.pathname + window.location.search
+    let url = window.location
     window.history.replaceState(data, title, url)
   }
 
@@ -531,7 +485,7 @@ maps.createLiveMap = (mapId, options = {}) => {
     // Advance history
     const data = { v: mapId, isBack: true }
     const title = document.title
-    let url = window.location.pathname + window.location.search
+    let url = window.location
     url = addOrUpdateParameter(url, 'v', mapId)
     // Add any querystring parameters from constructor
     if (options.layers) { url = addOrUpdateParameter(url, 'lyr', options.layers) }
