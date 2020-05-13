@@ -267,6 +267,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     infoContainer.innerHTML = id
     if (state.isKeyboard) {
       infoElement.focus()
+      infoElement.setAttribute('keyboard-focus', '')
     }
   }
 
