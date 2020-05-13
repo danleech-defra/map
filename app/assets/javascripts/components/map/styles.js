@@ -27,22 +27,22 @@ window.flood.maps.styles = {
       case 11: // Severe warning
         strokeColour = '#D4351C'
         fillColour = pattern('severe')
-        zIndex = 30
+        zIndex = 40
         break
       case 12: // Warning
         strokeColour = '#D4351C'
         fillColour = pattern('warning')
-        zIndex = 20
+        zIndex = 30
         break
       case 13: // Alert
         strokeColour = '#F47738'
         fillColour = pattern('alert')
-        zIndex = isGroundwater ? 5 : 10
+        zIndex = isGroundwater ? 15 : 20
         break
       default: // Removed or inactive
         strokeColour = '#626A6E'
         fillColour = pattern('removed')
-        zIndex = 0
+        zIndex = 10
     }
     zIndex = isSelected ? zIndex + 1 : zIndex
 
