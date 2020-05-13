@@ -19,11 +19,17 @@ const { setExtentFromLonLat, getLonLatFromExtent, liveMapSymbolBreakpoint } = wi
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
-  // Initial settings
-  let initialExtent, initialCentre, initialZoom, targetAreaPoint, targetAreaPolygon
+  // Initial viewport extent
+  let resetExtent
 
-  // State properties
-  let visibleFeatures, selectedFeatureId
+  // Optional target area features
+  let targetAreaPoint, targetAreaPolygon
+
+  // State object
+  const state = {
+    visibleFeatures: [],
+    selectedFeatureId: ''
+  }
 
   // View
   const view = new View({
@@ -79,7 +85,6 @@ function LiveMap (mapId, options) {
 
   // Create MapContainer
   const container = new MapContainer(mapId, containerOptions)
-
   const map = container.map
   const containerElement = container.containerElement
   const keyElement = container.keyElement
@@ -89,6 +94,13 @@ function LiveMap (mapId, options) {
   //
   // Private methods
   //
+
+  // Compare two lonLat extent arrays and return true if they 'different'
+  const isNewExtent = (newExtent) => {
+    const isSameLon = newExtent[0] === resetExtent[0] && newExtent[2] === resetExtent[2]
+    const isSameLat = newExtent[1] === resetExtent[1] && newExtent[3] === resetExtent[3]
+    return !(isSameLon && isSameLat)
+  }
 
   // Show or hide layers
   const setLayerVisibility = (lyrCodes) => {
@@ -148,17 +160,17 @@ function LiveMap (mapId, options) {
   }
 
   // Toggle key symbols based on resolution
-  const toggleKeySymbol = (resolution) => {
+  const toggleKeySymbol = () => {
     forEach(containerElement.querySelectorAll('.defra-map-key__symbol'), (symbol) => {
-      const isBigZoom = resolution <= containerOptions.maxBigZoom
+      const isBigZoom = map.getView().getResolution() <= containerOptions.maxBigZoom
       isBigZoom ? symbol.classList.add('defra-map-key__symbol--big') : symbol.classList.remove('defra-map-key__symbol--big')
     })
   }
 
   // Update url and replace history state
-  const replaceHistory = (queryParam, value) => {
-    const data = { v: mapId, isBack: options.isBack }
-    const url = addOrUpdateParameter(window.location.pathname + window.location.search, queryParam, value)
+  const replaceHistory = (key, value) => {
+    const data = { v: mapId, isBack: options.isBack, resetExtent: resetExtent }
+    const url = addOrUpdateParameter(window.location.pathname + window.location.search, key, value)
     const title = document.title
     window.history.replaceState(data, title, url)
   }
@@ -190,11 +202,11 @@ function LiveMap (mapId, options) {
 
   // Show overlays
   const showOverlays = () => {
-    if (container.isKeyboard) {
+    if (container.state.isKeyboard) {
       hideOverlays()
-      visibleFeatures = getVisibleFeatures()
-      if (visibleFeatures.length <= 9) {
-        visibleFeatures.forEach((feature, i) => {
+      state.visibleFeatures = getVisibleFeatures()
+      if (state.visibleFeatures.length <= 9) {
+        state.visibleFeatures.forEach((feature, i) => {
           const overlayElement = document.createTextNode(i + 1)
           map.addOverlay(
             new Overlay({
@@ -233,24 +245,14 @@ function LiveMap (mapId, options) {
     }
   }
 
-  // Compare two lonLat extent arrays and return false if they 'different'
-  const compareLonLatExtent = (ext1, ext2) => {
-    const isSameLon = ext1[0] === ext2[0] && ext1[2] === ext2[2]
-    const isSameLat = ext1[1] === ext2[1] && ext1[3] === ext2[3]
-    const ext1CentreLon = Math.ceil(Math.abs((((ext1[2] - ext1[0]) / 2) + ext1[0]) * 100000))
-    const ext2CentreLon = Math.ceil(Math.abs((((ext2[2] - ext2[0]) / 2) + ext2[0]) * 100000))
-    const ext1CentreLat = Math.ceil(Math.abs((((ext1[3] - ext1[1]) / 2) + ext1[1]) * 100000))
-    const ext2CentreLat = Math.ceil(Math.abs((((ext2[3] - ext2[1]) / 2) + ext2[1]) * 100000))
-    const isSameCentre = ext1CentreLon === ext2CentreLon && ext1CentreLat === ext2CentreLat
-    return isSameCentre && (isSameLon || isSameLat)
-  }
-
   //
   // Setup
   //
 
   // Set initial select feature
-  selectedFeatureId = getParameterByName('sid') || ''
+  if (getParameterByName('sid')) {
+    state.selectedFeatureId = getParameterByName('sid')
+  }
 
   // Create optional target area features
   if (options.targetArea) {
@@ -270,31 +272,23 @@ function LiveMap (mapId, options) {
     }
   }
 
-  // Store initial extent, zoom and centre
-  if (!initialExtent) {
-    if (options.extent) {
-      // Explicit extent to 5 decimal places
-      initialExtent = options.extent.map(x => { return parseFloat(x.toFixed(5)) })
-    } else if (targetAreaPolygon) {
-      // Target area polygon
-      initialExtent = getLonLatFromExtent(targetAreaPolygon.getGeometry().getExtent())
-    } else if (options.centre) {
-      // Centre and buffer
-      initialExtent = getLonLatFromExtent(maps.extent)
-    } else {
-      // Default to England and Wales
-      initialExtent = getLonLatFromExtent(maps.extent)
-    }
-  }
-
   // Set map extent
+  let extent, centre, zoom
   if (getParameterByName('ext')) {
-    let ext = getParameterByName('ext')
-    ext = ext.split(',').map(Number)
-    setExtentFromLonLat(map, ext)
+    extent = getParameterByName('ext').split(',').map(Number)
+  } else if (options.extent) {
+    extent = options.extent.map(x => { return parseFloat(x.toFixed(6)) })
+  } else if (targetAreaPolygon) {
+    extent = getLonLatFromExtent(targetAreaPolygon.getGeometry().getExtent())
+  } else if (options.centre) {
+    extent = getLonLatFromExtent(maps.extent)
   } else {
-    setExtentFromLonLat(map, initialExtent)
+    extent = getLonLatFromExtent(maps.extent)
   }
+  setExtentFromLonLat(map, extent)
+
+  // Set extent used for reset
+  resetExtent = window.history.state.resetExtent || getLonLatFromExtent(map.getView().calculateExtent(map.getSize()))
 
   // Set layers from querystring
   if (getParameterByName('lyr')) {
@@ -346,7 +340,7 @@ function LiveMap (mapId, options) {
           map.addLayer(targetAreaPolygons)
         }
         // Attempt to set selected feature when layer is ready
-        selectedFeatureId = updateSelectedFeature(selectedFeatureId, selectedFeatureId)
+        state.selectedFeatureId = updateSelectedFeature(state.selectedFeatureId, state.selectedFeatureId)
         // Show overlays
         showOverlays()
       }
@@ -356,9 +350,8 @@ function LiveMap (mapId, options) {
   // Pan or zoom map (fires on map load aswell)
   let timer = null
   map.addEventListener('moveend', (e) => {
-    const resolution = map.getView().getResolution()
     // Toggle key symbols depending on resolution
-    toggleKeySymbol(resolution)
+    toggleKeySymbol()
     // Set polygon layer opacity
     setOpacityTargetAreaPolygons()
     // Timer used to stop 100 url replaces in 30 seconds limit
@@ -371,9 +364,8 @@ function LiveMap (mapId, options) {
       const ext = getLonLatFromExtent(extent)
       replaceHistory('ext', ext.join(','))
       // Show reset button if extent has changed
-      const isSameExtent = compareLonLatExtent(ext, initialExtent)
-      if (!isSameExtent) {
-        resetButton.classList.add('defra-map-reset--visible')
+      if (isNewExtent(ext)) {
+        resetButton.removeAttribute('disabled', '')
       }
     }, 350)
   })
@@ -397,7 +389,7 @@ function LiveMap (mapId, options) {
         return feature
       }
     })
-    selectedFeatureId = updateSelectedFeature(selectedFeatureId, feature ? feature.getId() : '')
+    state.selectedFeatureId = updateSelectedFeature(state.selectedFeatureId, feature ? feature.getId() : '')
   })
 
   // Handle all key presses
@@ -407,12 +399,12 @@ function LiveMap (mapId, options) {
       showOverlays()
     }
     // Clear selected feature when pressing escape
-    if (e.key === 'Escape' && selectedFeatureId !== '') {
-      selectedFeatureId = updateSelectedFeature(selectedFeatureId, '')
+    if (e.key === 'Escape' && state.selectedFeatureId !== '') {
+      state.selectedFeatureId = updateSelectedFeature(state.selectedFeatureId, '')
     }
     // Listen for number keys
-    if (!isNaN(e.key) && e.key >= 1 && e.key <= visibleFeatures.length && visibleFeatures.length <= 9) {
-      selectedFeatureId = updateSelectedFeature(selectedFeatureId, visibleFeatures[e.key - 1].id)
+    if (!isNaN(e.key) && e.key >= 1 && e.key <= state.visibleFeatures.length && state.visibleFeatures.length <= 9) {
+      state.selectedFeatureId = updateSelectedFeature(state.selectedFeatureId, state.visibleFeatures[e.key - 1].id)
     }
   })
 
@@ -448,14 +440,13 @@ function LiveMap (mapId, options) {
 
   // Clear selectedfeature when info is closed
   closeInfoButton.addEventListener('click', (e) => {
-    selectedFeatureId = updateSelectedFeature(selectedFeatureId, '')
+    state.selectedFeatureId = updateSelectedFeature(state.selectedFeatureId, '')
   })
 
   // Reset location button
   resetButton.addEventListener('click', (e) => {
-    setExtentFromLonLat(map, initialExtent)
-    replaceHistory('ext', initialExtent.join(','))
-    resetButton.classList.remove('defra-map-reset--visible')
+    setExtentFromLonLat(map, window.history.state.resetExtent)
+    resetButton.setAttribute('disabled', '')
   })
 }
 
@@ -466,7 +457,7 @@ function LiveMap (mapId, options) {
 maps.createLiveMap = (mapId, options = {}) => {
   // Set initial history state once
   if (!window.history.state) {
-    const data = { v: '', isBack: false }
+    const data = {}
     const title = document.title
     let url = window.location
     window.history.replaceState(data, title, url)

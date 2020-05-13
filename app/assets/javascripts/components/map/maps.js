@@ -8,18 +8,18 @@ window.flood.maps = {
 
   // Extent of England and Wales
   extent: transformExtent([
-    -5.75447130203247,
-    49.9302711486816,
-    1.79968345165253,
-    55.8409309387207
+    -5.75447,
+    49.93027,
+    1.799683,
+    55.84093
   ], 'EPSG:4326', 'EPSG:3857'),
 
   // A large extent that allows restricting but full map view
   extentLarge: transformExtent([
-    -13.930664,
-    47.428087,
-    8.920898,
-    59.040555
+    -15.75447,
+    46.93027,
+    10.799683,
+    58.84093
   ], 'EPSG:4326', 'EPSG:3857'),
 
   // Centre of England and Wales (approx)
@@ -38,7 +38,7 @@ window.flood.maps = {
   // Get array of lonLat's from an extent object
   getLonLatFromExtent: (extent) => {
     extent = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
-    const ext = extent.map(x => { return parseFloat(x.toFixed(5)) })
+    const ext = extent.map(x => { return parseFloat(x.toFixed(6)) })
     return ext
   },
 

@@ -24,8 +24,15 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Prorotype kit only - remove in production
   options.keyTemplate = `public/templates/${options.keyTemplate}`
 
-  // Private states
-  let isKeyOpen, isInfoOpen, isTooltipOpen, isMobile, isTablet
+  // State object
+  const state = {
+    isKeyOpen: false,
+    isInfoOpen: false,
+    isTooltipOpen: false,
+    isMobile: false,
+    isTablet: false,
+    isKeyboard: false
+  }
 
   // Hide all non-map elements and prefix title
   const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
@@ -99,6 +106,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   resetButtonElement.className = 'defra-map-reset'
   resetButtonElement.innerHTML = 'Reset location'
   resetButtonElement.title = 'Reset location'
+  resetButtonElement.setAttribute('disabled', '')
   const resetButton = new Control({
     element: resetButtonElement
   })
@@ -152,6 +160,9 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Start focus (will be removed if not keyboard)
   containerElement.focus()
 
+  // Detect if initial interaction is keybaord
+  state.isKeyboard = !!containerElement.hasAttribute('keyboard-focus')
+
   //
   // Private methods
   //
@@ -193,40 +204,40 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   }
 
   const openKey = () => {
-    isKeyOpen = true
+    state.isKeyOpen = true
     containerElement.classList.add('defra-map--key-open')
     keyElement.setAttribute('open', true)
     keyElement.setAttribute('aria-modal', true)
     closeInfo()
-    if (container.isKeyboard) {
+    if (state.isKeyboard) {
       containerElement.tabIndex = -1
       keyElement.focus()
     }
   }
 
   const closeKey = () => {
-    isKeyOpen = !isTablet
+    state.isKeyOpen = !state.isTablet
     containerElement.classList.remove('defra-map--key-open')
-    keyElement.setAttribute('open', isKeyOpen)
-    keyElement.setAttribute('aria-modal', isTablet)
-    if (container.isKeyboard) {
+    keyElement.setAttribute('open', state.isKeyOpen)
+    keyElement.setAttribute('aria-modal', state.isTablet)
+    if (state.isKeyboard) {
       containerElement.tabIndex = 0
       openKeyButton.element.focus()
     }
   }
 
   const closeInfo = () => {
-    isInfoOpen = false
+    state.isInfoOpen = false
     infoElement.classList.remove('defra-map-info--open')
     infoElement.setAttribute('open', false)
     infoContainer.innerHTML = ''
-    if (container.isKeyboard) {
+    if (state.isKeyboard) {
       containerElement.focus()
     }
   }
 
   const hideTooltip = () => {
-    isTooltipOpen = false
+    state.isTooltipOpen = false
     tooltipElement.hidden = true
   }
 
@@ -240,24 +251,24 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   this.keyElement = keyElement
   this.resetButton = resetButtonElement
   this.closeInfoButton = closeInfoButton
-  this.isKeyboard = !!containerElement.hasAttribute('keyboard-focus')
+  this.state = state
 
   //
   // Public methods
   //
 
   this.showInfo = (id) => {
-    isInfoOpen = true
+    state.isInfoOpen = true
     infoElement.classList.add('defra-map-info--open')
     infoElement.setAttribute('open', true)
     infoContainer.innerHTML = id
-    if (container.isKeyboard) {
+    if (state.isKeyboard) {
       infoElement.focus()
     }
   }
 
   this.showTooltip = () => {
-    isTooltipOpen = true
+    state.isTooltipOpen = true
     tooltipElement.hidden = false
   }
 
@@ -265,16 +276,13 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Events
   //
 
-  // Get a reference to this
-  const container = this
-
   // Mobile behavior
   const mobileMediaQuery = window.matchMedia('(max-width: 40.0525em)')
   const zoomButtons = document.querySelectorAll('.defra-map-zoom button')
   const mobileListener = (mobileMediaQuery) => {
-    isMobile = mobileMediaQuery.matches
+    state.isMobile = mobileMediaQuery.matches
     zoomButtons.forEach((button) => {
-      button.hidden = isMobile
+      button.hidden = state.isMobile
     })
   }
   mobileMediaQuery.addListener(mobileListener)
@@ -283,21 +291,21 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Tablet (upto portrait) behavior
   const tabletMediaQuery = window.matchMedia('(max-width: 48.0625em)')
   const tabletListener = (tabletMediaQuery) => {
-    isTablet = tabletMediaQuery.matches
-    isKeyOpen = (containerElement.classList.contains('defra-map--key-open') && isTablet) || !isTablet
-    keyElement.setAttribute('role', isTablet ? 'dialog' : 'region')
-    closeKeyButton.hidden = !isTablet
-    openKeyButton.hidden = !isTablet
-    if (isTablet) {
-      keyElement.setAttribute('open', isKeyOpen)
+    state.isTablet = tabletMediaQuery.matches
+    state.isKeyOpen = (containerElement.classList.contains('defra-map--key-open') && state.isTablet) || !state.isTablet
+    keyElement.setAttribute('role', state.isTablet ? 'dialog' : 'region')
+    closeKeyButton.hidden = !state.isTablet
+    openKeyButton.hidden = !state.isTablet
+    if (state.isTablet) {
+      keyElement.setAttribute('open', state.isKeyOpen)
       keyElement.setAttribute('aria-modal', true)
     } else {
       keyElement.removeAttribute('open')
       keyElement.removeAttribute('aria-modal')
     }
     // Remove tabindex if keyboard and key is open
-    if (container.isKeyboard) {
-      containerElement.tabIndex = isTablet && isKeyOpen ? -1 : 0
+    if (state.isKeyboard) {
+      containerElement.tabIndex = state.isTablet && state.isKeyOpen ? -1 : 0
     }
   }
   tabletMediaQuery.addListener(tabletListener)
@@ -306,11 +314,11 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Map click
   map.on('click', (e) => {
     // Hide key
-    if (isTablet && isKeyOpen) {
+    if (state.isTablet && state.isKeyOpen) {
       closeKey()
     }
     // Close info panel
-    if (isInfoOpen) {
+    if (state.isInfoOpen) {
       closeInfo()
     }
     // Touch interfaces
@@ -344,7 +352,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
 
   // Mouse or touch interaction
   containerElement.addEventListener('pointerdown', (e) => {
-    container.isKeyboard = false
+    state.isKeyboard = false
     infoElement.blur()
     keyElement.blur()
     containerElement.removeAttribute('tabindex') // Performance issue in Safari
@@ -352,9 +360,9 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
 
   // First tab press after mouse or touch interaction
   const keydown = (e) => {
-    if (!container.isKeyboard) {
+    if (!state.isKeyboard) {
       // previously mouse or touch interaction
-      container.isKeyboard = true
+      state.isKeyboard = true
       // tabindex is added with appropriate value
       tabletListener(tabletMediaQuery)
       // reset focus to container on first tab press
@@ -403,11 +411,11 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   containerElement.addEventListener('keyup', (e) => {
     // Escape key behavior
     if (e.key === 'Escape' || e.key === 'Esc') {
-      if (isTooltipOpen) {
+      if (state.isTooltipOpen) {
         hideTooltip()
-      } else if (isInfoOpen) {
+      } else if (state.isInfoOpen) {
         closeInfo()
-      } else if (isTablet && isKeyOpen) {
+      } else if (state.isTablet && state.isKeyOpen) {
         closeKey()
       } else {
         exitMap()
