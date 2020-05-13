@@ -19,16 +19,15 @@ const { setExtentFromLonLat, getLonLatFromExtent, liveMapSymbolBreakpoint } = wi
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
-  // Initial viewport extent
-  let resetExtent
 
   // Optional target area features
-  let targetAreaPoint, targetAreaPolygon
+  const targetArea = {}
 
   // State object
   const state = {
     visibleFeatures: [],
-    selectedFeatureId: ''
+    selectedFeatureId: '',
+    initialExtent: []
   }
 
   // View
@@ -95,11 +94,13 @@ function LiveMap (mapId, options) {
   // Private methods
   //
 
-  // Compare two lonLat extent arrays and return true if they 'different'
+  // Compare two lonLat extent arrays and return true if they are different
   const isNewExtent = (newExtent) => {
-    const isSameLon = newExtent[0] === resetExtent[0] && newExtent[2] === resetExtent[2]
-    const isSameLat = newExtent[1] === resetExtent[1] && newExtent[3] === resetExtent[3]
-    return !(isSameLon && isSameLat)
+    const isSameLon1 = newExtent[0] < (state.initialExtent[0] + 0.0001) && newExtent[0] > (state.initialExtent[0] - 0.0001)
+    const isSameLon2 = newExtent[2] < (state.initialExtent[2] + 0.0001) && newExtent[2] > (state.initialExtent[2] - 0.0001)
+    const isSameLat1 = newExtent[1] < (state.initialExtent[1] + 0.0001) && newExtent[1] > (state.initialExtent[1] - 0.0001)
+    const isSameLat2 = newExtent[3] < (state.initialExtent[3] + 0.0001) && newExtent[3] > (state.initialExtent[3] - 0.0001)
+    return !(isSameLon1 && isSameLon2 && isSameLat1 && isSameLat2)
   }
 
   // Show or hide layers
@@ -134,11 +135,11 @@ function LiveMap (mapId, options) {
     })
   }
 
-  // Set and reset selected feature. Returns new selected feature id
-  const updateSelectedFeature = (originalFeatureId, newFeatureId) => {
+  // Set selected feature
+  const setSelectedFeature = (newFeatureId) => {
     selected.getSource().clear()
     dataLayers.forEach((layer) => {
-      const originalFeature = layer.getSource().getFeatureById(originalFeatureId)
+      const originalFeature = layer.getSource().getFeatureById(state.selectedFeatureId)
       const newFeature = layer.getSource().getFeatureById(newFeatureId)
       if (originalFeature) {
         originalFeature.set('isSelected', false)
@@ -154,9 +155,9 @@ function LiveMap (mapId, options) {
         targetAreaPolygons.setStyle(maps.styles.targetAreaPolygons)
       }
     })
+    state.selectedFeatureId = newFeatureId
     // Update url
     replaceHistory('sid', newFeatureId)
-    return newFeatureId
   }
 
   // Toggle key symbols based on resolution
@@ -169,7 +170,7 @@ function LiveMap (mapId, options) {
 
   // Update url and replace history state
   const replaceHistory = (key, value) => {
-    const data = { v: mapId, isBack: options.isBack, resetExtent: resetExtent }
+    const data = { v: mapId, isBack: options.isBack, initialExtent: state.initialExtent }
     const url = addOrUpdateParameter(window.location.pathname + window.location.search, key, value)
     const title = document.title
     window.history.replaceState(data, title, url)
@@ -249,7 +250,7 @@ function LiveMap (mapId, options) {
   // Setup
   //
 
-  // Set initial select feature
+  // Set initial selected feature id
   if (getParameterByName('sid')) {
     state.selectedFeatureId = getParameterByName('sid')
   }
@@ -257,38 +258,43 @@ function LiveMap (mapId, options) {
   // Create optional target area features
   if (options.targetArea) {
     if (options.targetArea.centre) {
-      targetAreaPoint = new Feature({
+      targetArea.pointFeature = new Feature({
         geometry: new Point(transform(options.targetArea.centre, 'EPSG:4326', 'EPSG:3857')),
         name: options.targetArea.name,
         state: 15 // Inactive
       })
-      targetAreaPoint.setId(options.targetArea.id)
+      targetArea.pointFeature.setId(options.targetArea.id)
     }
     if (options.targetArea.polygon) {
-      targetAreaPolygon = new Feature({
+      targetArea.polygonFeature = new Feature({
         geometry: new MultiPolygon(options.targetArea.polygon).transform('EPSG:4326', 'EPSG:3857')
       })
-      targetAreaPolygon.setId(options.targetArea.id)
+      targetArea.polygonFeature.setId(options.targetArea.id)
     }
   }
 
-  // Set map extent
-  let extent, centre, zoom
+  // Define map extent
+  let extent
   if (getParameterByName('ext')) {
     extent = getParameterByName('ext').split(',').map(Number)
   } else if (options.extent) {
     extent = options.extent.map(x => { return parseFloat(x.toFixed(6)) })
-  } else if (targetAreaPolygon) {
-    extent = getLonLatFromExtent(targetAreaPolygon.getGeometry().getExtent())
-  } else if (options.centre) {
-    extent = getLonLatFromExtent(maps.extent)
+  } else if (targetArea.polygonFeature) {
+    extent = getLonLatFromExtent(targetArea.polygonFeature.getGeometry().getExtent())
   } else {
     extent = getLonLatFromExtent(maps.extent)
   }
-  setExtentFromLonLat(map, extent)
 
-  // Set extent used for reset
-  resetExtent = window.history.state.resetExtent || getLonLatFromExtent(map.getView().calculateExtent(map.getSize()))
+  // Set map viewport
+  if (!getParameterByName('ext') && options.centre) {
+    map.getView().setCenter(transform(options.centre, 'EPSG:4326', 'EPSG:3857'))
+    map.getView().setZoom(options.zoom || 6)
+  } else {
+    setExtentFromLonLat(map, extent)
+  }
+
+  // Store reset extent
+  state.initialExtent = window.history.state.initialExtent || getLonLatFromExtent(map.getView().calculateExtent(map.getSize()))
 
   // Set layers from querystring
   if (getParameterByName('lyr')) {
@@ -320,13 +326,13 @@ function LiveMap (mapId, options) {
         unByKey(change)
         if (layer.get('ref') === 'warnings') {
           // Add optional target area
-          if (targetAreaPoint) {
-            if (!warnings.getSource().getFeatureById(targetAreaPoint.id)) {
+          if (targetArea.pointFeature) {
+            if (!warnings.getSource().getFeatureById(targetArea.pointFeature.getId())) {
               // Add point feature
-              warnings.getSource().addFeature(targetAreaPoint)
+              warnings.getSource().addFeature(targetArea.pointFeature)
               // Add polygon if destination VectorSource (not required if VectorTileSource)
-              if (targetAreaPolygon && targetAreaPolygons.getSource() instanceof VectorSource) {
-                targetAreaPolygons.getSource().addFeature(targetAreaPolygon)
+              if (targetArea.polygonFeature && targetAreaPolygons.getSource() instanceof VectorSource) {
+                targetAreaPolygons.getSource().addFeature(targetArea.polygonFeature)
               }
             }
           }
@@ -340,7 +346,7 @@ function LiveMap (mapId, options) {
           map.addLayer(targetAreaPolygons)
         }
         // Attempt to set selected feature when layer is ready
-        state.selectedFeatureId = updateSelectedFeature(state.selectedFeatureId, state.selectedFeatureId)
+        setSelectedFeature(state.selectedFeatureId)
         // Show overlays
         showOverlays()
       }
@@ -360,8 +366,7 @@ function LiveMap (mapId, options) {
       // Show overlays for visible features
       showOverlays()
       // Update url (history state) to reflect new extent
-      const extent = map.getView().calculateExtent(map.getSize())
-      const ext = getLonLatFromExtent(extent)
+      const ext = getLonLatFromExtent(map.getView().calculateExtent(map.getSize()))
       replaceHistory('ext', ext.join(','))
       // Show reset button if extent has changed
       if (isNewExtent(ext)) {
@@ -389,7 +394,7 @@ function LiveMap (mapId, options) {
         return feature
       }
     })
-    state.selectedFeatureId = updateSelectedFeature(state.selectedFeatureId, feature ? feature.getId() : '')
+    setSelectedFeature(feature ? feature.getId() : '')
   })
 
   // Handle all key presses
@@ -400,11 +405,11 @@ function LiveMap (mapId, options) {
     }
     // Clear selected feature when pressing escape
     if (e.key === 'Escape' && state.selectedFeatureId !== '') {
-      state.selectedFeatureId = updateSelectedFeature(state.selectedFeatureId, '')
+      setSelectedFeature('')
     }
     // Listen for number keys
     if (!isNaN(e.key) && e.key >= 1 && e.key <= state.visibleFeatures.length && state.visibleFeatures.length <= 9) {
-      state.selectedFeatureId = updateSelectedFeature(state.selectedFeatureId, state.visibleFeatures[e.key - 1].id)
+      setSelectedFeature(state.visibleFeatures[e.key - 1].id)
     }
   })
 
@@ -440,12 +445,12 @@ function LiveMap (mapId, options) {
 
   // Clear selectedfeature when info is closed
   closeInfoButton.addEventListener('click', (e) => {
-    state.selectedFeatureId = updateSelectedFeature(state.selectedFeatureId, '')
+    setSelectedFeature('')
   })
 
   // Reset location button
   resetButton.addEventListener('click', (e) => {
-    setExtentFromLonLat(map, window.history.state.resetExtent)
+    setExtentFromLonLat(map, state.initialExtent)
     resetButton.setAttribute('disabled', '')
   })
 }
@@ -455,7 +460,7 @@ function LiveMap (mapId, options) {
 // (This is done mainly to avoid the rule
 // "do not use 'new' for side effects. (no-new)")
 maps.createLiveMap = (mapId, options = {}) => {
-  // Set initial history state once
+  // Set initial history state
   if (!window.history.state) {
     const data = {}
     const title = document.title
