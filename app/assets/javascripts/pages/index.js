@@ -19,16 +19,23 @@ window.flood.maps.createLiveMap('map1', { // Button Id (Required)
   layers: 'ts,tw,ta,ti', // Default layers to display (tr removed)
   // centre: [-1.54857, 53.80128], // Optional initial center will be converted to extent in querystring
   // zoom: 10 // Optional initial zoom level
-  extent: [-1.326567, 53.871946, -0.953128, 54.149476], // LonLat array for initial extent
-  selectedId: 'ta.122WAF946' // Optional intial selected feature
+  // extent: [-1.326567, 53.871946, -0.953128, 54.149476], // LonLat array for initial extent
+  // selectedId: 'ta.122WAF946' // Optional intial selected feature
   /*
   targetArea: {
-    id: 'ta.011FWFNC3A',
+    id: 'ta.122WAF946',
     name: 'River Eden at Carlisle, Rickerby Park, Swifts and Stoneyholme Golf Courses',
     centre: [-2.90990, 54.90160], // LonLat for centroid,
     polygon: window.flood.model.geometry.coordinates // MultiPolygon coordinates array for boundary
   }
   */
+  targetArea: {
+    id: 'ta.122FWF723',
+    name: 'River Ouse at Naburn Lock',
+    centre: [-1.09613548180462, 53.8939176939008], // LonLat for centroid,
+    polygon: window.flood.model.geometry.coordinates // MultiPolygon coordinates array for boundary
+  },
+  selectedId: 'ta.122FWF723'
 })
 
 // Create a second map

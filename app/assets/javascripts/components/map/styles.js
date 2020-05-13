@@ -25,40 +25,36 @@ window.flood.maps.styles = {
 
     switch (state) {
       case 11: // Severe warning
-        strokeColour = isSelected ? '#FFDD00' : '#D4351C'
-        fillColour = pattern('severe', isSelected)
-        zIndex = 5
+        strokeColour = '#D4351C'
+        fillColour = pattern('severe')
+        zIndex = 30
         break
       case 12: // Warning
-        strokeColour = isSelected ? '#FFDD00' : '#D4351C'
-        fillColour = pattern('warning', isSelected)
-        zIndex = 4
+        strokeColour = '#D4351C'
+        fillColour = pattern('warning')
+        zIndex = 20
         break
       case 13: // Alert
-        strokeColour = isSelected ? '#FFDD00' : '#F47738'
-        fillColour = pattern('alert', isSelected)
-        zIndex = isGroundwater ? 1 : 2
+        strokeColour = '#F47738'
+        fillColour = pattern('alert')
+        zIndex = isGroundwater ? 5 : 10
         break
       default: // Removed or inactive
-        strokeColour = isSelected ? '#FFDD00' : '#626A6E'
-        fillColour = pattern('removed', isSelected)
-        zIndex = 3
+        strokeColour = '#626A6E'
+        fillColour = pattern('removed')
+        zIndex = 0
     }
+    zIndex = isSelected ? zIndex + 1 : zIndex
 
-    // Generate style
-    return new Style({
-      fill: new Fill({
-        color: fillColour
-      }),
-      stroke: new Stroke({
-        color: strokeColour,
-        width: 1,
-        miterLimit: 2,
-        lineJoin: 'round',
-        lineDash: [0, 0]
-      }),
-      zIndex: zIndex
-    })
+    const selectedStroke = new Style({ stroke: new Stroke({ color: '#FFDD00', width: 12 }), zIndex: zIndex })
+    const stroke = new Style({ stroke: new Stroke({ color: strokeColour, width: 2 }), zIndex: zIndex })
+    const fill = new Style({ fill: new Fill({ color: fillColour }), zIndex: zIndex })
+
+    if (isSelected) {
+      return [selectedStroke, stroke, fill]
+    } else {
+      return [stroke, fill]
+    }
   },
 
   // Warning centroids
@@ -126,7 +122,7 @@ window.flood.maps.styles = {
   }
 }
 
-const pattern = (style, isSelected) => {
+const pattern = (style) => {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
   const dpr = window.devicePixelRatio || 1
@@ -135,7 +131,7 @@ const pattern = (style, isSelected) => {
   ctx.scale(dpr, dpr)
   switch (style) {
     case 'severe':
-      ctx.fillStyle = isSelected ? '#FFDD00' : '#D4351C'
+      ctx.fillStyle = '#D4351C'
       ctx.fillRect(0, 0, 8, 8)
       ctx.beginPath()
       ctx.fillStyle = '#ffffff'
@@ -152,7 +148,7 @@ const pattern = (style, isSelected) => {
       ctx.fill()
       break
     case 'warning':
-      ctx.fillStyle = isSelected ? '#FFDD00' : '#D4351C'
+      ctx.fillStyle = '#D4351C'
       ctx.fillRect(0, 0, 8, 8)
       ctx.beginPath()
       ctx.fillStyle = '#ffffff'
@@ -182,7 +178,7 @@ const pattern = (style, isSelected) => {
       ctx.fillStyle = '#ffffff'
       ctx.fillRect(0, 0, 8, 8)
       ctx.beginPath()
-      ctx.fillStyle = isSelected ? '#FFDD00' : '#F47738'
+      ctx.fillStyle = '#F47738'
       ctx.moveTo(0, 3.3)
       ctx.lineTo(0, 4.7)
       ctx.lineTo(4.7, 0)
@@ -199,7 +195,7 @@ const pattern = (style, isSelected) => {
       ctx.fillStyle = '#ffffff'
       ctx.fillRect(0, 0, 8, 8)
       ctx.beginPath()
-      ctx.fillStyle = isSelected ? '#FFDD00' : '#626A6E'
+      ctx.fillStyle = '#626A6E'
       ctx.arc(4, 4, 1, 0, 2 * Math.PI)
       ctx.closePath()
       ctx.fill()
