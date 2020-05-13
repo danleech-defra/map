@@ -431,11 +431,11 @@ function LiveMap (mapId, options) {
       e.stopPropagation()
       const checkbox = e.target
       let lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
-      setLayerVisibility(lyrs)
       checkbox.checked ? lyrs.push(checkbox.id) : lyrs.splice(lyrs.indexOf(checkbox.id), 1)
       dataLayers.forEach((layer) => {
         setFeatureVisibility(lyrs, layer)
       })
+      setLayerVisibility(lyrs)
       lyrs = lyrs.join(',')
       replaceHistory('lyr', lyrs)
       targetAreaPolygons.setStyle(maps.styles.targetAreaPolygons)
