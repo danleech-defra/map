@@ -452,6 +452,7 @@ function LiveMap (mapId, options) {
   resetButton.addEventListener('click', (e) => {
     setExtentFromLonLat(map, state.initialExtent)
     resetButton.setAttribute('disabled', '')
+    containerElement.focus()
   })
 }
 

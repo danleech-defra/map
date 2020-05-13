@@ -168,8 +168,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   //
 
   const exitMap = () => {
-    // Tidy up any document or window listeners
-    window.addEventListener('keydown', keydown)
     if (options.isBack) {
       // Browser back
       window.history.back()
@@ -187,6 +185,9 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
       // Reset document
       removeContainer()
     }
+    // Tidy up any document or window listeners
+    window.removeEventListener('keydown', keydown)
+    window.removeEventListener('keyup', keyup)
   }
 
   const removeContainer = () => {
@@ -212,6 +213,8 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     if (state.isKeyboard) {
       containerElement.tabIndex = -1
       keyElement.focus()
+      keyElement.setAttribute('keyboard-focus', '')
+      console.log(document.activeElement)
     }
   }
 
@@ -358,28 +361,25 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     containerElement.removeAttribute('tabindex') // Performance issue in Safari
   })
 
-  // First tab press after mouse or touch interaction
+  // Firt tab key and tabrings
   const keydown = (e) => {
+    if (e.key !== 'Tab') {
+      return
+    }
+    // First tab press after mouse or touch interaction
     if (!state.isKeyboard) {
       // previously mouse or touch interaction
       state.isKeyboard = true
       // tabindex is added with appropriate value
       tabletListener(tabletMediaQuery)
-      // reset focus to container on first tab press
-      if (e.key === 'Tab' && (document.activeElement === document.body || document.activeElement === containerElement)) {
+      // reset focus to container
+      if (document.activeElement === document.body || document.activeElement === containerElement) {
         e.preventDefault()
         containerElement.focus()
         containerElement.setAttribute('keyboard-focus', '')
       }
     }
-  }
-  window.addEventListener('keydown', keydown)
-
-  // Constrain tab focus within dialog
-  containerElement.addEventListener('keydown', (e) => {
-    if (e.key !== 'Tab') {
-      return
-    }
+    // Constrain tab focus within dialog
     const tabring = document.activeElement.closest('[role="dialog"]')
     const specificity = tabring.classList.contains('defra-map') ? '[role="region"] ' : ''
     const selectors = [
@@ -405,10 +405,11 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
         e.preventDefault()
       }
     }
-  })
+  }
+  window.addEventListener('keydown', keydown)
 
   // All keypress (keyup) events
-  containerElement.addEventListener('keyup', (e) => {
+  const keyup = (e) => {
     // Escape key behavior
     if (e.key === 'Escape' || e.key === 'Esc') {
       if (state.isTooltipOpen) {
@@ -429,7 +430,8 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
         console.log('Next region')
       }
     }
-  })
+  }
+  window.addEventListener('keyup', keyup)
 
   // Remove map on popsate change
   const popstate = (e) => {
