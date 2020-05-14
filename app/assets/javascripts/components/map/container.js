@@ -184,9 +184,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
       // Reset document
       removeContainer()
     }
-    // Tidy up any document or window listeners
-    window.removeEventListener('keydown', keydown)
-    window.removeEventListener('keyup', keyup)
   }
 
   const removeContainer = () => {
@@ -200,6 +197,9 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
       // Remove map and return focus
       containerElement.parentNode.removeChild(containerElement)
       document.getElementById(mapId + '-btn').focus()
+      // Tidy up any document or window listeners
+      window.removeEventListener('keydown', keydown)
+      window.removeEventListener('keyup', keyup)
     }
   }
 
