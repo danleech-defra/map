@@ -398,11 +398,11 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
       if (state.isTooltipOpen) {
         hideTooltip()
       } else if (state.isInfoOpen) {
-        closeInfo()
+        closeInfoButton.click()
       } else if (state.isTablet && state.isKeyOpen) {
-        closeKey()
+        closeKeyButton.click()
       } else {
-        exitMap()
+        exitMapButtonElement.click()
       }
     }
     // Move tab ring between regions
