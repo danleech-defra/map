@@ -226,13 +226,10 @@ function LiveMap (mapId, options) {
 
   // Set target area polygon opacity
   const setOpacityTargetAreaPolygons = () => {
-    if (targetAreaPolygons.getVisible()) {
-      const resolution = Math.floor(map.getView().getResolution())
-      // Opacity graduates between 1 and 0.4 with resolution
-      let opacity = Math.min(Math.max((resolution + 40) / 100, 0.4), 1)
-      opacity = parseFloat(opacity.toFixed(1))
-      targetAreaPolygons.setOpacity(opacity)
-    }
+    const resolution = Math.floor(map.getView().getResolution())
+    targetAreaPolygons.setVisible(resolution < window.flood.maps.liveMapSymbolBreakpoint)
+    // Opacity graduates with resolution
+    targetAreaPolygons.setOpacity((-Math.abs(map.getView().getZoom()) + 20) / 10)
   }
 
   // Pan map

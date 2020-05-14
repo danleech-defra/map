@@ -315,7 +315,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     if (state.isInfoOpen) {
       closeInfo()
     }
-    // Touch interfaces
     containerElement.focus()
   })
 

@@ -56,7 +56,6 @@ window.flood.maps.layers = {
       renderMode: 'hybrid',
       extent: window.flood.maps.extent,
       style: window.flood.maps.styles.targetAreaPolygons,
-      maxResolution: window.flood.maps.liveMapSymbolBreakpoint,
       zIndex: 1
     })
   },
@@ -73,7 +72,7 @@ window.flood.maps.layers = {
         url: '/api/target-area-polygons.geojson'
       }),
       style: window.flood.maps.styles.targetAreaPolygons,
-      maxResolution: window.flood.maps.liveMapSymbolBreakpoint,
+      visible: false,
       zIndex: 1
     })
   },
