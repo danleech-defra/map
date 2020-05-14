@@ -210,7 +210,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     keyElement.setAttribute('aria-modal', true)
     closeInfo()
     keyElement.focus()
-    if (!maps.isKeyboatrd) {
+    if (!maps.isKeyboard) {
       containerElement.removeAttribute('tabindex')
     }
   }
@@ -258,7 +258,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     infoElement.setAttribute('open', true)
     infoContainer.innerHTML = id
     infoElement.focus()
-    if (!maps.isKeyboatrd) {
+    if (!maps.isKeyboard) {
       containerElement.removeAttribute('tabindex')
     }
   }
@@ -394,6 +394,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   const keyup = (e) => {
     // Escape key behavior
     if (e.key === 'Escape' || e.key === 'Esc') {
+      console.log(maps.isKeyboard)
       if (state.isTooltipOpen) {
         hideTooltip()
       } else if (state.isInfoOpen) {
