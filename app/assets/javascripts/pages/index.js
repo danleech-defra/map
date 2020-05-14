@@ -1,16 +1,12 @@
 'use strict'
 // import '../components/nunjucks'
 import '../core'
-import keyboardFocus from 'keyboard-focus'
 import '../components/map/maps'
 import '../components/map/styles'
 import '../components/map/layers'
 import '../components/map/container'
 import '../components/map/live'
 import './model' // Temporary geometry
-
-// Detects whether active element received keyboard event
-keyboardFocus(document)
 
 // Create a map
 window.flood.maps.createLiveMap('map1', { // Button Id (Required)

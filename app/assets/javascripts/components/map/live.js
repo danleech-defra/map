@@ -187,9 +187,7 @@ function LiveMap (mapId, options) {
     layers.forEach((layer) => {
       if (features.length > 9) return true
       layer.getSource().forEachFeatureIntersectingExtent(extent, (feature) => {
-        if (!feature.get('isVisible')) {
-          return false
-        }
+        if (!feature.get('isVisible')) { return false }
         features.push({
           id: feature.getId(),
           state: layer.get('ref'), // Used to style the overlay
@@ -203,22 +201,21 @@ function LiveMap (mapId, options) {
 
   // Show overlays
   const showOverlays = () => {
-    if (container.state.isKeyboard) {
-      hideOverlays()
-      state.visibleFeatures = getVisibleFeatures()
-      if (state.visibleFeatures.length <= 9) {
-        state.visibleFeatures.forEach((feature, i) => {
-          const overlayElement = document.createTextNode(i + 1)
-          map.addOverlay(
-            new Overlay({
-              element: overlayElement,
-              position: feature.centre,
-              className: `defra-map-overlay defra-map-overlay--${feature.state}${feature.isBigZoom ? '-bigZoom' : ''}`,
-              offset: [0, 0]
-            })
-          )
-        })
-      }
+    if (!maps.isKeyboard) { return }
+    hideOverlays()
+    state.visibleFeatures = getVisibleFeatures()
+    if (state.visibleFeatures.length <= 9) {
+      state.visibleFeatures.forEach((feature, i) => {
+        const overlayElement = document.createTextNode(i + 1)
+        map.addOverlay(
+          new Overlay({
+            element: overlayElement,
+            position: feature.centre,
+            className: `defra-map-overlay defra-map-overlay--${feature.state}${feature.isBigZoom ? '-bigZoom' : ''}`,
+            offset: [0, 0]
+          })
+        )
+      })
     }
   }
 
@@ -232,7 +229,8 @@ function LiveMap (mapId, options) {
     if (targetAreaPolygons.getVisible()) {
       const resolution = Math.floor(map.getView().getResolution())
       // Opacity graduates between 1 and 0.4 with resolution
-      const opacity = Math.min(Math.max((resolution + 40) / 100, 0.4), 1)
+      let opacity = Math.min(Math.max((resolution + 40) / 100, 0.4), 1)
+      opacity = parseFloat(opacity.toFixed(1))
       targetAreaPolygons.setOpacity(opacity)
     }
   }
@@ -379,9 +377,7 @@ function LiveMap (mapId, options) {
   map.addEventListener('pointermove', (e) => {
     // Detect vector feature at mouse coords
     const hit = map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
-      if (!defaultLayers.includes(layer)) {
-        return true
-      }
+      if (!defaultLayers.includes(layer)) { return true }
     })
     map.getTarget().style.cursor = hit ? 'pointer' : ''
   })
@@ -390,14 +386,12 @@ function LiveMap (mapId, options) {
   map.addEventListener('click', (e) => {
     // Get mouse coordinates and check for feature
     const feature = map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
-      if (!defaultLayers.includes(layer)) {
-        return feature
-      }
+      if (!defaultLayers.includes(layer)) { return feature }
     })
     setSelectedFeature(feature ? feature.getId() : '')
   })
 
-  // Handle all key presses
+  // Handle all liveMap specific key presses
   containerElement.addEventListener('keyup', (e) => {
     // Show overlays when tab, enter or space is press
     if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ') {
@@ -505,5 +499,25 @@ maps.createLiveMap = (mapId, options = {}) => {
   if (window.flood.utils.getParameterByName('v') === mapId) {
     options.isBack = window.history.state.isBack
     return new LiveMap(mapId, options)
+  }
+
+  // Detect keyboard interaction
+  if (maps.isKeyboard !== false && maps.isKeyboard !== true) {
+    window.addEventListener('keydown', (e) => {
+      maps.isKeyboard = true
+    })
+    window.addEventListener('pointerdown', (e) => {
+      maps.isKeyboard = false
+    })
+    window.addEventListener('focusin', (e) => {
+      if (maps.isKeyboard) {
+        e.target.setAttribute('keyboard-focus', '')
+      }
+    })
+    window.addEventListener('focusout', (e) => {
+      forEach(document.querySelectorAll('[keyboard-focus]'), (element) => {
+        element.removeAttribute('keyboard-focus')
+      })
+    })
   }
 }

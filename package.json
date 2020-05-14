@@ -44,7 +44,6 @@
     "gulp-sass": "^4.0.1",
     "gulp-sourcemaps": "^2.6.0",
     "gulp-util": "^3.0.8",
-    "keyboard-focus": "^1.0.1",
     "keypather": "^3.0.0",
     "marked": "^0.8.0",
     "notifications-node-client": "^4.1.0",
