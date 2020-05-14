@@ -406,7 +406,9 @@ function LiveMap (mapId, options) {
 
   // Hide overlays (excludes checkbox click)
   containerElement.addEventListener('click', (e) => {
-    hideOverlays()
+    if (!maps.isKeyboard) {
+      hideOverlays()
+    }
   })
 
   // Hide overlays on checkbox pointerup
