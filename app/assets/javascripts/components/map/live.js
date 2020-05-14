@@ -19,7 +19,6 @@ const { setExtentFromLonLat, getLonLatFromExtent, liveMapSymbolBreakpoint } = wi
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
-
   // Optional target area features
   const targetArea = {}
 
@@ -288,7 +287,7 @@ function LiveMap (mapId, options) {
     setExtentFromLonLat(map, extent)
   }
 
-  // Store reset extent
+  // Store extent for use with reset button
   state.initialExtent = window.history.state.initialExtent || getLonLatFromExtent(map.getView().calculateExtent(map.getSize()))
 
   // Set layers from querystring
@@ -301,7 +300,7 @@ function LiveMap (mapId, options) {
     })
   }
 
-  // Set smart key visibility
+  // Set smart key visibility. To follow...
   if (options.hasSmartKey) {
     const keyItems = document.querySelectorAll('.defra-map-key__section--layers .defra-map-key__item')
     keyItems.forEach((keyItem) => {
@@ -313,7 +312,7 @@ function LiveMap (mapId, options) {
   // Event listeners
   //
 
-  // Set selected feature and vector tile states when features have loaded
+  // Set selected feature and polygon states when features have loaded
   dataLayers.forEach((layer) => {
     const change = layer.getSource().on('change', (e) => {
       if (e.target.getState() === 'ready') {
@@ -348,7 +347,7 @@ function LiveMap (mapId, options) {
     })
   })
 
-  // Pan or zoom map (fires on map load aswell)
+  // Set key symbols, opacity, history and overlays on map pan or zoom (fires on map load aswell)
   let timer = null
   map.addEventListener('moveend', (e) => {
     // Toggle key symbols depending on resolution
@@ -379,7 +378,7 @@ function LiveMap (mapId, options) {
     map.getTarget().style.cursor = hit ? 'pointer' : ''
   })
 
-  // Select feature if map is clicked
+  // Set selected feature if map is clicked
   map.addEventListener('click', (e) => {
     // Get mouse coordinates and check for feature
     const feature = map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
@@ -398,13 +397,13 @@ function LiveMap (mapId, options) {
     if (e.key === 'Escape' && state.selectedFeatureId !== '') {
       setSelectedFeature('')
     }
-    // Listen for number keys
+    // Set selected feature on [1-9] key presss
     if (!isNaN(e.key) && e.key >= 1 && e.key <= state.visibleFeatures.length && state.visibleFeatures.length <= 9) {
       setSelectedFeature(state.visibleFeatures[e.key - 1].id)
     }
   })
 
-  // Hide overlays (excludes checkbox click)
+  // Hide overlays on click (excludes checkbox click)
   containerElement.addEventListener('click', (e) => {
     if (!maps.isKeyboard) {
       hideOverlays()
@@ -418,7 +417,7 @@ function LiveMap (mapId, options) {
     }
   })
 
-  // Toggle layers/features if key item changed
+  // Toggle layers/features when key item clicked
   keyElement.addEventListener('click', (e) => {
     if (e.target.nodeName === 'INPUT' && e.target.type === 'checkbox') {
       e.stopPropagation()
@@ -441,7 +440,7 @@ function LiveMap (mapId, options) {
     setSelectedFeature('')
   })
 
-  // Reset location button
+  // Reset map extent on reset button click
   resetButton.addEventListener('click', (e) => {
     setExtentFromLonLat(map, state.initialExtent)
     resetButton.setAttribute('disabled', '')
@@ -486,7 +485,7 @@ maps.createLiveMap = (mapId, options = {}) => {
     return new LiveMap(mapId, options)
   })
 
-  // Recreate map on popstate
+  // Recreate map on browser history change
   window.addEventListener('popstate', (e) => {
     if (e.state.v === mapId) {
       options.isBack = window.history.state.isBack
@@ -494,7 +493,7 @@ maps.createLiveMap = (mapId, options = {}) => {
     }
   })
 
-  // Recreate map on refresh or direct
+  // Recreate map on page refresh
   if (window.flood.utils.getParameterByName('v') === mapId) {
     options.isBack = window.history.state.isBack
     return new LiveMap(mapId, options)

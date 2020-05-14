@@ -160,7 +160,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
 
   // Start focus (will be removed if not keyboard)
   containerElement.focus()
-  containerElement.removeAttribute('tabindex')
+  containerElement.removeAttribute('tabindex') // Address Safari && iOS performance issue
 
   //
   // Private methods
