@@ -10,7 +10,7 @@ router.get('/api/warnings.geojson', function (req, res) {
     'features': [
       {
         'type': 'Feature',
-        'id': 'ta.112FWFCUR10A',
+        'id': 'flood.112FWFCUR10A',
         'geometry': {
           'type': 'Point',
           'coordinates': [
@@ -23,7 +23,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGBER2',
+        'id': 'flood.111FWGBER2',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.26447756398862, 50.7799782905095]
@@ -34,7 +34,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGNWV1',
+        'id': 'flood.111FWGNWV1',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.2459892490915, 50.8398739927558]
@@ -45,7 +45,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGNWV2',
+        'id': 'flood.111FWGNWV2',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.16279046549171, 50.7871235037295]
@@ -56,7 +56,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGPID1',
+        'id': 'flood.111FWGPID1',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.34143828114448, 50.7589393720249]
@@ -67,7 +67,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGSWV1',
+        'id': 'flood.111FWGSWV1',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.49012363978342, 50.70170627393]
@@ -78,7 +78,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGTILL1',
+        'id': 'flood.111FWGTILL1',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.92445892453497, 51.2016923564372]
@@ -89,7 +89,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGWYLV101',
+        'id': 'flood.111FWGWYLV101',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.98991062274131, 51.1420621342006]
@@ -100,7 +100,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGBOU3',
+        'id': 'flood.111FWGBOU3',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.71333926915155, 51.1431073267863]
@@ -111,7 +111,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGCHIT1',
+        'id': 'flood.111FWGCHIT1',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.03670972377467, 51.204567926083]
@@ -122,7 +122,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.123FWT149',
+        'id': 'flood.123FWT149',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.05992973545134, 53.6931823032401]
@@ -133,7 +133,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.123FWF146',
+        'id': 'flood.123FWF146',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.07894423443505, 53.7145851820077]
@@ -144,7 +144,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.123FWT148',
+        'id': 'flood.123FWT148',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.05071626117719, 53.7066960241642]
@@ -155,7 +155,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.123FWF151',
+        'id': 'flood.123FWF151',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.02674708211487, 53.6941040523805]
@@ -166,7 +166,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.123FWB060',
+        'id': 'flood.123FWB060',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.00875616751495, 53.6837178829405]
@@ -177,7 +177,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.122FWF723',
+        'id': 'flood.122FWF723',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.09618812615601, 53.8938571607126]
@@ -188,7 +188,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE540',
+        'id': 'flood.031FWFSE540',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.19369423679669, 51.9667958497833]
@@ -199,7 +199,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE550',
+        'id': 'flood.031FWFSE550',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.19668019641373, 51.9394927463774]
@@ -210,7 +210,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE530',
+        'id': 'flood.031FWFSE530',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.22100552313741, 51.9567484893307]
@@ -221,7 +221,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE465',
+        'id': 'flood.031FWFSE465',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.22795044210777, 52.1483265391797]
@@ -232,7 +232,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE480',
+        'id': 'flood.031FWFSE480',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.21370071504039, 52.0521707093961]
@@ -243,7 +243,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE475',
+        'id': 'flood.031FWFSE475',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.22257601969736, 52.0668793370223]
@@ -254,7 +254,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWBSE570',
+        'id': 'flood.031FWBSE570',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.25351402061416, 51.8933682340626]
@@ -265,7 +265,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE525',
+        'id': 'flood.031FWFSE525',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.16917867393325, 51.9936659451144]
@@ -276,7 +276,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE450',
+        'id': 'flood.031FWFSE450',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.22464279018635, 52.1809559821613]
@@ -287,7 +287,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF29Chertsey',
+        'id': 'flood.061WAF29Chertsey',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.544968678594846, 51.4025516697759]
@@ -298,7 +298,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23Ginge',
+        'id': 'flood.061WAF23Ginge',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.30056573435291, 51.6228446311326]
@@ -309,7 +309,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG008',
+        'id': 'flood.065FAG008',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.13557603223792, 51.0849695667788]
@@ -320,7 +320,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG010',
+        'id': 'flood.065FAG010',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.15084619079205, 51.0501473081622]
@@ -331,7 +331,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG001',
+        'id': 'flood.065FAG001',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.22356963088389, 51.2461761463075]
@@ -342,7 +342,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG015',
+        'id': 'flood.065FAG015',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.950739959180211, 50.9029081644888]
@@ -353,7 +353,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG013',
+        'id': 'flood.065FAG013',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.08265409275492, 50.9310521246428]
@@ -364,7 +364,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG006',
+        'id': 'flood.065FAG006',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.39124264697959, 51.0249356940644]
@@ -375,7 +375,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG005',
+        'id': 'flood.065FAG005',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.47811901755108, 51.0806166294908]
@@ -386,7 +386,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG007',
+        'id': 'flood.065FAG007',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.31577069674512, 51.0884009766057]
@@ -397,7 +397,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG017',
+        'id': 'flood.065FAG017',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.152658650096666, 50.8641237347797]
@@ -408,7 +408,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG004',
+        'id': 'flood.065FAG004',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.62862075778877, 51.0898352735334]
@@ -419,7 +419,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.064FAG99SElondon',
+        'id': 'flood.064FAG99SElondon',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.015201492710173, 51.3906122397269]
@@ -430,7 +430,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG018',
+        'id': 'flood.065FAG018',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.3555394146657, 51.1538224452872]
@@ -441,7 +441,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061FAG30Alton',
+        'id': 'flood.061FAG30Alton',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.99208930829991, 51.1270935750986]
@@ -452,7 +452,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061FAG24Basing',
+        'id': 'flood.061FAG24Basing',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.11731040894269, 51.2703237234556]
@@ -463,7 +463,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG009',
+        'id': 'flood.065FAG009',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.15389096415214, 51.1510207015388]
@@ -474,7 +474,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FAGCCGW',
+        'id': 'flood.111FAGCCGW',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.97696986730258, 50.9475594075642]
@@ -485,7 +485,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061FAG24Crondall',
+        'id': 'flood.061FAG24Crondall',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.864637131928841, 51.2326613086168]
@@ -496,7 +496,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061FAG22LamVal',
+        'id': 'flood.061FAG22LamVal',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.46157219275634, 51.5078141840441]
@@ -507,7 +507,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG012',
+        'id': 'flood.065FAG012',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.10121749829384, 50.9863178380013]
@@ -518,7 +518,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FAGSPGW',
+        'id': 'flood.111FAGSPGW',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.902712707582, 51.208420857449]
@@ -529,7 +529,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061FAG22AldbnVal',
+        'id': 'flood.061FAG22AldbnVal',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.62741457998088, 51.4982824370822]
@@ -540,7 +540,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061FAG22OgVal',
+        'id': 'flood.061FAG22OgVal',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.72286948070511, 51.4841251832487]
@@ -551,7 +551,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FAGWDGW',
+        'id': 'flood.111FAGWDGW',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.37841306257756, 50.7643714972549]
@@ -562,7 +562,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG011',
+        'id': 'flood.065FAG011',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.31453122950734, 51.015025194366]
@@ -573,7 +573,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG002',
+        'id': 'flood.065FAG002',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.45533792002724, 51.2807172935365]
@@ -584,7 +584,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG003',
+        'id': 'flood.065FAG003',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.55837647261197, 51.2280876135832]
@@ -595,7 +595,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065FAG016',
+        'id': 'flood.065FAG016',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.778633442317004, 50.9050014555719]
@@ -606,7 +606,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061FAG21IlsComp',
+        'id': 'flood.061FAG21IlsComp',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.28272354012043, 51.526241754448]
@@ -617,7 +617,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.052WAFHFW',
+        'id': 'flood.052WAFHFW',
         'geometry': {
           'type': 'Point',
           'coordinates': [0.201922247104936, 52.475415773918]
@@ -628,7 +628,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031WAF201',
+        'id': 'flood.031WAF201',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.22218916240523, 52.1390148194986]
@@ -639,7 +639,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111WAFAVOL',
+        'id': 'flood.111WAFAVOL',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.78453398114894, 50.793672372678]
@@ -650,7 +650,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111WAFFROL',
+        'id': 'flood.111WAFFROL',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.27549218746056, 50.6946018383339]
@@ -661,7 +661,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF24LLoddon',
+        'id': 'flood.061WAF24LLoddon',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.87236871012171, 51.4400571538104]
@@ -672,7 +672,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF24Twyford',
+        'id': 'flood.061WAF24Twyford',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.882107723132172, 51.4880906476845]
@@ -683,7 +683,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.112WAFTPM',
+        'id': 'flood.112WAFTPM',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.96022629090201, 51.062627493386]
@@ -694,7 +694,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.112WAFTMBA',
+        'id': 'flood.112WAFTMBA',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.13821541288238, 51.3439661404839]
@@ -705,7 +705,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.113WAFTW11',
+        'id': 'flood.113WAFTW11',
         'geometry': {
           'type': 'Point',
           'coordinates': [-3.68449115966117, 50.8111005840982]
@@ -716,7 +716,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111WAFAVOM',
+        'id': 'flood.111WAFAVOM',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.7763810899621, 50.9448088687576]
@@ -727,7 +727,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065WAF121',
+        'id': 'flood.065WAF121',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.30930303598147, 51.0618914182496]
@@ -738,7 +738,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111WAFPURB',
+        'id': 'flood.111WAFPURB',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.02753896781758, 50.6341875634823]
@@ -749,7 +749,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031WAF209',
+        'id': 'flood.031WAF209',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.06726705483298, 52.0878805522593]
@@ -760,7 +760,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111WAFBOU',
+        'id': 'flood.111WAFBOU',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.705833882682, 51.1810751712745]
@@ -771,7 +771,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF14LChrwell',
+        'id': 'flood.061WAF14LChrwell',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.26508115727355, 51.8258501527884]
@@ -782,7 +782,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF02Churn',
+        'id': 'flood.061WAF02Churn',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.93891028362018, 51.6899131979959]
@@ -793,7 +793,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF06Coln',
+        'id': 'flood.061WAF06Coln',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.77606038896513, 51.7221955081133]
@@ -804,7 +804,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF10Dikler',
+        'id': 'flood.061WAF10Dikler',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.74677076086956, 51.8989039164944]
@@ -815,7 +815,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF12Evenlode',
+        'id': 'flood.061WAF12Evenlode',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.51955828840714, 51.8800762123933]
@@ -826,7 +826,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF22UpperKen',
+        'id': 'flood.061WAF22UpperKen',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.55293837983758, 51.4179777707826]
@@ -837,7 +837,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF22LowerKen',
+        'id': 'flood.061WAF22LowerKen',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.09774127560971, 51.4161182446811]
@@ -848,7 +848,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF22Lambourn',
+        'id': 'flood.061WAF22Lambourn',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.38242665270397, 51.4433855316985]
@@ -859,7 +859,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF08Leach',
+        'id': 'flood.061WAF08Leach',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.69896306329397, 51.7227437168963]
@@ -870,7 +870,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031WAF116',
+        'id': 'flood.031WAF116',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.68506847170479, 52.1104879312291]
@@ -881,7 +881,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF21PangSulm',
+        'id': 'flood.061WAF21PangSulm',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.14769664010757, 51.4632830255921]
@@ -892,7 +892,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111WAFPIDD',
+        'id': 'flood.111WAFPIDD',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.2413436474985, 50.737517833948]
@@ -903,7 +903,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF14RayOxon',
+        'id': 'flood.061WAF14RayOxon',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.11780959024724, 51.8537344473009]
@@ -914,7 +914,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031WAF214',
+        'id': 'flood.031WAF214',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.23042934017899, 51.9208161259681]
@@ -925,7 +925,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031WAF103',
+        'id': 'flood.031WAF103',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.63579820676066, 52.6563349518084]
@@ -936,7 +936,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031WAF108',
+        'id': 'flood.031WAF108',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.23186925182798, 52.1287553272217]
@@ -947,7 +947,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031WAF216',
+        'id': 'flood.031WAF216',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.35377334618365, 51.7778044070246]
@@ -958,7 +958,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.113WAFTW13',
+        'id': 'flood.113WAFTW13',
         'geometry': {
           'type': 'Point',
           'coordinates': [-3.6616315473087, 50.6081294041673]
@@ -969,7 +969,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF19Thame',
+        'id': 'flood.061WAF19Thame',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.975927590395815, 51.7616156946211]
@@ -980,7 +980,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23CalcLech',
+        'id': 'flood.061WAF23CalcLech',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.77189337264181, 51.6628472618899]
@@ -991,7 +991,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23WallGor',
+        'id': 'flood.061WAF23WallGor',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.14521530069406, 51.5896844665916]
@@ -1002,7 +1002,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23BsctKngs',
+        'id': 'flood.061WAF23BsctKngs',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.48132988098237, 51.7227696014978]
@@ -1013,7 +1013,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23Oxford',
+        'id': 'flood.061WAF23Oxford',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.26274718806928, 51.7411032230039]
@@ -1024,7 +1024,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23HenMed',
+        'id': 'flood.061WAF23HenMed',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.872304775938413, 51.5487772926229]
@@ -1035,7 +1035,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23ShipWar',
+        'id': 'flood.061WAF23ShipWar',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.881963488976845, 51.5097059038446]
@@ -1046,7 +1046,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23Abingdon',
+        'id': 'flood.061WAF23Abingdon',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.23477753468887, 51.6520072583287]
@@ -1057,7 +1057,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23Datchet',
+        'id': 'flood.061WAF23Datchet',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.531267659606963, 51.4378721592997]
@@ -1068,7 +1068,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23Hurley',
+        'id': 'flood.061WAF23Hurley',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.747972829900342, 51.558905327428]
@@ -1079,7 +1079,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23RdngSonn',
+        'id': 'flood.061WAF23RdngSonn',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.959221588440491, 51.4714581599442]
@@ -1090,7 +1090,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23PrlyPang',
+        'id': 'flood.061WAF23PrlyPang',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.06438680145312, 51.4880837955474]
@@ -1101,7 +1101,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF23Shepprtn',
+        'id': 'flood.061WAF23Shepprtn',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.414440223788768, 51.3980784833576]
@@ -1112,7 +1112,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.034WAB424',
+        'id': 'flood.034WAB424',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.764096676524831, 53.2714897328747]
@@ -1123,7 +1123,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF24WhtWater',
+        'id': 'flood.061WAF24WhtWater',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.896585572004719, 51.2918524657409]
@@ -1134,7 +1134,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF10Windrush',
+        'id': 'flood.061WAF10Windrush',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.52654150463412, 51.776622815156]
@@ -1145,7 +1145,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111WAFWYLE',
+        'id': 'flood.111WAFWYLE',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.02050359394228, 51.1535939878999]
@@ -1156,7 +1156,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.112WAFYPM',
+        'id': 'flood.112WAFYPM',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.8101311198415, 51.0127683807336]
@@ -1167,7 +1167,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031WAF114',
+        'id': 'flood.031WAF114',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.99322390179484, 52.7656101765073]
@@ -1178,7 +1178,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.052WAFSUTTONGLT',
+        'id': 'flood.052WAFSUTTONGLT',
         'geometry': {
           'type': 'Point',
           'coordinates': [0.096308979091882, 52.3966890029409]
@@ -1189,7 +1189,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031WAF104',
+        'id': 'flood.031WAF104',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.62254952338271, 52.8093558243907]
@@ -1200,7 +1200,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.013WAFDEE',
+        'id': 'flood.013WAFDEE',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.89608868777976, 53.1412316440746]
@@ -1211,7 +1211,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.123WAT983',
+        'id': 'flood.123WAT983',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.01161858551742, 53.7081174793743]
@@ -1222,7 +1222,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.122WAF947',
+        'id': 'flood.122WAF947',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.114882182259, 53.8228825725195]
@@ -1233,7 +1233,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.112WAFTUBA',
+        'id': 'flood.112WAFTUBA',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.06615230538688, 51.5139710833143]
@@ -1244,7 +1244,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.011WAFDW',
+        'id': 'flood.011WAFDW',
         'geometry': {
           'type': 'Point',
           'coordinates': [-3.1477659857034, 54.5601590645645]
@@ -1255,7 +1255,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.122WAF946',
+        'id': 'flood.122WAF946',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.15572159374696, 53.9894367791294]
@@ -1266,7 +1266,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.061WAF30UpperWey',
+        'id': 'flood.061WAF30UpperWey',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.739433925292806, 51.1802236543783]
@@ -1277,7 +1277,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.052WAFWELNEY',
+        'id': 'flood.052WAFWELNEY',
         'geometry': {
           'type': 'Point',
           'coordinates': [0.255028173177655, 52.5161975901904]
@@ -1288,7 +1288,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.112WAFTWSS',
+        'id': 'flood.112WAFTWSS',
         'geometry': {
           'type': 'Point',
           'coordinates': [-3.42190706851537, 51.1742562775215]
@@ -1299,7 +1299,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111WAFWEYR',
+        'id': 'flood.111WAFWEYR',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.47107393116351, 50.6396943082282]
@@ -1310,7 +1310,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGCRA2',
+        'id': 'flood.111FWGCRA2',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.93856637136553, 50.9408219997578]
@@ -1321,7 +1321,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGEBBV1',
+        'id': 'flood.111FWGEBBV1',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.89789852587435, 51.0285615614281]
@@ -1332,7 +1332,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGGUS4',
+        'id': 'flood.111FWGGUS4',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.0435416875054, 50.9348859769234]
@@ -1343,7 +1343,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGTAR7',
+        'id': 'flood.111FWGTAR7',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.10177301201696, 50.8902043448926]
@@ -1354,7 +1354,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGALL102',
+        'id': 'flood.111FWGALL102',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.97379263499582, 50.9139705605495]
@@ -1365,7 +1365,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGCCWH1',
+        'id': 'flood.111FWGCCWH1',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.86701322618962, 50.9530676784832]
@@ -1376,7 +1376,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGCCWH2',
+        'id': 'flood.111FWGCCWH2',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.83475310924187, 50.9578016062266]
@@ -1387,7 +1387,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111FWGALL103',
+        'id': 'flood.111FWGALL103',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.00799407224939, 50.8556628543392]
@@ -1398,7 +1398,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065WAF122',
+        'id': 'flood.065WAF122',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.33915784709823, 50.9655197931483]
@@ -1409,7 +1409,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065WAF136',
+        'id': 'flood.065WAF136',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.23505802912911, 50.83504324682]
@@ -1420,7 +1420,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.062WAF28LowColne',
+        'id': 'flood.062WAF28LowColne',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.495134525671763, 51.5317018123003]
@@ -1431,7 +1431,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111WAFSTOL',
+        'id': 'flood.111WAFSTOL',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.90856384045991, 50.79425832665]
@@ -1442,7 +1442,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065WAF111',
+        'id': 'flood.065WAF111',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.49855113615163, 50.9625571714601]
@@ -1453,7 +1453,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.065WAF104',
+        'id': 'flood.065WAF104',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.51248616629787, 51.067130096982]
@@ -1464,7 +1464,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFFG20',
+        'id': 'flood.031FWFFG20',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.19566692756436, 51.7239460935497]
@@ -1475,7 +1475,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE560',
+        'id': 'flood.031FWFSE560',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.25737446758591, 51.9277520411523]
@@ -1486,7 +1486,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE470',
+        'id': 'flood.031FWFSE470',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.22778666832912, 52.1094540578973]
@@ -1497,7 +1497,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE495',
+        'id': 'flood.031FWFSE495',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.21405485788744, 52.0635237667682]
@@ -1508,7 +1508,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE490',
+        'id': 'flood.031FWFSE490',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.21082125124927, 52.0652098704867]
@@ -1519,7 +1519,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE410',
+        'id': 'flood.031FWFSE410',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.23826159602472, 52.2386684039856]
@@ -1530,7 +1530,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE435',
+        'id': 'flood.031FWFSE435',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.23329953995041, 52.2000943811138]
@@ -1541,7 +1541,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE310',
+        'id': 'flood.031FWFSE310',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.39140691897551, 52.5146593197524]
@@ -1552,7 +1552,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.031FWFSE430',
+        'id': 'flood.031FWFSE430',
         'geometry': {
           'type': 'Point',
           'coordinates': [-2.23723941295189, 52.2070375179498]
@@ -1563,7 +1563,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.034WAF414',
+        'id': 'flood.034WAF414',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.48381709523376, 52.8499833861272]
@@ -1574,7 +1574,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.122WAT964',
+        'id': 'flood.122WAT964',
         'geometry': {
           'type': 'Point',
           'coordinates': [-0.877459509694372, 53.7376408025803]
@@ -1585,7 +1585,7 @@ router.get('/api/warnings.geojson', function (req, res) {
         }
       }, {
         'type': 'Feature',
-        'id': 'ta.111WAFAVOU',
+        'id': 'flood.111WAFAVOU',
         'geometry': {
           'type': 'Point',
           'coordinates': [-1.82191236008838, 51.2471434907627]
@@ -1683,7 +1683,7 @@ router.get('/api/target-area-polygons.geojson', function (req, res) {
     'features': [
       {
         'type': 'Feature',
-        'id': 'ta.122WAT964',
+        'id': 'flood_warning_alert.122WAT964',
         'geometry': {
           'type': 'MultiPolygon',
           'coordinates': [
@@ -1996,7 +1996,7 @@ router.get('/api/target-area-polygons.geojson', function (req, res) {
         'properties': {}
       }, {
         'type': 'Feature',
-        'id': 'ta.122FWF723',
+        'id': 'flood_warning_alert.122FWF723',
         'geometry': {
           'type': 'MultiPolygon',
           'coordinates': [
@@ -2017,7 +2017,7 @@ router.get('/api/target-area-polygons.geojson', function (req, res) {
         'properties': {}
       }, {
         'type': 'Feature',
-        'id': 'ta.123FWF151',
+        'id': 'flood_warning_alert.123FWF151',
         'geometry': {
           'type': 'MultiPolygon',
           'coordinates': [
@@ -2042,7 +2042,7 @@ router.get('/api/target-area-polygons.geojson', function (req, res) {
         'properties': {}
       }, {
         'type': 'Feature',
-        'id': 'ta.123FWT149',
+        'id': 'flood_warning_alert.123FWT149',
         'geometry': {
           'type': 'MultiPolygon',
           'coordinates': [
@@ -2073,7 +2073,7 @@ router.get('/api/target-area-polygons.geojson', function (req, res) {
         'properties': {}
       }, {
         'type': 'Feature',
-        'id': 'ta.123FWT148',
+        'id': 'flood_warning_alert.123FWT148',
         'geometry': {
           'type': 'MultiPolygon',
           'coordinates': [
@@ -2103,7 +2103,7 @@ router.get('/api/target-area-polygons.geojson', function (req, res) {
         'properties': {}
       }, {
         'type': 'Feature',
-        'id': 'ta.123FWF146',
+        'id': 'flood_warning_alert.123FWF146',
         'geometry': {
           'type': 'MultiPolygon',
           'coordinates': [
@@ -2132,7 +2132,7 @@ router.get('/api/target-area-polygons.geojson', function (req, res) {
         'properties': {}
       }, {
         'type': 'Feature',
-        'id': 'ta.123FWB060',
+        'id': 'flood_warning_alert.123FWB060',
         'geometry': {
           'type': 'MultiPolygon',
           'coordinates': [
@@ -2198,7 +2198,7 @@ router.get('/api/target-area-polygons.geojson', function (req, res) {
         'properties': {}
       }, {
         'type': 'Feature',
-        'id': 'ta.123WAT983',
+        'id': 'flood_warning_alert.123WAT983',
         'geometry': {
           'type': 'MultiPolygon',
           'coordinates': [
@@ -2393,7 +2393,7 @@ router.get('/api/target-area-polygons.geojson', function (req, res) {
         'properties': {}
       }, {
         'type': 'Feature',
-        'id': 'ta.122WAF947',
+        'id': 'flood_warning_alert.122WAF947',
         'geometry': {
           'type': 'MultiPolygon',
           'coordinates': [
@@ -4430,7 +4430,7 @@ router.get('/api/target-area-polygons.geojson', function (req, res) {
         'properties': {}
       }, {
         'type': 'Feature',
-        'id': 'ta.122WAF946',
+        'id': 'flood_warning_alert.122WAF946',
         'geometry': {
           'type': 'MultiPolygon',
           'coordinates': [

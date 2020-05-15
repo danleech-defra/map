@@ -15,7 +15,7 @@ import { Vector as VectorSource } from 'ol/source'
 
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
 const maps = window.flood.maps
-const { setExtentFromLonLat, getLonLatFromExtent } = window.flood.maps
+const { setExtentFromLonLat, getLonLatFromExtent, getFeatureByProperty } = window.flood.maps
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
@@ -384,7 +384,11 @@ function LiveMap (mapId, options) {
     const feature = map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
       if (!defaultLayers.includes(layer)) { return feature }
     })
-    setSelectedFeature(feature ? feature.getId() : '')
+    let featureId = feature ? feature.getId() : ''
+    if (featureId.includes('flood_warning_alert')) {
+      featureId = 'flood' + feature.getId().substring(feature.getId().indexOf('.'))
+    }
+    setSelectedFeature(featureId)
   })
 
   // Handle all liveMap specific key presses
