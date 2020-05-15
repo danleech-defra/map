@@ -385,8 +385,9 @@ function LiveMap (mapId, options) {
       if (!defaultLayers.includes(layer)) { return feature }
     })
     let featureId = feature ? feature.getId() : ''
+    // Transform id if vector source
     if (featureId.includes('flood_warning_alert')) {
-      featureId = 'flood' + feature.getId().substring(feature.getId().indexOf('.'))
+      featureId = 'flood' + featureId.substring(featureId.indexOf('.'))
     }
     setSelectedFeature(featureId)
   })
