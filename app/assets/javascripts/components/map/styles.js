@@ -4,6 +4,8 @@ Sets up the window.flood.maps styles objects
 */
 import { Style, Icon, Fill, Stroke } from 'ol/style'
 
+const maxBigZoom = 100
+
 window.flood.maps.styles = {
   // Primarily vector tiles
   targetAreaPolygons: (feature) => {
@@ -63,7 +65,7 @@ window.flood.maps.styles = {
       return
     }
     // Hide warning symbols when polygon is shown
-    if (resolution < window.flood.maps.liveMapSymbolBreakpoint) {
+    if (resolution < maxBigZoom) {
       return
     }
     const state = feature.get('state')
@@ -92,7 +94,7 @@ window.flood.maps.styles = {
     }
     const state = feature.get('state')
     const isSelected = feature.get('isSelected')
-    const isBigSymbol = resolution <= window.flood.maps.liveMapSymbolBreakpoint
+    const isBigSymbol = resolution <= maxBigZoom
     let style
     if (state === 21) {
       style = isSelected ? (isBigSymbol ? styleCache.levelHighBigSelected : styleCache.levelHighSelected) : (isBigSymbol ? styleCache.levelHighBig : styleCache.levelHigh)
@@ -117,7 +119,7 @@ window.flood.maps.styles = {
       return
     }
     const isSelected = feature.get('isSelected')
-    const isBigSymbol = resolution <= window.flood.maps.liveMapSymbolBreakpoint
+    const isBigSymbol = resolution <= maxBigZoom
     return isSelected ? (isBigSymbol ? styleCache.rainfallBigSelected : styleCache.rainfallSelected) : (isBigSymbol ? styleCache.rainfallBig : styleCache.rainfall)
   }
 }

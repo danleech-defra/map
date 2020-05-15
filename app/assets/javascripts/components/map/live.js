@@ -15,7 +15,7 @@ import { Vector as VectorSource } from 'ol/source'
 
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
 const maps = window.flood.maps
-const { setExtentFromLonLat, getLonLatFromExtent, liveMapSymbolBreakpoint } = window.flood.maps
+const { setExtentFromLonLat, getLonLatFromExtent } = window.flood.maps
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
@@ -72,7 +72,7 @@ function LiveMap (mapId, options) {
 
   // Options to pass to the MapContainer constructor
   const containerOptions = {
-    maxBigZoom: liveMapSymbolBreakpoint,
+    maxBigZoom: 100,
     view: view,
     layers: layers,
     queryParamKeys: ['v', 'lyr', 'ext', 'sid'],
@@ -226,7 +226,7 @@ function LiveMap (mapId, options) {
   // Set target area polygon opacity
   const setOpacityTargetAreaPolygons = () => {
     const resolution = Math.floor(map.getView().getResolution())
-    targetAreaPolygons.setVisible(resolution < window.flood.maps.liveMapSymbolBreakpoint)
+    targetAreaPolygons.setVisible(resolution < containerOptions.maxBigZoom)
     // Opacity graduates with resolution
     targetAreaPolygons.setOpacity((-Math.abs(map.getView().getZoom()) + 20) / 10)
   }

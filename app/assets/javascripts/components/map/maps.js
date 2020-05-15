@@ -40,9 +40,5 @@ window.flood.maps = {
     extent = transformExtent(extent, 'EPSG:3857', 'EPSG:4326')
     const ext = extent.map(x => { return parseFloat(x.toFixed(6)) })
     return ext
-  },
-
-  // Should be in liveMap somewhere
-  liveMapSymbolBreakpoint: 100
-
+  }
 }
