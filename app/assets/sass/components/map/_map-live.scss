@@ -95,7 +95,7 @@
   }
 }
 
-// Overide
+// Overides
 .defra-map-key {
   .govuk-checkboxes__label:before,
   .govuk-radios__label:before {
@@ -106,6 +106,7 @@
     top:14px;
   }
 }
+
 // Map keyboard access overlays
 .defra-map-overlay {
   position:relative;
@@ -135,4 +136,9 @@
     margin-left:-10px;
     margin-top:-12px;
   }
+}
+
+// Info panel
+.defra-map-info {
+  padding:10px;
 }

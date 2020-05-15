@@ -22,9 +22,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   }
   options = Object.assign({}, defaults, options)
 
-  // Prorotype kit only - remove in production
-  options.keyTemplate = `public/templates/${options.keyTemplate}`
-
   // State object
   const state = {
     isKeyOpen: false,
@@ -252,11 +249,11 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Public methods
   //
 
-  this.showInfo = (id) => {
+  this.showInfo = (feature) => {
     state.isInfoOpen = true
     infoElement.classList.add('defra-map-info--open')
     infoElement.setAttribute('open', true)
-    infoContainer.innerHTML = id
+    infoContainer.innerHTML = feature.get('html')
     infoElement.focus()
     if (!maps.isKeyboard) {
       containerElement.removeAttribute('tabindex')

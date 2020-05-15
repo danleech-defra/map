@@ -52,7 +52,6 @@ function LiveMap (mapId, options) {
   const defaultLayers = [
     road,
     satellite,
-    // nuts1,
     selected
   ]
 
@@ -70,6 +69,9 @@ function LiveMap (mapId, options) {
     pinchRotate: false
   })
 
+  // Prorotype kit only - will be different production
+  const keyTemplatePath = 'public/templates/'
+
   // Options to pass to the MapContainer constructor
   const containerOptions = {
     maxBigZoom: 100,
@@ -77,7 +79,7 @@ function LiveMap (mapId, options) {
     layers: layers,
     queryParamKeys: ['v', 'lyr', 'ext', 'sid'],
     interactions: interactions,
-    keyTemplate: 'key-live.html',
+    keyTemplate: keyTemplatePath + 'key-live.html',
     isBack: options.isBack
   }
 
@@ -139,17 +141,17 @@ function LiveMap (mapId, options) {
   // Set selected feature
   const setSelectedFeature = (newFeatureId) => {
     selected.getSource().clear()
-    dataLayers.forEach((layer) => {
+    dataLayers.forEach(async (layer) => {
       const originalFeature = layer.getSource().getFeatureById(state.selectedFeatureId)
       const newFeature = layer.getSource().getFeatureById(newFeatureId)
       if (originalFeature) {
         originalFeature.set('isSelected', false)
       }
       if (newFeature) {
-        newFeature.set('isSelected', true)
+        await setFeatureHtml(newFeature)
         selected.getSource().addFeature(newFeature)
         selected.setStyle(layer.getStyle())
-        container.showInfo(newFeatureId)
+        container.showInfo(newFeature)
       }
       // Refresh target area polygons
       if (layer.get('ref') === 'warnings') {
@@ -240,6 +242,14 @@ function LiveMap (mapId, options) {
     if (!containsExtent(extent, feature.getGeometry().getExtent())) {
       map.getView().setCenter(feature.getGeometry().getCoordinates())
     }
+  }
+
+  // Set feature overlay html
+  const setFeatureHtml = async (feature) => {
+    const html = window.nunjucks.render(keyTemplatePath + 'info-live.html', {
+      name: feature.getId()
+    })
+    feature.set('html', html)
   }
 
   //
