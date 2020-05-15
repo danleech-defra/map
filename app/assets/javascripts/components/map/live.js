@@ -108,6 +108,8 @@ function LiveMap (mapId, options) {
       const isVisible = lyrCodes.some(lyrCode => layer.get('featureCodes').includes(lyrCode))
       layer.setVisible(isVisible)
     })
+    road.setVisible(lyrCodes.includes('mv'))
+    satellite.setVisible(lyrCodes.includes('sv'))
   }
 
   // Show or hide features within layers
@@ -303,6 +305,10 @@ function LiveMap (mapId, options) {
     checkboxes.forEach((checkbox) => {
       checkbox.checked = lyrs.includes(checkbox.id)
     })
+    const radios = document.querySelectorAll('.defra-map-key input[type=radio]')
+    radios.forEach((radio) => {
+      radio.checked = lyrs.includes(radio.id)
+    })
   }
 
   // Set smart key visibility. To follow...
@@ -429,19 +435,25 @@ function LiveMap (mapId, options) {
 
   // Toggle layers/features when key item clicked
   keyElement.addEventListener('click', (e) => {
-    if (e.target.nodeName === 'INPUT' && e.target.type === 'checkbox') {
+    if (e.target.nodeName === 'INPUT') {
       e.stopPropagation()
-      const checkbox = e.target
       let lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
-      checkbox.checked ? lyrs.push(checkbox.id) : lyrs.splice(lyrs.indexOf(checkbox.id), 1)
-      dataLayers.forEach((layer) => {
-        setFeatureVisibility(lyrs, layer)
-      })
+      if (e.target.type === 'checkbox') {
+        const checkbox = e.target
+        checkbox.checked ? lyrs.push(checkbox.id) : lyrs.splice(lyrs.indexOf(checkbox.id), 1)
+        dataLayers.forEach((layer) => {
+          setFeatureVisibility(lyrs, layer)
+        })
+      } else if (e.target.type === 'radio') {
+        if (lyrs.includes('mv')) { lyrs.splice(lyrs.indexOf('mv'), 1) }
+        if (lyrs.includes('sv')) { lyrs.splice(lyrs.indexOf('sv'), 1) }
+        lyrs.push(e.target.id)
+      }
       setLayerVisibility(lyrs)
-      lyrs = lyrs.join(',')
-      replaceHistory('lyr', lyrs)
       targetAreaPolygons.setStyle(maps.styles.targetAreaPolygons)
       showOverlays()
+      lyrs = lyrs.join(',')
+      replaceHistory('lyr', lyrs)
     }
   })
 

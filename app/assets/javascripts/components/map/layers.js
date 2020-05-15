@@ -3,7 +3,7 @@
 Initialises the window.flood.maps layers
 */
 import { Tile as TileLayer, Vector as VectorLayer, VectorTile as VectorTileLayer } from 'ol/layer'
-import { OSM, BingMaps, Vector as VectorSource, VectorTile as VectorTileSource } from 'ol/source'
+import { BingMaps, Vector as VectorSource, VectorTile as VectorTileSource } from 'ol/source'
 import { GeoJSON, MVT } from 'ol/format'
 
 window.flood.maps.layers = {
@@ -11,13 +11,12 @@ window.flood.maps.layers = {
   road: () => {
     return new TileLayer({
       ref: 'road',
-      // source: new OSM(),
       source: new BingMaps({
         key: 'Ajou-3bB1TMVLPyXyNvMawg4iBPqYYhAN4QMXvOoZvs47Qmrq7L5zio0VsOOAHUr' + '&c4w=1&cstl=rd&src=h&st=ar|fc:b5db81_wt|fc:a3ccff_tr|fc:50a964f4;sc:50a964f4_ard|fc:ffffff;sc:ffffff_rd|fc:50fed89d;sc:50eab671_st|fc:ffffff;sc:ffffff_g|lc:dfdfdf',
         imagerySet: 'RoadOnDemand',
         hidpi: true
       }),
-      visible: true,
+      visible: false,
       zIndex: 0
     })
   },
@@ -25,28 +24,14 @@ window.flood.maps.layers = {
   satellite: () => {
     return new TileLayer({
       ref: 'satellite',
+      source: new BingMaps({
+        key: 'Ajou-3bB1TMVLPyXyNvMawg4iBPqYYhAN4QMXvOoZvs47Qmrq7L5zio0VsOOAHUr',
+        imagerySet: 'AerialWithLabelsOnDemand'
+      }),
       visible: false,
       zIndex: 0
     })
   },
-
-  /*
-  nuts1: () => {
-    return new VectorTileLayer({
-      ref: 'nuts1',
-      source: new VectorTileSource({
-        format: new MVT({
-          idProperty: 'id'
-        }),
-        url: 'http://localhost:8080/geoserver/gwc/service/wmts?request=GetTile&service=wmts&version=1.0.0&layer=flood:nuts1&tilematrix=EPSG:900913:{z}&tilematrixset=EPSG:900913&format=application/vnd.mapbox-vector-tile&tilecol={x}&tilerow={y}'
-      }),
-      renderMode: 'hybrid',
-      extent: window.flood.maps.extent,
-      style: window.flood.maps.styles.nuts1,
-      zIndex: 1
-    })
-  },
-  */
 
   /*
   targetAreaPolygons: () => {

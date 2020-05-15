@@ -12,7 +12,7 @@ import './model' // Temporary geometry
 window.flood.maps.createLiveMap('map1', { // Button Id (Required)
   // btnText: 'View map' // Overide map button text
   btnClasses: 'defra-button-map govuk-!-margin-bottom-4', // Overide map button styling
-  layers: 'ts,tw,ta,ti', // Default layers to display (tr removed)
+  layers: 'mv,ts,tw,ta,ti', // Default layers to display (tr removed)
   // centre: [-1.54857, 53.80128], // Optional initial center will be converted to extent in querystring
   // zoom: 10 // Optional initial zoom level
   // extent: [-1.326567, 53.871946, -0.953128, 54.149476], // LonLat array for initial extent
@@ -38,6 +38,7 @@ window.flood.maps.createLiveMap('map1', { // Button Id (Required)
 window.flood.maps.createLiveMap('map2', {
   btnText: 'View another map',
   btnClasses: 'defra-button-map govuk-!-margin-bottom-4',
+  layers: 'sv',
   centre: [-2.90990, 54.90160],
   zoom: 14
 })
