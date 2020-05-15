@@ -148,6 +148,7 @@ function LiveMap (mapId, options) {
         originalFeature.set('isSelected', false)
       }
       if (newFeature) {
+        newFeature.set('isSelected', true)
         await setFeatureHtml(newFeature)
         selected.getSource().addFeature(newFeature)
         selected.setStyle(layer.getStyle())

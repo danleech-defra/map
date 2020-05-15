@@ -70,6 +70,7 @@
 .defra-map__exit,
 .defra-map__back {
   position:absolute;
+  z-index: 3;
   margin:0;
   left:10px;
   top:10px;
@@ -128,6 +129,7 @@
 // Map controls - open key
 .defra-map__open-key {
   position:absolute;
+  z-index: 3;
   margin:0;
   left:52px;
   top:10px;
@@ -252,6 +254,7 @@
 .defra-map-reset {
   display: block;
   position:absolute;
+  z-index:3;
   bottom:10px;
   right:10px;
   width:41px;
@@ -294,6 +297,7 @@
   @include mq ($from: tablet) {
     display: block;
     position:absolute;
+    z-index: 3;
     bottom:10px;
     right:10px;
     width:41px;
