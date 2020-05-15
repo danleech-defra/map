@@ -15,7 +15,7 @@ import { Vector as VectorSource } from 'ol/source'
 
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
 const maps = window.flood.maps
-const { setExtentFromLonLat, getLonLatFromExtent, getFeatureByProperty } = window.flood.maps
+const { setExtentFromLonLat, getLonLatFromExtent } = window.flood.maps
 const MapContainer = maps.MapContainer
 
 function LiveMap (mapId, options) {
@@ -258,12 +258,17 @@ function LiveMap (mapId, options) {
         state: 15 // Inactive
       })
       targetArea.pointFeature.setId(options.targetArea.id)
-    }
-    if (options.targetArea.polygon) {
-      targetArea.polygonFeature = new Feature({
-        geometry: new MultiPolygon(options.targetArea.polygon).transform('EPSG:4326', 'EPSG:3857')
-      })
-      targetArea.polygonFeature.setId(options.targetArea.id)
+      if (options.targetArea.polygon) {
+        targetArea.polygonFeature = new Feature({
+          geometry: new MultiPolygon(options.targetArea.polygon).transform('EPSG:4326', 'EPSG:3857')
+        })
+        let featureId = options.targetArea.id
+        // Transform id if vector source
+        if (featureId.includes('flood.')) {
+          featureId = 'flood_warning_alert' + featureId.substring(featureId.indexOf('.'))
+        }
+        targetArea.polygonFeature.setId(options.targetArea.id)
+      }
     }
   }
 
