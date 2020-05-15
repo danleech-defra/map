@@ -2,8 +2,8 @@
 /*
 Initialises the window.flood.maps layers
 */
-import { Tile as TileLayer, Vector as VectorLayer, VectorTile as VectorTileLayer, Stamen } from 'ol/layer'
-import { OSM, Vector as VectorSource, VectorTile as VectorTileSource } from 'ol/source'
+import { Tile as TileLayer, Vector as VectorLayer, VectorTile as VectorTileLayer } from 'ol/layer'
+import { OSM, BingMaps, Vector as VectorSource, VectorTile as VectorTileSource } from 'ol/source'
 import { GeoJSON, MVT } from 'ol/format'
 
 window.flood.maps.layers = {
@@ -11,7 +11,12 @@ window.flood.maps.layers = {
   road: () => {
     return new TileLayer({
       ref: 'road',
-      source: new OSM(),
+      // source: new OSM(),
+      source: new BingMaps({
+        key: 'Ajou-3bB1TMVLPyXyNvMawg4iBPqYYhAN4QMXvOoZvs47Qmrq7L5zio0VsOOAHUr' + '&c4w=1&cstl=rd&src=h&st=ar|fc:b5db81_wt|fc:a3ccff_tr|fc:50a964f4;sc:50a964f4_ard|fc:ffffff;sc:ffffff_rd|fc:50fed89d;sc:50eab671_st|fc:ffffff;sc:ffffff_g|lc:dfdfdf',
+        imagerySet: 'RoadOnDemand',
+        hidpi: true
+      }),
       visible: true,
       zIndex: 0
     })

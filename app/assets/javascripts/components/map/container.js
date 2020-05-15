@@ -87,7 +87,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Create open key button
   const openKeyButtonElement = document.createElement('button')
   openKeyButtonElement.className = 'defra-map__open-key'
-  openKeyButtonElement.innerHTML = 'Open key'
+  openKeyButtonElement.innerHTML = 'Key'
   const openKeyButton = new Control({
     element: openKeyButtonElement
   })
