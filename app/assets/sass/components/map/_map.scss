@@ -351,13 +351,13 @@
     bottom:0;
     left:0;
     right:0px;
-    height:120px;
+    // height:120px;
     @include mq ($from: tablet) {
       width:auto;
       bottom:10px;
       left:10px;
       right:51px;
-      max-width:400px;
+      max-width:383px;
     }
     &:focus {
       outline: none;
