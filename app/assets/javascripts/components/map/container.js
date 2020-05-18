@@ -10,6 +10,7 @@
 
 import { defaults as defaultControls, Zoom, Control } from 'ol/control'
 import { Map } from 'ol'
+import { composeCssTransform } from 'ol/transform'
 
 const { addOrUpdateParameter } = window.flood.utils
 const maps = window.flood.maps
@@ -361,6 +362,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     if (document.activeElement === document.body || (document.activeElement === containerElement && !containerElement.hasAttribute('keyboard-focus'))) {
       e.preventDefault()
       containerElement.focus()
+      containerElement.setAttribute('keyboard-focus', '')
     }
     // Constrain tab focus within dialog
     const tabring = document.activeElement.closest('[role="dialog"]') || containerElement
