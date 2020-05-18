@@ -101,7 +101,7 @@ function LiveMap (mapId, options) {
     const isSameLon2 = newExtent[2] < (state.initialExtent[2] + 0.0001) && newExtent[2] > (state.initialExtent[2] - 0.0001)
     const isSameLat1 = newExtent[1] < (state.initialExtent[1] + 0.0001) && newExtent[1] > (state.initialExtent[1] - 0.0001)
     const isSameLat2 = newExtent[3] < (state.initialExtent[3] + 0.0001) && newExtent[3] > (state.initialExtent[3] - 0.0001)
-    return !(isSameLon1 && isSameLon2 && isSameLat1 && isSameLat2)
+    return !((isSameLon1 && isSameLon2) || (isSameLat1 && isSameLat2))
   }
 
   // Show or hide layers
@@ -386,7 +386,7 @@ function LiveMap (mapId, options) {
       replaceHistory('ext', ext.join(','))
       // Show reset button if extent has changed
       if (isNewExtent(ext)) {
-        resetButton.removeAttribute('disabled', '')
+        resetButton.removeAttribute('disabled')
       }
     }, 350)
   })
