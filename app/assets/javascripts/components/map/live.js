@@ -90,6 +90,7 @@ function LiveMap (mapId, options) {
   const keyElement = container.keyElement
   const resetButton = container.resetButton
   const closeInfoButton = container.closeInfoButton
+  const openKeyButton = container.openKeyButton
 
   //
   // Private methods
@@ -477,6 +478,11 @@ function LiveMap (mapId, options) {
 
   // Clear selectedfeature when info is closed
   closeInfoButton.addEventListener('click', (e) => {
+    setSelectedFeature('')
+  })
+
+  // Clear selectedfeature when key is opened
+  openKeyButton.addEventListener('click', (e) => {
     setSelectedFeature('')
   })
 

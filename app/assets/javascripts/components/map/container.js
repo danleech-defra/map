@@ -245,6 +245,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   this.viewport = viewport
   this.keyElement = keyElement
   this.resetButton = resetButtonElement
+  this.openKeyButton = openKeyButton.element
   this.closeInfoButton = closeInfoButton
   this.state = state
 
