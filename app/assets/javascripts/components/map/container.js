@@ -157,7 +157,9 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
 
   // Start focus (will be removed if not keyboard)
   containerElement.focus()
-  containerElement.removeAttribute('tabindex') // Address Safari && iOS performance issue
+  if (!containerElement.hasAttribute('keyboard-focus')) {
+    containerElement.removeAttribute('tabindex') // Address Safari && iOS performance issue
+  }
 
   //
   // Private methods
@@ -297,7 +299,9 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
       keyElement.removeAttribute('aria-modal')
     }
     // Remove tabindex if keyboard and key is open
-    containerElement.tabIndex = state.isTablet && state.isKeyOpen ? -1 : 0
+    if (containerElement.hasAttribute('tabindex')) {
+      containerElement.tabIndex = state.isTablet && state.isKeyOpen ? -1 : 0
+    }
   }
   tabletMediaQuery.addListener(tabletListener)
   tabletListener(tabletMediaQuery)
@@ -350,16 +354,16 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Firt tab key and tabrings
   const keydown = (e) => {
     // Set appropriate tabindex on container
+    containerElement.tabIndex = 0
     tabletListener(tabletMediaQuery)
     if (e.key !== 'Tab') { return }
     // Reset focus to container
     if (document.activeElement === document.body || (document.activeElement === containerElement && !containerElement.hasAttribute('keyboard-focus'))) {
       e.preventDefault()
       containerElement.focus()
-      containerElement.setAttribute('keyboard-focus', '')
     }
     // Constrain tab focus within dialog
-    const tabring = document.activeElement.closest('[role="dialog"]')
+    const tabring = document.activeElement.closest('[role="dialog"]') || containerElement
     const specificity = tabring.classList.contains('defra-map') ? '[role="region"] ' : ''
     const selectors = [
       'a[href]:not([disabled]):not([hidden])',
