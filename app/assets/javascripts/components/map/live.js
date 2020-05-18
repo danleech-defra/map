@@ -6,7 +6,7 @@
 // It uses the MapContainer
 
 import { View, Overlay, Feature } from 'ol'
-import { transform } from 'ol/proj'
+import { transform, transformExtent } from 'ol/proj'
 import { unByKey } from 'ol/Observable'
 import { defaults as defaultInteractions } from 'ol/interaction'
 import { Point, MultiPolygon } from 'ol/geom'
@@ -26,7 +26,7 @@ function LiveMap (mapId, options) {
   const state = {
     visibleFeatures: [],
     selectedFeatureId: '',
-    initialExtent: []
+    initialExt: []
   }
 
   // View
@@ -96,12 +96,19 @@ function LiveMap (mapId, options) {
   //
 
   // Compare two lonLat extent arrays and return true if they are different
-  const isNewExtent = (newExtent) => {
-    const isSameLon1 = newExtent[0] < (state.initialExtent[0] + 0.0001) && newExtent[0] > (state.initialExtent[0] - 0.0001)
-    const isSameLon2 = newExtent[2] < (state.initialExtent[2] + 0.0001) && newExtent[2] > (state.initialExtent[2] - 0.0001)
-    const isSameLat1 = newExtent[1] < (state.initialExtent[1] + 0.0001) && newExtent[1] > (state.initialExtent[1] - 0.0001)
-    const isSameLat2 = newExtent[3] < (state.initialExtent[3] + 0.0001) && newExtent[3] > (state.initialExtent[3] - 0.0001)
-    return !((isSameLon1 && isSameLon2) || (isSameLat1 && isSameLat2))
+  const isNewExtent = (newExt) => {
+    // Check either lons or lats are the same
+    const isSameLon1 = newExt[0] < (state.initialExt[0] + 0.0001) && newExt[0] > (state.initialExt[0] - 0.0001)
+    const isSameLon2 = newExt[2] < (state.initialExt[2] + 0.0001) && newExt[2] > (state.initialExt[2] - 0.0001)
+    const isSameLat1 = newExt[1] < (state.initialExt[1] + 0.0001) && newExt[1] > (state.initialExt[1] - 0.0001)
+    const isSameLat2 = newExt[3] < (state.initialExt[3] + 0.0001) && newExt[3] > (state.initialExt[3] - 0.0001)
+    const isSameWidth = isSameLon1 && isSameLon2
+    const isSameHeight = isSameLat1 && isSameLat2
+    // Check extent is within original extent
+    const initialExtent = transformExtent(state.initialExt, 'EPSG:4326', 'EPSG:3857')
+    const newExtent = transformExtent(newExt, 'EPSG:4326', 'EPSG:3857')
+    const isNewWithinInitital = containsExtent(newExtent, initialExtent)
+    return !((isSameWidth || isSameHeight) && isNewWithinInitital)
   }
 
   // Show or hide layers
@@ -174,7 +181,7 @@ function LiveMap (mapId, options) {
 
   // Update url and replace history state
   const replaceHistory = (key, value) => {
-    const data = { v: mapId, isBack: options.isBack, initialExtent: state.initialExtent }
+    const data = { v: mapId, isBack: options.isBack, initialExt: state.initialExt }
     const url = addOrUpdateParameter(window.location.pathname + window.location.search, key, value)
     const title = document.title
     window.history.replaceState(data, title, url)
@@ -306,7 +313,7 @@ function LiveMap (mapId, options) {
   }
 
   // Store extent for use with reset button
-  state.initialExtent = window.history.state.initialExtent || getLonLatFromExtent(map.getView().calculateExtent(map.getSize()))
+  state.initialExt = window.history.state.initialExt || getLonLatFromExtent(map.getView().calculateExtent(map.getSize()))
 
   // Set layers from querystring
   if (getParameterByName('lyr')) {
@@ -475,7 +482,7 @@ function LiveMap (mapId, options) {
 
   // Reset map extent on reset button click
   resetButton.addEventListener('click', (e) => {
-    setExtentFromLonLat(map, state.initialExtent)
+    setExtentFromLonLat(map, state.initialExt)
     resetButton.setAttribute('disabled', '')
     containerElement.focus()
   })

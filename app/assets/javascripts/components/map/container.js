@@ -353,10 +353,10 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
 
   // Firt tab key and tabrings
   const keydown = (e) => {
+    if (e.key !== 'Tab') { return }
     // Set appropriate tabindex on container
     containerElement.tabIndex = 0
     tabletListener(tabletMediaQuery)
-    if (e.key !== 'Tab') { return }
     // Reset focus to container
     if (document.activeElement === document.body || (document.activeElement === containerElement && !containerElement.hasAttribute('keyboard-focus'))) {
       e.preventDefault()
