@@ -299,7 +299,7 @@ function LiveMap (mapId, options) {
   } else if (options.extent) {
     extent = options.extent.map(x => { return parseFloat(x.toFixed(6)) })
   } else if (targetArea.polygonFeature) {
-    extent = getLonLatFromExtent(targetArea.polygonFeature.getGeometry().getExtent())
+    extent = getLonLatFromExtent(buffer(targetArea.polygonFeature.getGeometry().getExtent(), 150))
   } else {
     extent = getLonLatFromExtent(maps.extent)
   }

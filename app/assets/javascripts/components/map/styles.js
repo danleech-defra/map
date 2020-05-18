@@ -53,7 +53,7 @@ window.flood.maps.styles = {
     }
     zIndex = isSelected ? zIndex + 1 : zIndex
 
-    const selectedStroke = new Style({ stroke: new Stroke({ color: '#FFDD00', width: 12 }), zIndex: zIndex })
+    const selectedStroke = new Style({ stroke: new Stroke({ color: '#FFDD00', width: 16 }), zIndex: zIndex })
     const stroke = new Style({ stroke: new Stroke({ color: strokeColour, width: 2 }), zIndex: zIndex })
     const fill = new Style({ fill: new Fill({ color: fillColour }), zIndex: zIndex })
 
