@@ -79,6 +79,7 @@ function LiveMap (mapId, options) {
     layers: layers,
     queryParamKeys: ['v', 'lyr', 'ext', 'sid'],
     interactions: interactions,
+    headingText: options.headingText,
     keyTemplate: keyTemplatePath + 'key-live.html',
     isBack: options.isBack
   }

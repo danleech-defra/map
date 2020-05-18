@@ -10,7 +10,6 @@
 
 import { defaults as defaultControls, Zoom, Control } from 'ol/control'
 import { Map } from 'ol'
-import { composeCssTransform } from 'ol/transform'
 
 const { addOrUpdateParameter } = window.flood.utils
 const maps = window.flood.maps
@@ -50,6 +49,12 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   containerElement.setAttribute('aria-label', 'Map view')
   containerElement.tabIndex = 0
   document.body.appendChild(containerElement)
+
+  // Create the dialog heading
+  const headingElement = document.createElement('h1')
+  headingElement.className = 'defra-map__title'
+  headingElement.innerText = options.headingText || 'Map view'
+  containerElement.append(headingElement)
 
   // Remove default controls
   const controls = defaultControls({

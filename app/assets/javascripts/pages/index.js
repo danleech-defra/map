@@ -11,6 +11,7 @@ import './model' // Temporary geometry
 // Create a map
 window.flood.maps.createLiveMap('map1', { // Button Id (Required)
   // btnText: 'View map' // Overide map button text
+  headingText: 'Map showing flood warnings',
   btnClasses: 'defra-button-map govuk-!-margin-bottom-4', // Overide map button styling
   layers: 'mv,ts,tw,ta,ti', // Default layers to display (tr removed)
   // centre: [-1.54857, 53.80128], // Optional initial center will be converted to extent in querystring
