@@ -9,8 +9,8 @@
 .defra-map-key__section-title {
   @include govuk-font($size: 16, $weight: bold);
   display: block;
-  margin:0 5px;
-  padding:15px 10px 0px;
+  margin:0 15px;
+  padding:15px 0px 0px;
   border-top:1px solid $govuk-border-colour;
 }
 .defra-map-key__item {
