@@ -13,9 +13,10 @@ window.flood.maps.createLiveMap('map1', { // Button Id (Required)
   // btnText: 'View map' // Overide map button text
   headingText: 'Map showing flood warnings',
   btnClasses: 'defra-button-map govuk-!-margin-bottom-4', // Overide map button styling
-  layers: 'mv,ts,tw,ta,ti', // Default layers to display (tr removed)
-  // centre: [-1.54857, 53.80128], // Optional initial center will be converted to extent in querystring
-  // zoom: 10 // Optional initial zoom level
+  layers: 'mv,sh,st', // 'mv,ts,tw,ta,ti', Default layers to display (tr removed)
+  centre: [-2.56037241, 53.39066965], // Optional initial center will be converted to extent in querystring
+  zoom: 14, // Optional initial zoom level
+  selectedId: 'st.5149'
   // extent: [-1.326567, 53.871946, -0.953128, 54.149476], // LonLat array for initial extent
   /*
   targetArea: {
@@ -25,7 +26,6 @@ window.flood.maps.createLiveMap('map1', { // Button Id (Required)
     polygon: window.flood.model.geometry.coordinates // MultiPolygon coordinates array for boundary
   },
   selectedId: 'flood.011FWFNC3A' // Optional intial selected feature
-  */
   targetArea: {
     id: 'flood.122FWF723',
     name: 'River Ouse at Naburn Lock',
@@ -33,6 +33,7 @@ window.flood.maps.createLiveMap('map1', { // Button Id (Required)
     polygon: window.flood.model.geometry.coordinates // MultiPolygon coordinates array for boundary
   },
   selectedId: 'flood.122FWF723'
+  */
 })
 
 // Create a second map
