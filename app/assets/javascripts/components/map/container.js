@@ -177,15 +177,14 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
       window.history.back()
     } else {
       // Remove url parameters
-      let search = window.location.search
-      options.queryParamKeys.forEach(paramKey => {
-        search = addOrUpdateParameter(search, paramKey, '')
+      let uri = window.location.href
+      options.queryParamKeys.forEach(key => {
+        uri = addOrUpdateParameter(uri, key, '')
       })
       // Reset history
       const data = { v: '', isBack: false }
-      const url = window.location.pathname + search
       const title = document.title.replace('Map view: ', '')
-      window.history.replaceState(data, title, url)
+      window.history.replaceState(data, title, uri)
       // Reset document
       removeContainer()
     }
@@ -205,6 +204,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
       // Tidy up any document or window listeners
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
+      window.removeEventListener('popstate', popstate)
     }
   }
 
@@ -427,7 +427,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Remove map on popsate change
   const popstate = (e) => {
     removeContainer()
-    window.removeEventListener('popstate', popstate)
   }
   window.addEventListener('popstate', popstate)
 }

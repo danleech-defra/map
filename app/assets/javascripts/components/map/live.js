@@ -184,9 +184,9 @@ function LiveMap (mapId, options) {
   // Update url and replace history state
   const replaceHistory = (key, value) => {
     const data = { v: mapId, isBack: options.isBack, initialExt: state.initialExt }
-    const url = addOrUpdateParameter(window.location.pathname + window.location.search, key, value)
+    const uri = addOrUpdateParameter(window.location.href, key, value)
     const title = document.title
-    window.history.replaceState(data, title, url)
+    window.history.replaceState(data, title, uri)
   }
 
   // Get features visible in the current viewport
@@ -521,20 +521,21 @@ maps.createLiveMap = (mapId, options = {}) => {
     // Advance history
     const data = { v: mapId, isBack: true }
     const title = document.title
-    let url = window.location
-    url = addOrUpdateParameter(url, 'v', mapId)
+    let uri = window.location.href
+    uri = addOrUpdateParameter(uri, 'v', mapId)
+    console.log(uri)
     // Add any querystring parameters from constructor
-    if (options.layers) { url = addOrUpdateParameter(url, 'lyr', options.layers) }
-    if (options.extent) { url = addOrUpdateParameter(url, 'ext', options.extent) }
-    if (options.selectedId) { url = addOrUpdateParameter(url, 'sid', options.selectedId) }
-    window.history.pushState(data, title, url)
+    if (options.layers) { uri = addOrUpdateParameter(uri, 'lyr', options.layers) }
+    if (options.extent) { uri = addOrUpdateParameter(uri, 'ext', options.extent) }
+    if (options.selectedId) { uri = addOrUpdateParameter(uri, 'sid', options.selectedId) }
+    window.history.pushState(data, title, uri)
     options.isBack = true
     return new LiveMap(mapId, options)
   })
 
   // Recreate map on browser history change
   window.addEventListener('popstate', (e) => {
-    if (e.state.v === mapId) {
+    if (e.state && e.state.v === mapId) {
       options.isBack = window.history.state.isBack
       return new LiveMap(e.state.v, options)
     }
