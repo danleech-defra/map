@@ -523,7 +523,6 @@ maps.createLiveMap = (mapId, options = {}) => {
     const title = document.title
     let uri = window.location.href
     uri = addOrUpdateParameter(uri, 'v', mapId)
-    console.log(uri)
     // Add any querystring parameters from constructor
     if (options.layers) { uri = addOrUpdateParameter(uri, 'lyr', options.layers) }
     if (options.extent) { uri = addOrUpdateParameter(uri, 'ext', options.extent) }
