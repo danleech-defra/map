@@ -200,11 +200,9 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
       })
       // Remove map and return focus
       containerElement.parentNode.removeChild(containerElement)
-      document.getElementById(mapId + '-btn').focus()
-      // If there is a hash tag scroll into view
-      if (window.location.hash) {
-        document.querySelector(window.location.hash).scrollIntoView()
-      }
+      const button = document.getElementById(mapId + '-btn')
+      button.focus()
+      button.scrollIntoView()
       // Tidy up any document or window listeners
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
