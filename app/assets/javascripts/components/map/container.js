@@ -349,9 +349,18 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   })
 
   // Disable pinch and double tap zoom
-  infoElement.addEventListener('touchmove', (e) => {
+  containerElement.addEventListener('gesturestart', function (e) {
     e.preventDefault()
-  }, { passive: false })
+    document.body.style.zoom = 0.99 // Disable Safari zoom-to-tabs gesture
+  })
+  containerElement.addEventListener('gesturechange', function (e) {
+    e.preventDefault()
+    document.body.style.zoom = 0.99 // Disable Safari zoom-to-tabs gesture
+  })
+  containerElement.addEventListener('gestureend', function (e) {
+    e.preventDefault()
+    document.body.style.zoom = 0.99 // Disable Safari zoom-to-tabs gesture
+  })
 
   // Mouse or touch interaction
   containerElement.addEventListener('pointerdown', (e) => {
