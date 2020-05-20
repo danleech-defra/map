@@ -54,7 +54,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   const headingElement = document.createElement('h1')
   headingElement.className = 'defra-map__title'
   headingElement.innerText = options.headingText || 'Map view'
-  containerElement.append(headingElement)
+  containerElement.appendChild(headingElement)
 
   // Remove default controls
   const controls = defaultControls({
