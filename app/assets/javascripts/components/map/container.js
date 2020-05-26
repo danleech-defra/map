@@ -8,10 +8,11 @@
 // ***To include a key, include an element with `.map-key__container` in the main inner element.
 // To include a key pass its template name as an option
 
+import { disableBodyScroll, enableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
 import { defaults as defaultControls, Zoom, Control } from 'ol/control'
 import { Map } from 'ol'
 
-const { addOrUpdateParameter } = window.flood.utils
+const { addOrUpdateParameter, forEach } = window.flood.utils
 const maps = window.flood.maps
 
 window.flood.maps.MapContainer = function MapContainer (mapId, options) {
@@ -32,12 +33,18 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     isBack: options.isBack
   }
 
-  // Hide all non-map elements and prefix title
-  const bodyElements = document.querySelectorAll(`body > :not(.defra-map):not(script)`)
+  // Disable body scrolling and hide non-map elements
   document.title = `Map view: ${document.title}`
-  bodyElements.forEach((element) => {
+  document.body.classList.add('defra-map-body')
+  /*
+  const scrollY = document.documentElement.style.getPropertyValue('--scroll-y')
+  document.body.style.top = `-${scrollY}`
+  document.body.classList.add('defra-map-body')
+  const bodyElements = document.querySelectorAll('body > :not(.defra-map):not(script)')
+  forEach(bodyElements, (element) => {
     element.classList.add('defra-map-hidden')
   })
+  */
 
   // Create the map container element
   const containerElement = document.createElement('div')
@@ -195,14 +202,22 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
       const title = document.title.replace('Map view: ', '')
       // Reinstate document properties and non-map elements
       document.title = title
-      bodyElements.forEach((element) => {
+      // Unlock body scroll
+      document.body.classList.remove('defra-map-body')
+      clearAllBodyScrollLocks()
+      /*
+      const scrollY = document.body.style.top
+      document.body.style.top = ''
+      window.scrollTo(0, parseInt(scrollY || '0') * -1)
+      document.body.classList.remove('defra-map-body')
+      forEach(bodyElements, (element) => {
         element.classList.remove('defra-map-hidden')
       })
+      */
       // Remove map and return focus
       containerElement.parentNode.removeChild(containerElement)
       const button = document.getElementById(mapId + '-btn')
       button.focus()
-      button.scrollIntoView()
       // Tidy up any document or window listeners
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
@@ -220,6 +235,8 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     if (!maps.isKeyboard) {
       containerElement.removeAttribute('tabindex')
     }
+    // Lock body scroll
+    disableBodyScroll(document.querySelector('.defra-map-key__container'))
   }
 
   const closeKey = () => {

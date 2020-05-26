@@ -65,8 +65,14 @@
     z-index: 99;
   }
 }
+.defra-map-body{
+  position:fixed;
+  overflow:hidden;
+  width:100%;
+  height:100%;
+}
 .defra-map-hidden {
-  display:none !important;
+  visibility: hidden;
 }
 
 // Map controls - exit
@@ -205,6 +211,7 @@
   bottom:0px;
   width:100%;
   overflow:auto;
+  -webkit-overflow-scrolling: touch;
 }
 .defra-map-key__title {
   display: block;

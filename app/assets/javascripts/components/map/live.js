@@ -397,6 +397,8 @@ function LiveMap (mapId, options) {
       if (isNewExtent(ext)) {
         resetButton.removeAttribute('disabled')
       }
+      // Fix margin issue
+      map.updateSize()
     }, 350)
   })
 

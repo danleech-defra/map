@@ -40,7 +40,6 @@ window.flood = {
         const separator = /\?/.test(uri) ? '&' : '?'
         uri = uri + separator + key + '=' + value
       }
-      console.log(uri + hash)
       return uri + hash
     },
     getParameterByName: (name) => {
