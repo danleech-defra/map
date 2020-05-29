@@ -6,6 +6,7 @@ import '../components/map/styles'
 import '../components/map/layers'
 import '../components/map/container'
 import '../components/map/live'
+import '../components/map/area'
 import './model' // Temporary geometry
 
 // Create a map
@@ -22,15 +23,15 @@ window.flood.maps.createLiveMap('map1', { // Button Id (Required)
   targetArea: {
     id: 'flood.011FWFNC3A',
     name: 'River Eden at Carlisle, Rickerby Park, Swifts and Stoneyholme Golf Courses',
-    centre: [-2.90990, 54.90160], // LonLat for centroid,
-    polygon: window.flood.model.geometry.coordinates // MultiPolygon coordinates array for boundary
+    centre: [-2.90990, 54.90160], // LonLat for used with Vector Tiles,
+    polygon: window.flood.model.geometry.coordinates // MultiPolygon coordinates used for Vector Layer
   },
   selectedId: 'flood.011FWFNC3A' // Optional intial selected feature
   targetArea: {
     id: 'flood.122FWF723',
     name: 'River Ouse at Naburn Lock',
-    centre: [-1.09613548180462, 53.8939176939008], // LonLat for centroid,
-    polygon: window.flood.model.geometry.coordinates // MultiPolygon coordinates array for boundary
+    centre: [-1.09613548180462, 53.8939176939008],
+    polygon: window.flood.model.geometry.coordinates
   },
   selectedId: 'flood.122FWF723'
   */
@@ -43,4 +44,10 @@ window.flood.maps.createLiveMap('map2', {
   layers: 'sv',
   centre: [-2.90990, 54.90160],
   zoom: 14
+})
+
+// Create an area map
+window.flood.maps.createAreaMap('map3', {
+  centre: [-2.9329, 54.8925],
+  zoom: 18
 })
