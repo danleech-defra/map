@@ -8,7 +8,9 @@
 // ***To include a key, include an element with `.map-key__container` in the main inner element.
 // To include a key pass its template name as an option
 
-import { disableBodyScroll, enableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
+// DL: Includes body-scroll-lock package.
+
+import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock'
 import { defaults as defaultControls, Zoom, Control } from 'ol/control'
 import { Map } from 'ol'
 
@@ -19,7 +21,8 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Setup defaults
   const defaults = {
     minIconResolution: window.flood.maps.minResolution,
-    keyTemplate: ''
+    keyTemplate: '',
+    controls: []
   }
   options = Object.assign({}, defaults, options)
 
@@ -36,15 +39,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   // Disable body scrolling and hide non-map elements
   document.title = `Map view: ${document.title}`
   document.body.classList.add('defra-map-body')
-  /*
-  const scrollY = document.documentElement.style.getPropertyValue('--scroll-y')
-  document.body.style.top = `-${scrollY}`
-  document.body.classList.add('defra-map-body')
-  const bodyElements = document.querySelectorAll('body > :not(.defra-map):not(script)')
-  forEach(bodyElements, (element) => {
-    element.classList.add('defra-map-hidden')
-  })
-  */
 
   // Create the map container element
   const containerElement = document.createElement('div')
@@ -111,6 +105,11 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   tooltipElement.hidden = true
   tooltipElement.innerHTML = 'Keyboard access guidelines'
   viewport.appendChild(tooltipElement)
+
+  // Add any custom controls bewteen open key and reset buttons
+  options.controls.forEach(control => {
+    map.addControl(control)
+  })
 
   // Create reset control
   const resetButtonElement = document.createElement('button')
@@ -200,20 +199,11 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   const removeContainer = () => {
     if (containerElement) { // Safari fires popstate on page load
       const title = document.title.replace('Map view: ', '')
-      // Reinstate document properties and non-map elements
+      // Reinstate document properties
       document.title = title
       // Unlock body scroll
       document.body.classList.remove('defra-map-body')
       clearAllBodyScrollLocks()
-      /*
-      const scrollY = document.body.style.top
-      document.body.style.top = ''
-      window.scrollTo(0, parseInt(scrollY || '0') * -1)
-      document.body.classList.remove('defra-map-body')
-      forEach(bodyElements, (element) => {
-        element.classList.remove('defra-map-hidden')
-      })
-      */
       // Remove map and return focus
       containerElement.parentNode.removeChild(containerElement)
       const button = document.getElementById(mapId + '-btn')
@@ -302,7 +292,7 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   const zoomButtons = document.querySelectorAll('.defra-map-zoom button')
   const mobileListener = (mobileMediaQuery) => {
     state.isMobile = mobileMediaQuery.matches
-    zoomButtons.forEach((button) => {
+    forEach(zoomButtons, (button) => {
       button.hidden = state.isMobile
     })
   }
@@ -365,6 +355,14 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     closeInfo()
   })
 
+  // Mouse or touch interaction
+  containerElement.addEventListener('pointerdown', (e) => {
+    infoElement.blur()
+    keyElement.blur()
+    containerElement.removeAttribute('tabindex') // Performance issue in Safari
+    containerElement.removeAttribute('keyboard-focus')
+  })
+
   // Disable pinch and double tap zoom
   containerElement.addEventListener('gesturestart', function (e) {
     e.preventDefault()
@@ -377,13 +375,6 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
   containerElement.addEventListener('gestureend', function (e) {
     e.preventDefault()
     document.body.style.zoom = 0.99 // Disable Safari zoom-to-tabs gesture
-  })
-
-  // Mouse or touch interaction
-  containerElement.addEventListener('pointerdown', (e) => {
-    infoElement.blur()
-    keyElement.blur()
-    containerElement.removeAttribute('tabindex') // Performance issue in Safari
   })
 
   // Firt tab key and tabrings

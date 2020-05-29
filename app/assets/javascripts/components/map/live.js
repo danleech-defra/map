@@ -10,7 +10,7 @@ import { transform, transformExtent } from 'ol/proj'
 import { unByKey } from 'ol/Observable'
 import { defaults as defaultInteractions } from 'ol/interaction'
 import { Point, MultiPolygon } from 'ol/geom'
-import { buffer, containsExtent } from 'ol/extent'
+import { buffer, containsExtent, getCenter } from 'ol/extent'
 import { Vector as VectorSource } from 'ol/source'
 
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
@@ -69,18 +69,15 @@ function LiveMap (mapId, options) {
     pinchRotate: false
   })
 
-  // Prorotype kit only - will be different production
-  const keyTemplatePath = 'public/templates/'
-
   // Options to pass to the MapContainer constructor
   const containerOptions = {
     maxBigZoom: 100,
     view: view,
     layers: layers,
-    queryParamKeys: ['v', 'lyr', 'ext', 'sid'],
+    queryParamKeys: ['v', 'lyr', 'ext', 'fid'],
     interactions: interactions,
     headingText: options.headingText,
-    keyTemplate: keyTemplatePath + 'key-live.html',
+    keyTemplate: 'public/templates/key-live.html',
     isBack: options.isBack
   }
 
@@ -121,27 +118,33 @@ function LiveMap (mapId, options) {
     })
     road.setVisible(lyrCodes.includes('mv'))
     satellite.setVisible(lyrCodes.includes('sv'))
+    // Force wanrings to show if target area provided
+    if (targetArea.pointFeature) {
+      warnings.setVisible(true)
+    }
   }
 
   // Show or hide features within layers
   const setFeatureVisibility = (lyrCodes, layer) => {
     layer.getSource().forEachFeature((feature) => {
       const ref = layer.get('ref')
-      const state = feature.get('state')
+      const props = feature.getProperties()
+      const highRiverLevel = props.atrisk && props.status !== 'Suspended' && props.status !== 'Closed' && props.value && props.type !== 'C'
       const isVisible = (
         // Warnings
-        (state === 11 && lyrCodes.includes('ts')) ||
-        (state === 12 && lyrCodes.includes('tw')) ||
-        (state === 13 && lyrCodes.includes('ta')) ||
-        (state === 14 && lyrCodes.includes('tr')) ||
-        (state === 15 && lyrCodes.includes('ti')) ||
+        (props.severity_value && props.severity_value === 3 && lyrCodes.includes('ts')) ||
+        (props.severity_value && props.severity_value === 2 && lyrCodes.includes('tw')) ||
+        (props.severity_value && props.severity_value === 1 && lyrCodes.includes('ta')) ||
+        (props.severity_value && props.severity_value === 4 && lyrCodes.includes('tr')) ||
         // Stations
-        (state === 21 && lyrCodes.includes('sh')) ||
-        (ref === 'stations' && state !== 21 && lyrCodes.includes('st')) ||
+        (ref === 'stations' && highRiverLevel && lyrCodes.includes('sh')) ||
+        (ref === 'stations' && !highRiverLevel && lyrCodes.includes('st')) ||
         // Rainfall
         (ref === 'rainfall' && lyrCodes.includes('rf')) ||
         // Impacts
-        (ref === 'impacts' && lyrCodes.includes('hi'))
+        (ref === 'impacts' && lyrCodes.includes('hi')) ||
+        // Target area provided
+        (targetArea.pointFeature && targetArea.pointFeature.getId() === feature.getId())
       )
       feature.set('isVisible', isVisible)
     })
@@ -150,7 +153,7 @@ function LiveMap (mapId, options) {
   // Set selected feature
   const setSelectedFeature = (newFeatureId) => {
     selected.getSource().clear()
-    dataLayers.forEach(async (layer) => {
+    dataLayers.forEach((layer) => {
       const originalFeature = layer.getSource().getFeatureById(state.selectedFeatureId)
       const newFeature = layer.getSource().getFeatureById(newFeatureId)
       if (originalFeature) {
@@ -158,7 +161,7 @@ function LiveMap (mapId, options) {
       }
       if (newFeature) {
         newFeature.set('isSelected', true)
-        await setFeatureHtml(newFeature)
+        setFeatureHtml(newFeature)
         selected.getSource().addFeature(newFeature)
         selected.setStyle(layer.getStyle())
         container.showInfo(newFeature)
@@ -170,7 +173,7 @@ function LiveMap (mapId, options) {
     })
     state.selectedFeatureId = newFeatureId
     // Update url
-    replaceHistory('sid', newFeatureId)
+    replaceHistory('fid', newFeatureId)
   }
 
   // Toggle key symbols based on resolution
@@ -197,6 +200,9 @@ function LiveMap (mapId, options) {
     const extent = map.getView().calculateExtent(map.getSize())
     const isBigZoom = resolution <= containerOptions.maxBigZoom
     const layers = dataLayers.filter(layer => lyrs.some(lyr => layer.get('featureCodes').includes(lyr)))
+    if (!layers.includes(warnings) && targetArea.pointFeature) {
+      layers.push(warnings)
+    }
     layers.forEach((layer) => {
       if (features.length > 9) return true
       layer.getSource().forEachFeatureIntersectingExtent(extent, (feature) => {
@@ -254,11 +260,52 @@ function LiveMap (mapId, options) {
     }
   }
 
+  // Time format function
+  const formatTime = (dateTime) => {
+    const hours = dateTime.getHours() > 12 ? dateTime.getHours() - 12 : dateTime.getHours()
+    const minutes = (dateTime.getMinutes() < 10 ? '0' : '') + dateTime.getMinutes()
+    const amPm = (dateTime.getHours() > 12) ? 'pm' : 'am'
+    return hours + ':' + minutes + amPm
+  }
+
+  // Day format function
+  const formatDay = (dateTime) => {
+    const day = dateTime.getDate()
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const nth = (day) => {
+      if (day > 3 && day < 21) return 'th'
+      switch (day % 10) { case 1: return 'st'; case 2: return 'nd'; case 3: return 'rd'; default: return 'th' }
+    }
+    const shortDay = days[dateTime.getDay()]
+    const today = new Date()
+    const yesterday = new Date()
+    const tomorrow = new Date()
+    today.setHours(0, 0, 0, 0)
+    yesterday.setDate(yesterday.getDate() - 1)
+    yesterday.setHours(0, 0, 0, 0)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    tomorrow.setHours(0, 0, 0, 0)
+    dateTime.setHours(0, 0, 0, 0)
+    if (dateTime.getTime() === today.getTime()) {
+      return 'today'
+    } else if (dateTime.getTime() === yesterday.getTime()) {
+      return 'yesterday'
+    } else if (dateTime.getTime() === tomorrow.getTime()) {
+      return 'tomorrow'
+    } else {
+      return ' on ' + shortDay + ' ' + dateTime.getDate() + nth(day)
+    }
+  }
+
   // Set feature overlay html
   const setFeatureHtml = async (feature) => {
-    const html = window.nunjucks.render(keyTemplatePath + 'info-live.html', {
-      name: feature.getId()
-    })
+    const model = feature.getProperties()
+    model.id = feature.getId().substring(feature.getId().indexOf('.') + 1)
+    // Format dates for river levels
+    if (feature.getId().startsWith('stations')) {
+      model.date = formatTime(new Date(model.value_date)) + ' ' + formatDay(new Date(model.value_date))
+    }
+    const html = window.nunjucks.render('public/templates/info-live.html', { model: model })
     feature.set('html', html)
   }
 
@@ -267,30 +314,34 @@ function LiveMap (mapId, options) {
   //
 
   // Set initial selected feature id
-  if (getParameterByName('sid')) {
-    state.selectedFeatureId = getParameterByName('sid')
+  if (getParameterByName('fid')) {
+    state.selectedFeatureId = getParameterByName('fid')
   }
 
   // Create optional target area features
   if (options.targetArea) {
-    if (options.targetArea.centre) {
+    if (options.targetArea.polygon) { // Vector source
+      // Create polygon feature
+      targetArea.polygonFeature = new Feature({
+        geometry: new MultiPolygon(options.targetArea.polygon).transform('EPSG:4326', 'EPSG:3857')
+      })
+      // Create point feature
+      targetArea.pointFeature = new Feature({
+        geometry: new Point(getCenter(targetArea.polygonFeature.getGeometry().getExtent())),
+        ta_code: options.targetArea.id,
+        ta_name: options.targetArea.name
+      })
+      targetArea.pointFeature.setId('flood.' + options.targetArea.id)
+      // Transform id
+      const featureId = 'flood_warning_alert.' + options.targetArea.id
+      targetArea.polygonFeature.setId(featureId)
+    } else if (options.targetArea.centre) { // Vector tile source
+      // Create point feature
       targetArea.pointFeature = new Feature({
         geometry: new Point(transform(options.targetArea.centre, 'EPSG:4326', 'EPSG:3857')),
-        name: options.targetArea.name,
-        state: 15 // Inactive
+        name: options.targetArea.name
       })
       targetArea.pointFeature.setId(options.targetArea.id)
-      if (options.targetArea.polygon) {
-        targetArea.polygonFeature = new Feature({
-          geometry: new MultiPolygon(options.targetArea.polygon).transform('EPSG:4326', 'EPSG:3857')
-        })
-        let featureId = options.targetArea.id
-        // Transform id if vector source
-        if (featureId.includes('flood.')) {
-          featureId = 'flood_warning_alert' + featureId.substring(featureId.indexOf('.'))
-        }
-        targetArea.polygonFeature.setId(options.targetArea.id)
-      }
     }
   }
 
@@ -298,7 +349,7 @@ function LiveMap (mapId, options) {
   let extent
   if (getParameterByName('ext')) {
     extent = getParameterByName('ext').split(',').map(Number)
-  } else if (options.extent) {
+  } else if (options.extent && options.extent.length) {
     extent = options.extent.map(x => { return parseFloat(x.toFixed(6)) })
   } else if (targetArea.polygonFeature) {
     extent = getLonLatFromExtent(buffer(targetArea.polygonFeature.getGeometry().getExtent(), 150))
@@ -322,11 +373,11 @@ function LiveMap (mapId, options) {
     const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []
     setLayerVisibility(lyrs)
     const checkboxes = document.querySelectorAll('.defra-map-key input[type=checkbox]')
-    checkboxes.forEach((checkbox) => {
+    forEach(checkboxes, (checkbox) => {
       checkbox.checked = lyrs.includes(checkbox.id)
     })
     const radios = document.querySelectorAll('.defra-map-key input[type=radio]')
-    radios.forEach((radio) => {
+    forEach(radios, (radio) => {
       radio.checked = lyrs.includes(radio.id)
     })
   }
@@ -334,21 +385,20 @@ function LiveMap (mapId, options) {
   // Set smart key visibility. To follow...
   if (options.hasSmartKey) {
     const keyItems = document.querySelectorAll('.defra-map-key__section--layers .defra-map-key__item')
-    keyItems.forEach((keyItem) => {
+    forEach(keyItems, (keyItem) => {
       keyItem.style.display = 'none'
     })
   }
 
   //
-  // Event listeners
+  // Events
   //
 
   // Set selected feature and polygon states when features have loaded
   dataLayers.forEach((layer) => {
     const change = layer.getSource().on('change', (e) => {
       if (e.target.getState() === 'ready') {
-        // Remove ready event when layer is ready
-        unByKey(change)
+        unByKey(change) // Remove ready event when layer is ready
         if (layer.get('ref') === 'warnings') {
           // Add optional target area
           if (targetArea.pointFeature) {
@@ -495,6 +545,25 @@ function LiveMap (mapId, options) {
     resetButton.setAttribute('disabled', '')
     containerElement.focus()
   })
+
+  // River level navigation
+  containerElement.addEventListener('click', (e) => {
+    if (e.target.classList.contains('defra-map-info__button')) {
+      const direction = e.target.classList.contains('defra-map-info__button--up') ? 'up' : 'down'
+      const newFeatureId = e.target.getAttribute('data-id')
+      const feature = stations.getSource().getFeatureById(newFeatureId)
+      setSelectedFeature(newFeatureId)
+      panToFeature(feature)
+      // Set focus back to up or down button
+      const upstream = document.querySelector('.defra-map-info__button--up')
+      const downstream = document.querySelector('.defra-map-info__button--down')
+      if ((direction === 'up' && upstream) || (direction === 'down' && !downstream)) {
+        upstream.focus()
+      } else {
+        downstream.focus()
+      }
+    }
+  })
 }
 
 // Export a helper factory to create this map
@@ -506,47 +575,17 @@ maps.createLiveMap = (mapId, options = {}) => {
   if (!window.history.state) {
     const data = {}
     const title = document.title
-    let url = window.location
-    window.history.replaceState(data, title, url)
+    const uri = window.location.href
+    window.history.replaceState(data, title, uri)
   }
 
   // Create map button
   const btnContainer = document.getElementById(mapId)
   const button = document.createElement('button')
   button.id = mapId + '-btn'
-  button.innerText = options.btnText || 'View map'
+  button.innerHTML = options.btnText || 'View map'
   button.className = options.btnClasses || 'defra-button-map'
   btnContainer.parentNode.replaceChild(button, btnContainer)
-
-  // Create map on button press
-  button.addEventListener('click', (e) => {
-    // Advance history
-    const data = { v: mapId, isBack: true }
-    const title = document.title
-    let uri = window.location.href
-    uri = addOrUpdateParameter(uri, 'v', mapId)
-    // Add any querystring parameters from constructor
-    if (options.layers) { uri = addOrUpdateParameter(uri, 'lyr', options.layers) }
-    if (options.extent) { uri = addOrUpdateParameter(uri, 'ext', options.extent) }
-    if (options.selectedId) { uri = addOrUpdateParameter(uri, 'sid', options.selectedId) }
-    window.history.pushState(data, title, uri)
-    options.isBack = true
-    return new LiveMap(mapId, options)
-  })
-
-  // Recreate map on browser history change
-  window.addEventListener('popstate', (e) => {
-    if (e.state && e.state.v === mapId) {
-      options.isBack = window.history.state.isBack
-      return new LiveMap(e.state.v, options)
-    }
-  })
-
-  // Recreate map on page refresh
-  if (window.flood.utils.getParameterByName('v') === mapId) {
-    options.isBack = window.history.state.isBack
-    return new LiveMap(mapId, options)
-  }
 
   // Detect keyboard interaction
   if (maps.isKeyboard !== false && maps.isKeyboard !== true) {
@@ -566,5 +605,35 @@ maps.createLiveMap = (mapId, options = {}) => {
         element.removeAttribute('keyboard-focus')
       })
     })
+  }
+
+  // Create map on button press
+  button.addEventListener('click', (e) => {
+    // Advance history
+    const data = { v: mapId, isBack: true }
+    const title = document.title
+    let uri = window.location.href
+    uri = addOrUpdateParameter(uri, 'v', mapId)
+    // Add any querystring parameters from constructor
+    if (options.layers) { uri = addOrUpdateParameter(uri, 'lyr', options.layers) }
+    if (options.extent) { uri = addOrUpdateParameter(uri, 'ext', options.extent) }
+    if (options.selectedId) { uri = addOrUpdateParameter(uri, 'fid', options.selectedId) }
+    window.history.pushState(data, title, uri)
+    options.isBack = true
+    return new LiveMap(mapId, options)
+  })
+
+  // Recreate map on browser history change
+  window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.v === mapId) {
+      options.isBack = window.history.state.isBack
+      return new LiveMap(e.state.v, options)
+    }
+  })
+
+  // Recreate map on page refresh
+  if (window.flood.utils.getParameterByName('v') === mapId) {
+    options.isBack = window.history.state.isBack
+    return new LiveMap(mapId, options)
   }
 }
