@@ -12,6 +12,7 @@ import { defaults as defaultInteractions } from 'ol/interaction'
 import { Point, MultiPolygon } from 'ol/geom'
 import { buffer, containsExtent, getCenter } from 'ol/extent'
 import { Vector as VectorSource } from 'ol/source'
+import WebGLPointsLayer from 'ol/layer/WebGLPoints'
 
 const { addOrUpdateParameter, getParameterByName, forEach } = window.flood.utils
 const maps = window.flood.maps
@@ -124,6 +125,20 @@ function LiveMap (mapId, options) {
     }
   }
 
+  // WebGL: Should probably be done upstream
+  const setFeatueDisplayState = (layer) => {
+    layer.getSource().forEachFeature((feature) => {
+      const props = feature.getProperties()
+      let state = 'normal'
+      if (props.status === 'Suspended' || props.status === 'Closed' || (!props.value && !props.iswales)) { // Any station that is closed or suspended
+        state = 'error'
+      } else if (props.value && props.atrisk && props.type !== 'C') { // Any station (excluding sea levels) that is at risk
+        state = 'high'
+      }
+      feature.set('state', state)
+    })
+  }
+
   // Show or hide features within layers
   const setFeatureVisibility = (lyrCodes, layer) => {
     layer.getSource().forEachFeature((feature) => {
@@ -147,6 +162,10 @@ function LiveMap (mapId, options) {
         (targetArea.pointFeature && targetArea.pointFeature.getId() === feature.getId())
       )
       feature.set('isVisible', isVisible)
+      // WebGl: layers must have string properties???
+      if (layer instanceof WebGLPointsLayer) {
+        feature.set('isVisibleString', Boolean(isVisible).toString())
+      }
     })
   }
 
@@ -163,7 +182,7 @@ function LiveMap (mapId, options) {
         newFeature.set('isSelected', true)
         setFeatureHtml(newFeature)
         selected.getSource().addFeature(newFeature)
-        selected.setStyle(layer.getStyle())
+        selected.setStyle(maps.styles[layer.get('ref')])
         container.showInfo(newFeature)
       }
       // Refresh target area polygons
@@ -411,6 +430,10 @@ function LiveMap (mapId, options) {
               }
             }
           }
+        }
+        // WebGL: Should be done upstream
+        if (layer instanceof WebGLPointsLayer) {
+          setFeatueDisplayState(layer)
         }
         // Set feature visibility after all features have loaded
         const lyrs = getParameterByName('lyr') ? getParameterByName('lyr').split(',') : []

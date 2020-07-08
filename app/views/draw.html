@@ -1,0 +1,26 @@
+
+{% from "govuk/components/tabs/macro.njk" import govukTabs %}
+{% extends "layout.html" %}
+
+{% block pageTitle %}
+  Map component - GOV.UK
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <!--
+    <h1 class="govuk-heading-xl">
+      Map component
+    </h1>
+    -->
+    <div id="tool-bar"></div>
+    <div id="map"></div>
+    <div id="buttons"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block pageScripts %}
+<script src='/public/javascripts/pages/draw.js'></script>
+{% endblock %}

@@ -6,7 +6,6 @@ import '../components/map/styles'
 import '../components/map/layers'
 import '../components/map/container'
 import '../components/map/live'
-import '../components/map/area'
 import './model' // Temporary geometry
 
 // Create a map
@@ -44,10 +43,4 @@ window.flood.maps.createLiveMap('map2', {
   layers: 'sv',
   centre: [-2.90990, 54.90160],
   zoom: 14
-})
-
-// Create an area map
-window.flood.maps.createAreaMap('map3', {
-  centre: [-2.9329, 54.8925],
-  zoom: 18
 })

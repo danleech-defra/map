@@ -2,9 +2,10 @@
 /*
 Initialises the window.flood.maps layers
 */
-import { Tile as TileLayer, Vector as VectorLayer, VectorTile as VectorTileLayer } from 'ol/layer'
-import { BingMaps, Vector as VectorSource, VectorTile as VectorTileSource } from 'ol/source'
-import { GeoJSON, MVT } from 'ol/format'
+import { Tile as TileLayer, Vector as VectorLayer, VectorTile as VectorTileLayer } from 'ol/layer' // VectorTile as VectorTileLayer for vector tiles
+import WebGLPointsLayer from 'ol/layer/WebGLPoints'
+import { BingMaps, Vector as VectorSource, VectorTile as VectorTileSource } from 'ol/source' // VectorTile as VectorTileSource for vector tiles
+import { GeoJSON, MVT } from 'ol/format' // MVT for vector tiles
 
 window.flood.maps.layers = {
 
@@ -12,7 +13,7 @@ window.flood.maps.layers = {
     return new TileLayer({
       ref: 'road',
       source: new BingMaps({
-        key: 'Ajou-3bB1TMVLPyXyNvMawg4iBPqYYhAN4QMXvOoZvs47Qmrq7L5zio0VsOOAHUr', // + '&c4w=1&cstl=rd&src=h&st=ar|fc:b5db81_wt|fc:a3ccff_tr|fc:50a964f4;sc:50a964f4_ard|fc:ffffff;sc:ffffff_rd|fc:50fed89d;sc:50eab671;lbc:626a6e_mr|lbc:626a6e_hr|lbc:626a6e_st|fc:ffffff;sc:ffffff_g|lc:dfdfdf_trs|lbc:626a6e',
+        key: 'AvRzILjH5stoE_Mt6C08M051nlcQL9vWaWlMrcIjktGcFBgvjTV0TWULhTYL-4-s', // + '&c4w=1&cstl=rd&src=h&st=ar|fc:b5db81_wt|fc:a3ccff_tr|fc:50a964f4;sc:50a964f4_ard|fc:ffffff;sc:ffffff_rd|fc:50fed89d;sc:50eab671;lbc:626a6e_mr|lbc:626a6e_hr|lbc:626a6e_st|fc:ffffff;sc:ffffff_g|lc:dfdfdf_trs|lbc:626a6e',
         imagerySet: 'RoadOnDemand',
         hidpi: true
       }),
@@ -25,7 +26,7 @@ window.flood.maps.layers = {
     return new TileLayer({
       ref: 'satellite',
       source: new BingMaps({
-        key: 'Ajou-3bB1TMVLPyXyNvMawg4iBPqYYhAN4QMXvOoZvs47Qmrq7L5zio0VsOOAHUr',
+        key: 'AvRzILjH5stoE_Mt6C08M051nlcQL9vWaWlMrcIjktGcFBgvjTV0TWULhTYL-4-s',
         imagerySet: 'AerialWithLabelsOnDemand'
       }),
       visible: false,
@@ -33,7 +34,6 @@ window.flood.maps.layers = {
     })
   },
 
-  /*
   targetAreaPolygons: () => {
     return new VectorTileLayer({
       ref: 'targetAreaPolygons',
@@ -49,8 +49,8 @@ window.flood.maps.layers = {
       zIndex: 1
     })
   },
-  */
 
+  /*
   targetAreaPolygons: () => {
     return new VectorLayer({
       ref: 'targetAreaPolygons',
@@ -66,6 +66,7 @@ window.flood.maps.layers = {
       zIndex: 1
     })
   },
+  */
 
   warnings: () => {
     return new VectorLayer({
@@ -83,6 +84,7 @@ window.flood.maps.layers = {
     })
   },
 
+  /*
   stations: () => {
     return new VectorLayer({
       ref: 'stations',
@@ -94,6 +96,23 @@ window.flood.maps.layers = {
         // url: 'http://localhost:8080/geoserver/wfs?service=wfs&version=2.0.0&request=GetFeature&typeNames=flood:st&srsName=EPSG:3857&outputFormat=application/json'
       }),
       style: window.flood.maps.styles.stations,
+      visible: false,
+      zIndex: 3
+    })
+  },
+  */
+
+  // WebGL: Stations layer
+  stations: () => {
+    return new WebGLPointsLayer({
+      ref: 'stations',
+      featureCodes: 'sh, st',
+      source: new VectorSource({
+        format: new GeoJSON(),
+        projection: 'EPSG:3857',
+        url: '/api/stations.geojson'
+      }),
+      style: window.flood.maps.styles.stationsJSON,
       visible: false,
       zIndex: 3
     })

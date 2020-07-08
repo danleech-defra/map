@@ -128,6 +128,24 @@ window.flood.maps.styles = {
     const isSelected = feature.get('isSelected')
     const isBigSymbol = resolution <= maxBigZoom
     return isSelected ? (isBigSymbol ? styleCache.rainfallBigSelected : styleCache.rainfallSelected) : (isBigSymbol ? styleCache.rainfallBig : styleCache.rainfall)
+  },
+
+  // Stations JSON style for WebGL points layer
+  stationsJSON: {
+    filter: ['==', ['get', 'isVisibleString'], 'true'],
+    symbol: {
+      symbolType: 'image',
+      src: '/public/images/map-symbols-2x.png',
+      size: 50,
+      // anchor: [0.5, 0.5],
+      rotateWithView: false,
+      offset: [0, 0],
+      textureCoord: ['match', ['get', 'state'],
+        'high', ['case', ['<=', ['resolution'], 100], [0, 0.3846, 0.5, 0.4615], [0, 0.6923, 0.5, 0.7692]],
+        'error', ['case', ['<=', ['resolution'], 100], [0, 0.5385, 0.5, 0.6158], [0, 0.8462, 0.5, 0.9231]],
+        ['case', ['<=', ['resolution'], 100], [0, 0.4615, 0.5, 0.5385], [0, 0.7692, 0.5, 0.8462]]
+      ]
+    }
   }
 }
 
@@ -264,4 +282,9 @@ const styleCache = {
   levelErrorSelected: createStyle({ offset: [100, 1100], zIndex: 10 }),
   rainfall: createStyle({ offset: [0, 1200], zIndex: 1 }),
   rainfallSelected: createStyle({ offset: [100, 1200], zIndex: 10 })
+}
+
+// WebGL styles uses Math.log2() ie11 doesnt support this
+Math.log2 = (number) => {
+  return Math.log(number) / Math.log(2)
 }

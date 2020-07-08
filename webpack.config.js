@@ -7,7 +7,8 @@ module.exports = {
   mode: 'development', // 'development' or 'production',
   devtool: 'source-map', // 'source-map' or 'none',
   entry: {
-    index: './app/assets/javascripts/pages/index'
+    index: './app/assets/javascripts/pages/index',
+    draw: './app/assets/javascripts/pages/draw'
   },
   output: {
     path: path.join(__dirname, 'public/javascripts'),
