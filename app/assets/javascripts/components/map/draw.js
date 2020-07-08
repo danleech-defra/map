@@ -195,7 +195,6 @@ function DrawMap (containerId, options) {
   //
 
   startDrawingButton.addEventListener('click', () => {
-    console.log('Start drawing')
     map.addInteraction(drawInteraction)
     map.addInteraction(modifyInteraction)
     map.addInteraction(snapInteraction)
@@ -210,12 +209,10 @@ function DrawMap (containerId, options) {
   })
 
   drawInteraction.addEventListener('drawstart', (e) => {
-    console.log('drawstart')
     state.drawStarted = true
   })
 
   drawInteraction.addEventListener('drawend', (e) => {
-    console.log('drawend')
     state.drawStarted = false
     polygon = e.feature
     map.removeInteraction(drawInteraction)
@@ -225,11 +222,10 @@ function DrawMap (containerId, options) {
   })
 
   confirmPointButton.addEventListener('click', () => {
-    console.log('confirm point')
     const pixel = map.getPixelFromCoordinate(map.getView().getCenter())
     if (!state.drawStarted) {
-      const pixelX = pixel[0] + viewport.offsetLeft
-      const pixelY = pixel[1] + viewport.offsetTop
+      const pixelX = pixel[0] + viewport.getBoundingClientRect().left
+      const pixelY = pixel[1] + viewport.getBoundingClientRect().top
       const mouseEvent = new window.MouseEvent('click', { view: window, clientX: pixelX, clientY: pixelY })
       const event = new MapBrowserPointerEvent('click', map, mouseEvent)
       drawInteraction.startDrawing_(event) // Private method
@@ -242,7 +238,6 @@ function DrawMap (containerId, options) {
   })
 
   finishShapeButton.addEventListener('click', () => {
-    console.log('finish shape')
     if (state.drawStarted) {
       drawInteraction.finishDrawing()
       state.coordinateIndex = -1
@@ -250,11 +245,9 @@ function DrawMap (containerId, options) {
   })
 
   drawInteraction.addEventListener('drawabort', (e) => {
-    console.log('drawabort')
   })
 
   modifyInteraction.addEventListener('modifyend', () => {
-    console.log('modifyend')
   })
 
   // Disable map click
@@ -262,39 +255,64 @@ function DrawMap (containerId, options) {
     /*
     if (state.isTouch) {
       e.preventDefault()
-      console.log('touch')
       state.isTouch = false
     }
     */
   })
 
   // Map pan and zoom
-  map.on('moveend', (e) => {
-    console.log('moveend')
+  const pointerMove = (e) => {
     if (state.drawStarted) {
       // Update the sketch feature by drawing a line to the centre of the map
       const sketchFeature = drawInteraction.sketchFeature_ // Private method
-      let innerCoords = sketchFeature.getGeometry().getCoordinates()[0]
+      const sketchLine = drawInteraction.sketchLine_ // Private method
+      let fCoordinates = sketchFeature.getGeometry().getCoordinates()[0]
       const centre = map.getView().getCenter()
-      if (innerCoords.length >= 3) {
-        // Update second to last coordinate
-        innerCoords[innerCoords.length - 2][0] = centre[0]
-        innerCoords[innerCoords.length - 2][1] = centre[1]
+      if (fCoordinates.length >= 3) {
+        // Polygon: Update second to last coordinate
+        fCoordinates[fCoordinates.length - 2][0] = centre[0]
+        fCoordinates[fCoordinates.length - 2][1] = centre[1]
+        // CLear sketch line
+        sketchLine.getGeometry().setCoordinates([])
       } else {
-        // Insert coordinate before last
-        innerCoords.splice(1, 0, [centre[0], centre[1]])
+        // Polygon: Insert coordinate before last
+        fCoordinates.splice(1, 0, [centre[0], centre[1]])
       }
-      console.log(innerCoords)
-      sketchFeature.getGeometry().setCoordinates([innerCoords])
+      sketchFeature.getGeometry().setCoordinates([fCoordinates])
+      console.log('moveend')
+      console.log(sketchFeature.getGeometry().getCoordinates())
+      console.log(drawInteraction)
     }
-  })
+  }
+  map.on('moveend', pointerMove)
 
   // Pointer move
-  map.on('pointermove', (e) => {
-    if (state.drawStarted) {
-      console.log(drawInteraction.sketchFeature_.getGeometry().getCoordinates())
+  map.on('pointermove', pointerMove)
+
+  // Keydown
+  const keydown = (e) => {
+    if (e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      let center = map.getView().getCenter()
+      const resolution = map.getView().getResolution()
+      const distance = 10
+      switch (e.key) {
+        case 'ArrowLeft':
+          center = [center[0] - distance * resolution, center[1] + 0 * resolution]
+          break
+        case 'ArrowRight':
+          center = [center[0] + distance * resolution, center[1] + 0 * resolution]
+          break
+        case 'ArrowUp':
+          center = [center[0] + 0 * resolution, center[1] + distance * resolution]
+          break
+        case 'ArrowDown':
+          center = [center[0] + 0 * resolution, center[1] - distance * resolution]
+          break
+      }
+      map.getView().setCenter(center)
     }
-  })
+  }
+  window.addEventListener('keydown', keydown)
 }
 
 // Export a helper factory to create this map
@@ -305,6 +323,9 @@ maps.createDrawMap = (containerId, options = {}) => {
   // Detect keyboard interaction
   if (!maps.interfaceType) {
     window.addEventListener('pointerdown', (e) => {
+      maps.interfaceType = 'mouse'
+    })
+    window.addEventListener('pointermove', (e) => {
       maps.interfaceType = 'mouse'
     })
     window.addEventListener('touchstart', (e) => {
