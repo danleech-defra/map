@@ -1,12 +1,13 @@
 'use strict'
-import { Map, View, MapBrowserPointerEvent } from 'ol'
+import { Map, View, MapBrowserPointerEvent, Feature } from 'ol'
 import { defaults as defaultControls, Control } from 'ol/control'
 import { transform } from 'ol/proj'
-import { MultiPoint } from 'ol/geom'
+import { Point, MultiPoint } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
 import { defaults as defaultInteractions, Modify, Snap, Draw, DoubleClickZoom } from 'ol/interaction'
 import { Style, Icon, Fill, Stroke } from 'ol/style'
+import { mouseOnly } from 'ol/events/condition'
 
 const { forEach } = window.flood.utils
 const maps = window.flood.maps
@@ -34,7 +35,7 @@ function DrawMap (containerId, options) {
   })
 
   // Styles
-  const drawStyle = new Style({
+  const drawShapeStyle = new Style({
     fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
     stroke: new Stroke({ color: '#626a6e', width: 3 }),
     image: new Icon({
@@ -42,9 +43,28 @@ function DrawMap (containerId, options) {
       size: [32, 32],
       scale: 0.5,
       src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="14" style="fill:none;stroke:#626a6e;stroke-width:4px;"/%3E%3C/svg%3E'
-    })
+    }),
+    zIndex: 2
   })
-  const modifyStyle = new Style({
+  const drawPointStyle = new Style({
+    image: new Icon({
+      opacity: 1,
+      size: [32, 32],
+      scale: 0.5,
+      src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="14" style="fill:none;stroke:#4c2c92;stroke-width:4px;"/%3E%3C/svg%3E'
+    }),
+    // Return the coordinates of the first ring of the polygon
+    geometry: function (feature) {
+      if (feature.getGeometry().getType() === 'Polygon') {
+        var coordinates = feature.getGeometry().getCoordinates()[0]
+        return new MultiPoint(coordinates)
+      } else {
+        return null
+      }
+    },
+    zIndex: 1
+  })
+  const modifyShapeStyle = new Style({
     fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
     stroke: new Stroke({ color: '#1d70b8', width: 3 }),
     image: new Icon({
@@ -54,11 +74,11 @@ function DrawMap (containerId, options) {
       src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="14" style="fill:none;stroke:#1d70b8;stroke-width:4px;"/%3E%3C/svg%3E'
     })
   })
-  const strokeStyle = new Style({
+  const completedShapeStyle = new Style({
     fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
     stroke: new Stroke({ color: '#4c2c92', width: 3 })
   })
-  const pointStyle = new Style({
+  const completedPointStyle = new Style({
     image: new Icon({
       opacity: 1,
       size: [32, 32],
@@ -86,7 +106,7 @@ function DrawMap (containerId, options) {
   const road = maps.layers.road()
   const vectorLayer = new VectorLayer({
     source: vectorSource,
-    style: [strokeStyle, pointStyle]
+    style: [completedShapeStyle, completedPointStyle]
   })
 
   // Interactions
@@ -99,12 +119,14 @@ function DrawMap (containerId, options) {
   })
   const modifyInteraction = new Modify({
     source: vectorSource,
-    style: modifyStyle
+    style: modifyShapeStyle,
+    condition: mouseOnly
   })
   const drawInteraction = new Draw({
     source: vectorSource,
     type: 'Polygon',
-    style: drawStyle
+    style: [drawShapeStyle, drawPointStyle],
+    condition: mouseOnly
   })
   const snapInteraction = new Snap({
     source: vectorSource
@@ -177,6 +199,37 @@ function DrawMap (containerId, options) {
   // Private methods
   //
 
+  const updateSketchPoint = (centre) => {
+    if (maps.interfaceType === 'touch' || maps.interfaceType === 'keyboard') {
+      if (drawInteraction.sketchPoint_) {
+        // Update the current sketchPoint
+        drawInteraction.sketchPoint_.getGeometry().setCoordinates(centre)
+      } else {
+        // Create a new sketchPoint
+        drawInteraction.sketchPoint_ = new Feature(new Point(centre))
+        drawInteraction.overlay_.getSource().addFeature(drawInteraction.sketchPoint_)
+      }
+    }
+  }
+
+  const updateSketchFeatures = (centre) => {
+    // Update the sketch feature by drawing a line to the centre of the map
+    const sketchFeature = drawInteraction.sketchFeature_ // Private method
+    const sketchLine = drawInteraction.sketchLine_ // Private method
+    let fCoordinates = sketchFeature.getGeometry().getCoordinates()[0]
+    if (fCoordinates.length >= 3) {
+      // Polygon: Update second to last coordinate
+      fCoordinates[fCoordinates.length - 2][0] = centre[0]
+      fCoordinates[fCoordinates.length - 2][1] = centre[1]
+      // CLear sketch line
+      sketchLine.getGeometry().setCoordinates([])
+    } else {
+      // Polygon: Insert coordinate before last
+      fCoordinates.splice(1, 0, [centre[0], centre[1]])
+    }
+    sketchFeature.getGeometry().setCoordinates([fCoordinates])
+  }
+
   //
   // Setup
   //
@@ -199,6 +252,8 @@ function DrawMap (containerId, options) {
     map.addInteraction(modifyInteraction)
     map.addInteraction(snapInteraction)
     map.removeInteraction(doubleClickZoomInteraction)
+    const centre = map.getView().getCenter()
+    updateSketchPoint(centre)
   })
 
   deleteDrawingButton.addEventListener('click', () => {
@@ -222,8 +277,9 @@ function DrawMap (containerId, options) {
   })
 
   confirmPointButton.addEventListener('click', () => {
-    const pixel = map.getPixelFromCoordinate(map.getView().getCenter())
+    const centre = map.getView().getCenter()
     if (!state.drawStarted) {
+      const pixel = map.getPixelFromCoordinate(centre)
       const pixelX = pixel[0] + viewport.getBoundingClientRect().left
       const pixelY = pixel[1] + viewport.getBoundingClientRect().top
       const mouseEvent = new window.MouseEvent('click', { view: window, clientX: pixelX, clientY: pixelY })
@@ -231,9 +287,11 @@ function DrawMap (containerId, options) {
       drawInteraction.startDrawing_(event) // Private method
       state.drawStarted = true
       state.coorindateIndex = 0
+      updateSketchPoint(centre)
     } else {
-      drawInteraction.appendCoordinates([map.getView().getCenter()])
+      drawInteraction.appendCoordinates([centre])
       state.coordinateIndex += 1
+      updateSketchFeatures(centre)
     }
   })
 
@@ -262,26 +320,12 @@ function DrawMap (containerId, options) {
 
   // Map pan and zoom
   const pointerMove = (e) => {
+    const centre = map.getView().getCenter()
+    if (drawInteraction) {
+      updateSketchPoint(centre)
+    }
     if (state.drawStarted) {
-      // Update the sketch feature by drawing a line to the centre of the map
-      const sketchFeature = drawInteraction.sketchFeature_ // Private method
-      const sketchLine = drawInteraction.sketchLine_ // Private method
-      let fCoordinates = sketchFeature.getGeometry().getCoordinates()[0]
-      const centre = map.getView().getCenter()
-      if (fCoordinates.length >= 3) {
-        // Polygon: Update second to last coordinate
-        fCoordinates[fCoordinates.length - 2][0] = centre[0]
-        fCoordinates[fCoordinates.length - 2][1] = centre[1]
-        // CLear sketch line
-        sketchLine.getGeometry().setCoordinates([])
-      } else {
-        // Polygon: Insert coordinate before last
-        fCoordinates.splice(1, 0, [centre[0], centre[1]])
-      }
-      sketchFeature.getGeometry().setCoordinates([fCoordinates])
-      console.log('moveend')
-      console.log(sketchFeature.getGeometry().getCoordinates())
-      console.log(drawInteraction)
+      updateSketchFeatures(centre)
     }
   }
   map.on('moveend', pointerMove)
@@ -291,28 +335,49 @@ function DrawMap (containerId, options) {
 
   // Keydown
   const keydown = (e) => {
+    // Set sketchPoint to centre on any keydown
+    const centre = map.getView().getCenter()
+    if (drawInteraction) {
+      updateSketchPoint(centre)
+    }
+    if (state.drawStarted) {
+      updateSketchFeatures(centre)
+    }
     if (e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
-      let center = map.getView().getCenter()
       const resolution = map.getView().getResolution()
       const distance = 10
+      let centre = map.getView().getCenter()
       switch (e.key) {
         case 'ArrowLeft':
-          center = [center[0] - distance * resolution, center[1] + 0 * resolution]
+          centre = [centre[0] - distance * resolution, centre[1] + 0 * resolution]
           break
         case 'ArrowRight':
-          center = [center[0] + distance * resolution, center[1] + 0 * resolution]
+          centre = [centre[0] + distance * resolution, centre[1] + 0 * resolution]
           break
         case 'ArrowUp':
-          center = [center[0] + 0 * resolution, center[1] + distance * resolution]
+          centre = [centre[0] + 0 * resolution, centre[1] + distance * resolution]
           break
         case 'ArrowDown':
-          center = [center[0] + 0 * resolution, center[1] - distance * resolution]
+          centre = [centre[0] + 0 * resolution, centre[1] - distance * resolution]
           break
       }
-      map.getView().setCenter(center)
+      map.getView().setCenter(centre)
     }
   }
   window.addEventListener('keydown', keydown)
+
+  // Keyup
+  const keyup = (e) => {
+    const centre = map.getView().getCenter()
+    // Set sketchPoint to centre on any keyup
+    if (drawInteraction) {
+      updateSketchPoint(centre)
+    }
+    if (state.drawStarted) {
+      updateSketchFeatures(centre)
+    }
+  }
+  window.addEventListener('keyup', keyup)
 }
 
 // Export a helper factory to create this map
@@ -323,9 +388,6 @@ maps.createDrawMap = (containerId, options = {}) => {
   // Detect keyboard interaction
   if (!maps.interfaceType) {
     window.addEventListener('pointerdown', (e) => {
-      maps.interfaceType = 'mouse'
-    })
-    window.addEventListener('pointermove', (e) => {
       maps.interfaceType = 'mouse'
     })
     window.addEventListener('touchstart', (e) => {
