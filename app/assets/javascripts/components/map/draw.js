@@ -15,7 +15,10 @@ const maps = window.flood.maps
 function DrawMap (containerId, options) {
   const state = {
     drawStarted: false,
-    coordinateIndex: -1
+    modifyStarted: false,
+    isOverideModifyCondition: false, // Temporarily overide modify condition
+    modifyIndexes: [],
+    modifyOffset: []
   }
 
   // View
@@ -106,7 +109,8 @@ function DrawMap (containerId, options) {
   const road = maps.layers.road()
   const vectorLayer = new VectorLayer({
     source: vectorSource,
-    style: [completedShapeStyle, completedPointStyle]
+    style: [completedShapeStyle, completedPointStyle],
+    updateWhileInteracting: true
   })
 
   // Interactions
@@ -120,7 +124,10 @@ function DrawMap (containerId, options) {
   const modifyInteraction = new Modify({
     source: vectorSource,
     style: modifyShapeStyle,
-    condition: mouseOnly
+    condition: () => {
+      return state.isOverideModifyCondition || maps.interfaceType === 'mouse'
+    },
+    insertVertexCondition: mouseOnly
   })
   const drawInteraction = new Draw({
     source: vectorSource,
@@ -199,35 +206,44 @@ function DrawMap (containerId, options) {
   // Private methods
   //
 
-  const updateSketchPoint = (centre) => {
+  const updateSketchPoint = (coordinate) => {
     if (maps.interfaceType === 'touch' || maps.interfaceType === 'keyboard') {
       if (drawInteraction.sketchPoint_) {
         // Update the current sketchPoint
-        drawInteraction.sketchPoint_.getGeometry().setCoordinates(centre)
+        drawInteraction.sketchPoint_.getGeometry().setCoordinates(coordinate)
       } else {
         // Create a new sketchPoint
-        drawInteraction.sketchPoint_ = new Feature(new Point(centre))
+        drawInteraction.sketchPoint_ = new Feature(new Point(coordinate))
         drawInteraction.overlay_.getSource().addFeature(drawInteraction.sketchPoint_)
       }
     }
   }
 
-  const updateSketchFeatures = (centre) => {
-    // Update the sketch feature by drawing a line to the centre of the map
+  const updateSketchFeatures = (coordinate) => {
+    // Update the sketch feature by drawing a line to the coordinate
     const sketchFeature = drawInteraction.sketchFeature_ // Private method
     const sketchLine = drawInteraction.sketchLine_ // Private method
     let fCoordinates = sketchFeature.getGeometry().getCoordinates()[0]
     if (fCoordinates.length >= 3) {
       // Polygon: Update second to last coordinate
-      fCoordinates[fCoordinates.length - 2][0] = centre[0]
-      fCoordinates[fCoordinates.length - 2][1] = centre[1]
+      fCoordinates[fCoordinates.length - 2][0] = coordinate[0]
+      fCoordinates[fCoordinates.length - 2][1] = coordinate[1]
       // CLear sketch line
       sketchLine.getGeometry().setCoordinates([])
     } else {
       // Polygon: Insert coordinate before last
-      fCoordinates.splice(1, 0, [centre[0], centre[1]])
+      fCoordinates.splice(1, 0, [coordinate[0], coordinate[1]])
     }
     sketchFeature.getGeometry().setCoordinates([fCoordinates])
+  }
+
+  const modifyFeature = (event) => {
+    const feature = vectorLayer.getSource().getFeatures()[0]
+    const coordinates = feature.getGeometry().getCoordinates()[0]
+    const centre = map.getView().getCenter()
+    const coordinate = [centre[0] + state.modifyOffset[0], centre[1] + state.modifyOffset[1]]
+    state.modifyIndexes.forEach((index) => { coordinates[index] = coordinate })
+    feature.getGeometry().setCoordinates([coordinates])
   }
 
   //
@@ -249,7 +265,6 @@ function DrawMap (containerId, options) {
 
   startDrawingButton.addEventListener('click', () => {
     map.addInteraction(drawInteraction)
-    map.addInteraction(modifyInteraction)
     map.addInteraction(snapInteraction)
     map.removeInteraction(doubleClickZoomInteraction)
     const centre = map.getView().getCenter()
@@ -274,6 +289,8 @@ function DrawMap (containerId, options) {
     setTimeout(() => {
       map.addInteraction(doubleClickZoomInteraction)
     }, 100)
+    map.addInteraction(modifyInteraction)
+    state.modifyStarted = true
   })
 
   confirmPointButton.addEventListener('click', () => {
@@ -286,11 +303,9 @@ function DrawMap (containerId, options) {
       const event = new MapBrowserPointerEvent('click', map, mouseEvent)
       drawInteraction.startDrawing_(event) // Private method
       state.drawStarted = true
-      state.coorindateIndex = 0
       updateSketchPoint(centre)
     } else {
       drawInteraction.appendCoordinates([centre])
-      state.coordinateIndex += 1
       updateSketchFeatures(centre)
     }
   })
@@ -298,18 +313,46 @@ function DrawMap (containerId, options) {
   finishShapeButton.addEventListener('click', () => {
     if (state.drawStarted) {
       drawInteraction.finishDrawing()
-      state.coordinateIndex = -1
     }
   })
 
   drawInteraction.addEventListener('drawabort', (e) => {
   })
 
-  modifyInteraction.addEventListener('modifyend', () => {
+  modifyInteraction.addEventListener('modifystart', () => {
+    console.log('modifystart')
   })
 
-  // Disable map click
+  modifyInteraction.addEventListener('modifyend', () => {
+    console.log('modifyend')
+    state.vertex = null
+  })
+
+  // Get vertex to modify
   map.on('click', (e) => {
+    if (state.modifyStarted) {
+      state.isOverideModifyCondition = true
+      modifyInteraction.handleDownEvent(e)
+      state.isOverideModifyCondition = false
+      if (modifyInteraction.vertexFeature_) {
+        const centre = map.getView().getCenter()
+        const coordinate = modifyInteraction.vertexFeature_.getGeometry().getCoordinates()
+        const feature = vectorLayer.getSource().getFeatures()[0]
+        const coordinates = feature.getGeometry().getCoordinates()[0]
+        const index = coordinates.findIndex((item) => JSON.stringify(item) === JSON.stringify(coordinate))
+        state.modifyIndexes = [index]
+        state.modifyOffset = [coordinates[index][0] - centre[0], coordinates[index][1] - centre[1]]
+        if (index === 0) {
+          state.modifyIndexes.push(coordinates.length - 1)
+        } else if (index === coordinates.length - 1) {
+          state.modifyIndexes.push(0)
+        }
+      } else {
+        state.modifyIndexes = []
+        state.modifyOffset = []
+      }
+      console.log(state.modifyIndexes)
+    }
     /*
     if (state.isTouch) {
       e.preventDefault()
@@ -320,12 +363,17 @@ function DrawMap (containerId, options) {
 
   // Map pan and zoom
   const pointerMove = (e) => {
-    const centre = map.getView().getCenter()
-    if (drawInteraction) {
-      updateSketchPoint(centre)
-    }
-    if (state.drawStarted) {
-      updateSketchFeatures(centre)
+    if (maps.interfaceType === 'touch') {
+      const centre = map.getView().getCenter()
+      if (drawInteraction) {
+        updateSketchPoint(centre)
+      }
+      if (state.drawStarted) {
+        updateSketchFeatures(centre)
+      }
+      if (state.modifyStarted) {
+        modifyFeature(e)
+      }
     }
   }
   map.on('moveend', pointerMove)
