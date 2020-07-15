@@ -114,9 +114,14 @@ function DrawMap (containerId, options) {
   // Polygon
   let polygon
 
+  // Features
+  const pointFeature = new Feature(new Point([0, 0]))
+
   // Source
   const vectorSource = new VectorSource()
-  const pointSource = new VectorSource()
+  const pointSource = new VectorSource({
+    features: [pointFeature]
+  })
   const keyboardSource = new VectorSource({
     features: [new Feature(new Point([0, 0]))]
   })
@@ -131,7 +136,8 @@ function DrawMap (containerId, options) {
   const pointLayer = new VectorLayer({
     source: pointSource,
     style: modifyShapeStyle,
-    updateWhileInteracting: true
+    updateWhileInteracting: true,
+    visible: false
   })
   const keyboardLayer = new VectorLayer({
     source: keyboardSource,
@@ -264,21 +270,29 @@ function DrawMap (containerId, options) {
     sketchFeature.getGeometry().setCoordinates([fCoordinates])
   }
 
-  const modifyFeature = () => {
+  const updateVectorFeature = () => {
     const feature = vectorSource.getFeatures()[0]
     let coordinates = feature.getGeometry().getCoordinates()[0]
     const centre = map.getView().getCenter()
     const coordinate = [centre[0] + state.modifyOffset[0], centre[1] + state.modifyOffset[1]]
     state.modifyIndexes.forEach((index) => { coordinates[index] = coordinate })
     feature.getGeometry().setCoordinates([coordinates])
+    updatePointFeature(coordinate)
+  }
+
+  const updatePointFeature = (coordinate) => {
     // Move temporary feature
-    const point = pointSource.getFeatures()[0]
-    point.getGeometry().setCoordinates(coordinate)
+    pointFeature.getGeometry().setCoordinates(coordinate)
+    pointLayer.setVisible(true)
   }
 
   const updateKeyboardCursor = (cooridnate) => {
     keyboardSource.getFeatures()[0].getGeometry().setCoordinates(cooridnate)
     keyboardLayer.setVisible(true)
+  }
+
+  const updateModifyStyle = (type) => {
+    console.log(type)
   }
 
   //
@@ -300,7 +314,7 @@ function DrawMap (containerId, options) {
 
   startDrawingButton.addEventListener('click', () => {
     // Reset state and source
-    pointSource.clear()
+    pointLayer.setVisible(false)
     map.addInteraction(drawInteraction)
     map.addInteraction(snapInteraction)
     map.removeInteraction(doubleClickZoomInteraction)
@@ -310,7 +324,7 @@ function DrawMap (containerId, options) {
 
   deleteDrawingButton.addEventListener('click', () => {
     // Reset state and source
-    pointSource.clear()
+    pointLayer.setVisible(false)
     map.removeInteraction(drawInteraction)
     map.removeInteraction(modifyInteraction)
     map.removeInteraction(snapInteraction)
@@ -355,13 +369,13 @@ function DrawMap (containerId, options) {
 
   finishShapeButton.addEventListener('click', () => {
     // Reset state and source
-    pointSource.clear()
+    pointLayer.setVisible(false)
     drawInteraction.finishDrawing()
   })
 
   drawInteraction.addEventListener('drawabort', (e) => {
     // Reset state and source
-    pointSource.clear()
+    pointLayer.setVisible(false)
   })
 
   modifyInteraction.addEventListener('modifystart', () => {
@@ -373,7 +387,7 @@ function DrawMap (containerId, options) {
   // Get vertex to modify and add a temporary current point to the point layer
   map.on('click', (e) => {
     // Reset state and source
-    pointSource.clear()
+    pointLayer.setVisible(false)
     state.modifyIndexes = []
     state.modifyOffset = []
     if (state.modifyStarted) {
@@ -391,31 +405,38 @@ function DrawMap (containerId, options) {
         if (index === 0 || index === coordinates.length - 1) {
           state.modifyIndexes = [0, (coordinates.length - 1)]
         }
-        state.modifyOffset = [coordinates[index][0] - centre[0], coordinates[index][1] - centre[1]]
+        // If we have an existing vertex update offset
+        if (index >= 0) {
+          state.modifyOffset = [coordinates[index][0] - centre[0], coordinates[index][1] - centre[1]]
+        }
         // Add temporary point feature to show current vertex
-        const point = new Feature(new Point(coordinate))
-        pointSource.addFeature(point)
+        updatePointFeature(coordinate)
       }
     }
   })
 
   // Map pan and zoom
   const pointerMove = (e) => {
+    // All interface tpyes
+    let isVertex = false
+    let coordinate
+    if (modifyInteraction.vertexFeature_) {
+      // Determin
+      coordinate = modifyInteraction.vertexFeature_.getGeometry().getCoordinates()
+      const coordinates = vectorSource.getFeatures()[0].getGeometry().getCoordinates()[0]
+      isVertex = coordinates.findIndex((item) => JSON.stringify(item) === JSON.stringify(coordinate)) >= 0
+    }
+    // Hide point if cursor is a way from the shape
+    if (!isVertex) {
+      pointLayer.setVisible(false)
+    }
+    // Display appropriate modify icon
+    console.log(isVertex)
     if (maps.interfaceType === 'mouse') {
       if (state.modifyStarted) {
         // Move temporary feature
-        let isVertex = -1
-        if (modifyInteraction.vertexFeature_ && pointSource.getFeatures().length) {
-          const point = pointSource.getFeatures()[0]
-          const coordinate = modifyInteraction.vertexFeature_.getGeometry().getCoordinates()
-          point.getGeometry().setCoordinates(coordinate)
-          const coordinates = vectorSource.getFeatures()[0].getGeometry().getCoordinates()[0]
-          isVertex = coordinates.findIndex((item) => JSON.stringify(item) === JSON.stringify(coordinate)) >= 0
-          // Display appropriate vertex icon
-        }
-        // Clear point if not an existing vertex
-        if (!isVertex) {
-          pointSource.clear()
+        if (modifyInteraction.vertexFeature_) {
+          updatePointFeature(coordinate)
         }
       }
     } else if (maps.interfaceType === 'touch') {
@@ -427,7 +448,7 @@ function DrawMap (containerId, options) {
         updateSketchFeatures(centre)
       }
       if (state.modifyStarted) {
-        modifyFeature()
+        updateVectorFeature()
       }
     } else if (maps.interfaceType === 'keyboard') {
       if (state.modifyStarted) {
