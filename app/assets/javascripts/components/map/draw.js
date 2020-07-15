@@ -38,14 +38,22 @@ function DrawMap (containerId, options) {
   })
 
   // Styles
+  const keyboardStyle = new Style({
+    image: new Icon({
+      opacity: 1,
+      size: [52, 52],
+      scale: 1,
+      src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 52 52"%3E%3Cg%3E%3Cpath d="M6.201,0.544L0.544,6.201L16.101,16.101L6.201,0.544Z" style="fill:rgb(11,12,12);"/%3E%3Cpath d="M51.456,45.799L45.799,51.456L35.899,35.899L51.456,45.799Z" style="fill:rgb(11,12,12);"/%3E%3Cpath d="M0.544,45.799L6.201,51.456L16.101,35.899L0.544,45.799Z" style="fill:rgb(11,12,12);"/%3E%3Cpath d="M45.799,0.544L51.456,6.201L35.899,16.101L45.799,0.544Z" style="fill:rgb(11,12,12);"/%3E%3C/g%3E%3C/svg%3E'
+    })
+  })
   const drawShapeStyle = new Style({
     fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
-    stroke: new Stroke({ color: '#626a6e', width: 3 }),
+    stroke: new Stroke({ color: '#0b0c0c', width: 3 }),
     image: new Icon({
       opacity: 1,
       size: [32, 32],
-      scale: 0.5,
-      src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="14" style="fill:none;stroke:#626a6e;stroke-width:4px;"/%3E%3C/svg%3E'
+      scale: 1,
+      src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3C/svg%3E'
     }),
     zIndex: 2
   })
@@ -53,13 +61,17 @@ function DrawMap (containerId, options) {
     image: new Icon({
       opacity: 1,
       size: [32, 32],
-      scale: 0.5,
-      src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="14" style="fill:none;stroke:#4c2c92;stroke-width:4px;"/%3E%3C/svg%3E'
+      scale: 1,
+      src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="4" style="fill:%230b0c0c"/%3E%3C/svg%3E'
     }),
     // Return the coordinates of the first ring of the polygon
     geometry: function (feature) {
       if (feature.getGeometry().getType() === 'Polygon') {
-        var coordinates = feature.getGeometry().getCoordinates()[0]
+        let coordinates = feature.getGeometry().getCoordinates()[0]
+        // We dont want a point for the vertex that havsn't been placed
+        if (coordinates.length > 2) {
+          coordinates.splice(coordinates.length - 2, 2)
+        }
         return new MultiPoint(coordinates)
       } else {
         return null
@@ -69,24 +81,24 @@ function DrawMap (containerId, options) {
   })
   const modifyShapeStyle = new Style({
     fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
-    stroke: new Stroke({ color: '#1d70b8', width: 3 }),
+    stroke: new Stroke({ color: '#0b0c0c', width: 3 }),
     image: new Icon({
       opacity: 1,
       size: [32, 32],
-      scale: 0.5,
-      src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="14" style="fill:none;stroke:#1d70b8;stroke-width:4px;"/%3E%3C/svg%3E'
+      scale: 1,
+      src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3Ccircle cx="16" cy="16" r="11" style="fill:none;stroke:rgb(255,221,0);stroke-width:6px;"/%3E%3C/svg%3E'
     })
   })
   const completedShapeStyle = new Style({
     fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
-    stroke: new Stroke({ color: '#4c2c92', width: 3 })
+    stroke: new Stroke({ color: '#0b0c0c', width: 3 })
   })
   const completedPointStyle = new Style({
     image: new Icon({
       opacity: 1,
       size: [32, 32],
-      scale: 0.5,
-      src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="14" style="fill:none;stroke:#4c2c92;stroke-width:4px;"/%3E%3C/svg%3E'
+      scale: 1,
+      src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3C/svg%3E'
     }),
     // Return the coordinates of the first ring of the polygon
     geometry: function (feature) {
@@ -104,6 +116,10 @@ function DrawMap (containerId, options) {
 
   // Source
   const vectorSource = new VectorSource()
+  const pointSource = new VectorSource()
+  const keyboardSource = new VectorSource({
+    features: [new Feature(new Point([0, 0]))]
+  })
 
   // Layers
   const road = maps.layers.road()
@@ -111,6 +127,17 @@ function DrawMap (containerId, options) {
     source: vectorSource,
     style: [completedShapeStyle, completedPointStyle],
     updateWhileInteracting: true
+  })
+  const pointLayer = new VectorLayer({
+    source: pointSource,
+    style: modifyShapeStyle,
+    updateWhileInteracting: true
+  })
+  const keyboardLayer = new VectorLayer({
+    source: keyboardSource,
+    style: keyboardStyle,
+    updateWhileInteracting: true,
+    visible: false
   })
 
   // Interactions
@@ -146,7 +173,7 @@ function DrawMap (containerId, options) {
   // Render map
   const map = new Map({
     target: containerElement,
-    layers: [road, vectorLayer],
+    layers: [road, vectorLayer, pointLayer, keyboardLayer],
     view: view,
     controls: controls,
     interactions: interactions,
@@ -237,13 +264,21 @@ function DrawMap (containerId, options) {
     sketchFeature.getGeometry().setCoordinates([fCoordinates])
   }
 
-  const modifyFeature = (event) => {
-    const feature = vectorLayer.getSource().getFeatures()[0]
-    const coordinates = feature.getGeometry().getCoordinates()[0]
+  const modifyFeature = () => {
+    const feature = vectorSource.getFeatures()[0]
+    let coordinates = feature.getGeometry().getCoordinates()[0]
     const centre = map.getView().getCenter()
     const coordinate = [centre[0] + state.modifyOffset[0], centre[1] + state.modifyOffset[1]]
     state.modifyIndexes.forEach((index) => { coordinates[index] = coordinate })
     feature.getGeometry().setCoordinates([coordinates])
+    // Move temporary feature
+    const point = pointSource.getFeatures()[0]
+    point.getGeometry().setCoordinates(coordinate)
+  }
+
+  const updateKeyboardCursor = (cooridnate) => {
+    keyboardSource.getFeatures()[0].getGeometry().setCoordinates(cooridnate)
+    keyboardLayer.setVisible(true)
   }
 
   //
@@ -264,6 +299,8 @@ function DrawMap (containerId, options) {
   //
 
   startDrawingButton.addEventListener('click', () => {
+    // Reset state and source
+    pointSource.clear()
     map.addInteraction(drawInteraction)
     map.addInteraction(snapInteraction)
     map.removeInteraction(doubleClickZoomInteraction)
@@ -272,6 +309,8 @@ function DrawMap (containerId, options) {
   })
 
   deleteDrawingButton.addEventListener('click', () => {
+    // Reset state and source
+    pointSource.clear()
     map.removeInteraction(drawInteraction)
     map.removeInteraction(modifyInteraction)
     map.removeInteraction(snapInteraction)
@@ -293,6 +332,10 @@ function DrawMap (containerId, options) {
     state.modifyStarted = true
   })
 
+  vectorSource.addEventListener('addfeature', (e) => {
+    // Generate output
+  })
+
   confirmPointButton.addEventListener('click', () => {
     const centre = map.getView().getCenter()
     if (!state.drawStarted) {
@@ -311,25 +354,28 @@ function DrawMap (containerId, options) {
   })
 
   finishShapeButton.addEventListener('click', () => {
-    if (state.drawStarted) {
-      drawInteraction.finishDrawing()
-    }
+    // Reset state and source
+    pointSource.clear()
+    drawInteraction.finishDrawing()
   })
 
   drawInteraction.addEventListener('drawabort', (e) => {
+    // Reset state and source
+    pointSource.clear()
   })
 
   modifyInteraction.addEventListener('modifystart', () => {
-    console.log('modifystart')
   })
 
   modifyInteraction.addEventListener('modifyend', () => {
-    console.log('modifyend')
-    state.vertex = null
   })
 
-  // Get vertex to modify
+  // Get vertex to modify and add a temporary current point to the point layer
   map.on('click', (e) => {
+    // Reset state and source
+    pointSource.clear()
+    state.modifyIndexes = []
+    state.modifyOffset = []
     if (state.modifyStarted) {
       state.isOverideModifyCondition = true
       modifyInteraction.handleDownEvent(e)
@@ -337,33 +383,42 @@ function DrawMap (containerId, options) {
       if (modifyInteraction.vertexFeature_) {
         const centre = map.getView().getCenter()
         const coordinate = modifyInteraction.vertexFeature_.getGeometry().getCoordinates()
-        const feature = vectorLayer.getSource().getFeatures()[0]
+        const feature = vectorSource.getFeatures()[0]
         const coordinates = feature.getGeometry().getCoordinates()[0]
         const index = coordinates.findIndex((item) => JSON.stringify(item) === JSON.stringify(coordinate))
         state.modifyIndexes = [index]
-        state.modifyOffset = [coordinates[index][0] - centre[0], coordinates[index][1] - centre[1]]
-        if (index === 0) {
-          state.modifyIndexes.push(coordinates.length - 1)
-        } else if (index === coordinates.length - 1) {
-          state.modifyIndexes.push(0)
+        // If first or last selected add both to indexes
+        if (index === 0 || index === coordinates.length - 1) {
+          state.modifyIndexes = [0, (coordinates.length - 1)]
         }
-      } else {
-        state.modifyIndexes = []
-        state.modifyOffset = []
+        state.modifyOffset = [coordinates[index][0] - centre[0], coordinates[index][1] - centre[1]]
+        // Add temporary point feature to show current vertex
+        const point = new Feature(new Point(coordinate))
+        pointSource.addFeature(point)
       }
-      console.log(state.modifyIndexes)
     }
-    /*
-    if (state.isTouch) {
-      e.preventDefault()
-      state.isTouch = false
-    }
-    */
   })
 
   // Map pan and zoom
   const pointerMove = (e) => {
-    if (maps.interfaceType === 'touch') {
+    if (maps.interfaceType === 'mouse') {
+      if (state.modifyStarted) {
+        // Move temporary feature
+        let isVertex = -1
+        if (modifyInteraction.vertexFeature_ && pointSource.getFeatures().length) {
+          const point = pointSource.getFeatures()[0]
+          const coordinate = modifyInteraction.vertexFeature_.getGeometry().getCoordinates()
+          point.getGeometry().setCoordinates(coordinate)
+          const coordinates = vectorSource.getFeatures()[0].getGeometry().getCoordinates()[0]
+          isVertex = coordinates.findIndex((item) => JSON.stringify(item) === JSON.stringify(coordinate)) >= 0
+          // Display appropriate vertex icon
+        }
+        // Clear point if not an existing vertex
+        if (!isVertex) {
+          pointSource.clear()
+        }
+      }
+    } else if (maps.interfaceType === 'touch') {
       const centre = map.getView().getCenter()
       if (drawInteraction) {
         updateSketchPoint(centre)
@@ -372,7 +427,24 @@ function DrawMap (containerId, options) {
         updateSketchFeatures(centre)
       }
       if (state.modifyStarted) {
-        modifyFeature(e)
+        modifyFeature()
+      }
+    } else if (maps.interfaceType === 'keyboard') {
+      if (state.modifyStarted) {
+        // Keyboard cursor
+        const centre = map.getView().getCenter()
+        updateKeyboardCursor(centre)
+        // Select vertex
+        const pixel = map.getPixelFromCoordinate(centre)
+        const pixelX = pixel[0] + viewport.getBoundingClientRect().left
+        const pixelY = pixel[1] + viewport.getBoundingClientRect().top
+        const mouseEvent = new window.MouseEvent('click', { view: window, clientX: pixelX, clientY: pixelY })
+        const event = new MapBrowserPointerEvent('click', map, mouseEvent)
+        state.isOverideModifyCondition = true
+        modifyInteraction.handleDownEvent(event)
+        state.isOverideModifyCondition = false
+      } else {
+        keyboardLayer.setVisible(false)
       }
     }
   }
@@ -384,7 +456,7 @@ function DrawMap (containerId, options) {
   // Keydown
   const keydown = (e) => {
     // Set sketchPoint to centre on any keydown
-    const centre = map.getView().getCenter()
+    let centre = map.getView().getCenter()
     if (drawInteraction) {
       updateSketchPoint(centre)
     }
@@ -394,7 +466,6 @@ function DrawMap (containerId, options) {
     if (e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
       const resolution = map.getView().getResolution()
       const distance = 10
-      let centre = map.getView().getCenter()
       switch (e.key) {
         case 'ArrowLeft':
           centre = [centre[0] - distance * resolution, centre[1] + 0 * resolution]
