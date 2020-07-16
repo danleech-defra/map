@@ -18,8 +18,7 @@ function DrawMap (containerId, options) {
     modifyStarted: false,
     isOverideModifyCondition: false, // Temporarily overide modify condition
     modifyIndexes: [],
-    modifyOffset: [],
-    modifyVertexType: ''
+    modifyOffset: []
   }
 
   // View
@@ -80,9 +79,10 @@ function DrawMap (containerId, options) {
     },
     zIndex: 1
   })
-  const modifyPointStyle = () => {
+  const pointStyle = (feature) => {
+    console.log('pointStyle: ' + feature.get('type'))
     let icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="4" style="fill:%230b0c0c"/%3E%3C/svg%3E'
-    if (state.modifyVertexType === 'point') {
+    if (feature.get('type') === 'point') {
       icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3Ccircle cx="16" cy="16" r="11" style="fill:none;stroke:rgb(255,221,0);stroke-width:6px;"/%3E%3C/svg%3E'
     }
     return new Style({
@@ -94,13 +94,27 @@ function DrawMap (containerId, options) {
       })
     })
   }
-  const modifyShapeStyle = new Style({
-    fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
-    stroke: new Stroke({ color: '#0b0c0c', width: 3 }),
-  })
+  const modifyStyle = (feature) => {
+    console.log('modifyStyle: ' + feature.get('type'))
+    let icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="4" style="fill:%230b0c0c"/%3E%3C/svg%3E'
+    if (feature.get('type') === 'point') {
+      icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3Ccircle cx="16" cy="16" r="11" style="fill:none;stroke:rgb(255,221,0);stroke-width:6px;"/%3E%3C/svg%3E'
+    }
+    const image = new Icon({
+      opacity: 1,
+      size: [32, 32],
+      scale: 1,
+      src: icon
+    })
+    return new Style({
+      fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
+      stroke: new Stroke({ color: '#0b0c0c', width: 3 }),
+      image: image
+    })
+  }
   const completedShapeStyle = new Style({
     fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
-    stroke: new Stroke({ color: '#0b0c0c', width: 3 })
+    stroke: new Stroke({ color: '#0b0c0c', width: 3 }),
   })
   const completedPointStyle = new Style({
     image: new Icon({
@@ -144,7 +158,7 @@ function DrawMap (containerId, options) {
   })
   const pointLayer = new VectorLayer({
     source: pointSource,
-    style: modifyPointStyle,
+    style: pointStyle,
     updateWhileInteracting: true,
     visible: false
   })
@@ -165,7 +179,7 @@ function DrawMap (containerId, options) {
   })
   const modifyInteraction = new Modify({
     source: vectorSource,
-    style: modifyShapeStyle,
+    style: modifyStyle,
     condition: () => {
       return state.isOverideModifyCondition || maps.interfaceType === 'mouse'
     },
@@ -286,13 +300,7 @@ function DrawMap (containerId, options) {
     const coordinate = [centre[0] + state.modifyOffset[0], centre[1] + state.modifyOffset[1]]
     state.modifyIndexes.forEach((index) => { coordinates[index] = coordinate })
     feature.getGeometry().setCoordinates([coordinates])
-    updatePointFeature(coordinate)
-  }
-
-  const updatePointFeature = (coordinate) => {
-    // Move temporary feature
     pointFeature.getGeometry().setCoordinates(coordinate)
-    pointLayer.setVisible(true)
   }
 
   const updateKeyboardCursor = (cooridnate) => {
@@ -391,7 +399,7 @@ function DrawMap (containerId, options) {
 
   // Get vertex to modify and add a temporary current point to the point layer
   map.on('click', (e) => {
-    // Reset state and source
+    // Reset state
     pointLayer.setVisible(false)
     state.modifyIndexes = []
     state.modifyOffset = []
@@ -415,37 +423,25 @@ function DrawMap (containerId, options) {
           state.modifyOffset = [coordinates[index][0] - centre[0], coordinates[index][1] - centre[1]]
         }
         // Set vertex type
-        state.modifyVertexType = index >= 0 ? 'point' : 'line'
-        // Add temporary point feature to show current vertex
-        updatePointFeature(coordinate)
+        modifyInteraction.vertexFeature_.set('type', index >= 0 ? 'point' : 'line')
+        pointFeature.set('type', index >= 0 ? 'point' : 'line')
+        // Move temporary feature
+        pointFeature.getGeometry().setCoordinates(coordinate)
+        pointLayer.setVisible(true)
       }
     }
   })
 
   // Map pan and zoom
   const pointerMove = (e) => {
-    // All interface tpyes
-    state.modifyVertexType = ''
-    if (state.modifyStarted) {
-      let coordinate
-      if (modifyInteraction.vertexFeature_) {
-        // Determin
-        coordinate = modifyInteraction.vertexFeature_.getGeometry().getCoordinates()
-        const coordinates = vectorSource.getFeatures()[0].getGeometry().getCoordinates()[0]
-        const isPoint = coordinates.findIndex((item) => JSON.stringify(item) === JSON.stringify(coordinate)) >= 0
-        state.modifyVertexType = isPoint ? 'point' : 'line'
-      }
-      // Hide point if cursor is a way from the shape
-      // console.log(state.modifyVertexType + ', ' + state.modifyIndexes)
-      pointLayer.setVisible(state.modifyVertexType !== '')
-    }
+    // Show keyboard cursor
+    keyboardLayer.setVisible(maps.interfaceType === 'keyboard' && state.modifyStarted)
     // Display appropriate modify icon
     if (maps.interfaceType === 'mouse') {
       if (state.modifyStarted) {
         // Move temporary feature
         if (modifyInteraction.vertexFeature_) {
-          const coordinate = modifyInteraction.vertexFeature_.getGeometry().getCoordinates()
-          updatePointFeature(coordinate)
+          pointLayer.setVisible(false)
         }
       }
     } else if (maps.interfaceType === 'touch') {
@@ -458,10 +454,10 @@ function DrawMap (containerId, options) {
       }
       if (state.modifyStarted) {
         updateVectorFeature()
-        state.modifyVertexType = 'point'
       }
     } else if (maps.interfaceType === 'keyboard') {
       if (state.modifyStarted) {
+        pointLayer.setVisible(true)
         // Keyboard cursor
         const centre = map.getView().getCenter()
         updateKeyboardCursor(centre)
@@ -474,8 +470,18 @@ function DrawMap (containerId, options) {
         state.isOverideModifyCondition = true
         modifyInteraction.handleDownEvent(event)
         state.isOverideModifyCondition = false
-      } else {
-        keyboardLayer.setVisible(false)
+      }
+    }
+    // All interface tpyes
+    if (state.modifyStarted) {
+      let coordinate
+      if (modifyInteraction.vertexFeature_) {
+        // Determin
+        coordinate = modifyInteraction.vertexFeature_.getGeometry().getCoordinates()
+        const coordinates = vectorSource.getFeatures()[0].getGeometry().getCoordinates()[0]
+        const isPoint = coordinates.findIndex((item) => JSON.stringify(item) === JSON.stringify(coordinate)) >= 0
+        modifyInteraction.vertexFeature_.set('type', isPoint ? 'point' : 'line')
+        pointFeature.set('type', isPoint ? 'point' : 'line')
       }
     }
   }
@@ -540,7 +546,11 @@ maps.createDrawMap = (containerId, options = {}) => {
     window.addEventListener('pointerdown', (e) => {
       maps.interfaceType = 'mouse'
     })
+    window.addEventListener('mousemove', (e) => {
+      maps.interfaceType = 'mouse'
+    })
     window.addEventListener('touchstart', (e) => {
+      console.log('touchstart')
       maps.interfaceType = 'touch'
     })
     window.addEventListener('keydown', (e) => {
