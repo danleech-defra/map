@@ -1,0 +1,67 @@
+
+{% from "govuk/components/tabs/macro.njk" import govukTabs %}
+{% extends "layout.html" %}
+
+{% block pageTitle %}
+  Map component - GOV.UK
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-xl">
+      Map component
+    </h1>
+    <div>
+      <span id="map1"></span>
+    </div>
+    {% set tabOneHtml %}
+    <h2 class="govuk-heading-l">Tab one</h2>
+    <p>Tab one</p>
+    {% endset -%}
+
+    {% set tabTwoHtml %}
+    <h2 class="govuk-heading-l">Tab two</h2>
+    <p>Tab two</p>
+    <div>
+      <span id="map2"></span>
+    </div>
+    {% endset -%}
+
+    {% set tabThreeHtml %}
+    <h2 class="govuk-heading-l">Tab three</h2>
+    <p>Tab three</p>
+    {% endset -%}
+
+    {{ govukTabs({
+      items: [
+        {
+          label: "Tab one",
+          id: "tab-one",
+          panel: {
+            html: tabOneHtml
+          }
+        },
+        {
+          label: "Tab two",
+          id: "tab-two",
+          panel: {
+            html: tabTwoHtml
+          }
+        },
+        {
+          label: "Tab three",
+          id: "tab-three",
+          panel: {
+            html: tabThreeHtml
+          }
+        }
+      ]
+    }) }}
+  </div>
+</div>
+{% endblock %}
+
+{% block pageScripts %}
+<script src='/public/javascripts/pages/index.js'></script>
+{% endblock %}
