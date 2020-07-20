@@ -16,10 +16,9 @@ function DrawMap (containerId, options) {
   const state = {
     isDraw: false,
     isModify: false,
-    isOverideModifyCondition: false, // Temporarily overide modify condition
-    modifyIndexes: [],
-    modifyOffset: [],
-    isMovePoint: false
+    isEnableModifyCondition: false, // Temporarily overide modify condition
+    vertexIndexes: [],
+    vertexOffset: []
   }
 
   // View
@@ -81,9 +80,10 @@ function DrawMap (containerId, options) {
     zIndex: 1
   })
   const pointStyle = (feature) => {
-    let icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="4" style="fill:%230b0c0c"/%3E%3C/svg%3E'
+    const colour = feature.get('isSelected') ? 'rgb(255,221,0)' : 'rgb(177,180,182)'
+    let icon = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="10" style="fill:${colour};"/%3E%3Ccircle cx="16" cy="16" r="4"/%3E%3C/svg%3E%0A`
     if (feature.get('type') === 'point') {
-      icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3Ccircle cx="16" cy="16" r="11" style="fill:none;stroke:rgb(255,221,0);stroke-width:6px;"/%3E%3C/svg%3E'
+      icon = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3Ccircle cx="16" cy="16" r="11" style="fill:none;stroke:${colour};stroke-width:6px;"/%3E%3C/svg%3E`
     }
     return new Style({
       image: new Icon({
@@ -91,13 +91,15 @@ function DrawMap (containerId, options) {
         size: [32, 32],
         scale: 1,
         src: icon
-      })
+      }),
+      zIndex: 4
     })
   }
   const modifyStyle = (feature) => {
-    let icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="4" style="fill:%230b0c0c"/%3E%3C/svg%3E'
+    const colour = feature.get('isSelected') ? 'rgb(255,221,0)' : 'rgb(177,180,182)'
+    let icon = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="10" style="fill:${colour};"/%3E%3Ccircle cx="16" cy="16" r="4"/%3E%3C/svg%3E%0A`
     if (feature.get('type') === 'point') {
-      icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3Ccircle cx="16" cy="16" r="11" style="fill:none;stroke:rgb(255,221,0);stroke-width:6px;"/%3E%3C/svg%3E'
+      icon = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3Ccircle cx="16" cy="16" r="11" style="fill:none;stroke:${colour};stroke-width:6px;"/%3E%3C/svg%3E`
     }
     const image = new Icon({
       opacity: 1,
@@ -108,7 +110,8 @@ function DrawMap (containerId, options) {
     return new Style({
       fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
       stroke: new Stroke({ color: '#0b0c0c', width: 3 }),
-      image: image
+      image: maps.interfaceType !== 'touch' ? image : null,
+      zIndex: 3
     })
   }
   const completedShapeStyle = new Style({
@@ -149,7 +152,7 @@ function DrawMap (containerId, options) {
   })
 
   // Layers
-  const road = maps.layers.road()
+  // const road = maps.layers.road()
   const vectorLayer = new VectorLayer({
     source: vectorSource,
     style: [completedShapeStyle, completedPointStyle],
@@ -161,14 +164,14 @@ function DrawMap (containerId, options) {
     style: pointStyle,
     updateWhileInteracting: true,
     visible: false,
-    zIndex: 2
+    zIndex: 4
   })
   const keyboardLayer = new VectorLayer({
     source: keyboardSource,
     style: keyboardStyle,
     updateWhileInteracting: true,
     visible: false,
-    zIndex: 4
+    zIndex: 5
   })
 
   // Interactions
@@ -183,7 +186,7 @@ function DrawMap (containerId, options) {
     source: vectorSource,
     style: modifyStyle,
     condition: () => {
-      return state.isOverideModifyCondition || maps.interfaceType === 'mouse'
+      return state.isEnableModifyCondition
     },
     insertVertexCondition: mouseOnly
   })
@@ -204,7 +207,8 @@ function DrawMap (containerId, options) {
   // Render map
   const map = new Map({
     target: containerElement,
-    layers: [road, vectorLayer, pointLayer, keyboardLayer],
+    // layers: [road, vectorLayer, pointLayer, keyboardLayer],
+    layers: [vectorLayer, pointLayer, keyboardLayer],
     view: view,
     controls: controls,
     interactions: interactions,
@@ -270,16 +274,6 @@ function DrawMap (containerId, options) {
   })
   map.addControl(addPoint)
 
-  // Edit point button
-  const movePointButton = document.createElement('button')
-  movePointButton.className = 'defra-map-button defra-map-button__move defra-map-button--hidden'
-  movePointButton.appendChild(document.createTextNode('Move'))
-  const movePoint = new Control({
-    element: movePointButton,
-    target: buttons
-  })
-  map.addControl(movePoint)
-
   // Delete point button
   const deletePointButton = document.createElement('button')
   deletePointButton.className = 'defra-map-button defra-map-button__deletePoint defra-map-button--hidden'
@@ -325,42 +319,67 @@ function DrawMap (containerId, options) {
     sketchFeature.getGeometry().setCoordinates([fCoordinates])
   }
 
-  const updateVertex = (vertexFeature) => {
+  const setVertexType = (vertexFeature) => {
+    if (!vertexFeature) {
+      return
+    }
+    const coordinate = vertexFeature.getGeometry().getCoordinates()
+    const polygonFeature = vectorSource.getFeatures()[0]
+    const coordinates = polygonFeature.getGeometry().getCoordinates()[0]
+    const index = coordinates.findIndex((item) => JSON.stringify(item) === JSON.stringify(coordinate))
+    const type = index >= 0 ? 'point' : 'line'
+    vertexFeature.set('type', type)
+  }
+
+  const updateSelectedIndexAndOffset = (vertexFeature) => {
+    if (!vertexFeature) {
+      state.vertexIndexes = []
+      state.vertexOffset = []
+      return
+    }
     const centre = map.getView().getCenter()
     const coordinate = vertexFeature.getGeometry().getCoordinates()
     const polygonFeature = vectorSource.getFeatures()[0]
     const coordinates = polygonFeature.getGeometry().getCoordinates()[0]
     const index = coordinates.findIndex((item) => JSON.stringify(item) === JSON.stringify(coordinate))
-    state.modifyIndexes = [index]
-    // If first or last selected add both to indexes
+    // If first or last selected add both to vertexIndexes
     if (index === 0 || index === coordinates.length - 1) {
-      state.modifyIndexes = [0, (coordinates.length - 1)]
+      state.vertexIndexes = [0, (coordinates.length - 1)]
+    } else {
+      state.vertexIndexes = [index]
     }
-    // If we have an existing vertex update offset
+    // If we have an existing vertex update vertexOffset
     if (index >= 0) {
-      state.modifyOffset = [coordinates[index][0] - centre[0], coordinates[index][1] - centre[1]]
+      state.vertexOffset = [coordinates[index][0] - centre[0], coordinates[index][1] - centre[1]]
     }
-    // Set vertex type
-    const type = index >= 0 ? 'point' : 'line'
-    vertexFeature.set('type', type)
-    pointFeature.set('type', type)
-    // Move temporary feature
-    pointFeature.getGeometry().setCoordinates(coordinate)
   }
 
-  const updateVectorFeature = () => {
-    const feature = vectorSource.getFeatures()[0]
-    let coordinates = feature.getGeometry().getCoordinates()[0]
+  const updatePolygon = () => {
     const centre = map.getView().getCenter()
-    const coordinate = [centre[0] + state.modifyOffset[0], centre[1] + state.modifyOffset[1]]
-    state.modifyIndexes.forEach((index) => { coordinates[index] = coordinate })
-    feature.getGeometry().setCoordinates([coordinates])
-    pointFeature.getGeometry().setCoordinates(coordinate)
+    const polygonFeature = vectorSource.getFeatures()[0]
+    let coordinates = polygonFeature.getGeometry().getCoordinates()[0]
+    const newCoordinate = [centre[0] + state.vertexOffset[0], centre[1] + state.vertexOffset[1]]
+    state.vertexIndexes.forEach((index) => { coordinates[index] = newCoordinate })
+    console.log(state.vertexIndexes)
+    // console.log([coordinates])
+    polygonFeature.getGeometry().setCoordinates([coordinates])
+    pointFeature.getGeometry().setCoordinates(newCoordinate)
   }
 
   const updateKeyboardCursor = (cooridnate) => {
     keyboardSource.getFeatures()[0].getGeometry().setCoordinates(cooridnate)
     keyboardLayer.setVisible(true)
+  }
+
+  const simulateClick = (coordinate) => {
+    state.isEnableModifyCondition = true
+    const pixel = map.getPixelFromCoordinate(coordinate)
+    const pixelX = pixel[0] + viewport.getBoundingClientRect().left
+    const pixelY = pixel[1] + viewport.getBoundingClientRect().top
+    const mouseEvent = new window.MouseEvent('click', { view: window, clientX: pixelX, clientY: pixelY })
+    const event = new MapBrowserPointerEvent('click', map, mouseEvent)
+    modifyInteraction.handleDownEvent(event)
+    state.isEnableModifyCondition = false
   }
 
   const toggleEditButtons = () => {
@@ -369,24 +388,24 @@ function DrawMap (containerId, options) {
       if (vertexFeature.get('type') === 'point') {
         addPointButton.classList.add('defra-map-button--hidden')
         if (maps.interfaceType === 'keyboard') {
-          movePointButton.classList.remove('defra-map-button--hidden')
+          // enable move state
         }
         if (maps.interfaceType === 'keyboard' || maps.interfaceType === 'touch') {
           deletePointButton.classList.remove('defra-map-button--hidden')
         }
       } else {
-        movePointButton.classList.add('defra-map-button--hidden')
+        // disable move state
         deletePointButton.classList.add('defra-map-button--hidden')
         if (maps.interfaceType === 'keyboard' || maps.interfaceType === 'touch') {
           addPointButton.classList.remove('defra-map-button--hidden')
         }
       }
     } else {
-      movePointButton.classList.add('defra-map-button--hidden')
+      // disable move state
       deletePointButton.classList.add('defra-map-button--hidden')
       addPointButton.classList.add('defra-map-button--hidden')
       if (state.isMovePoint && maps.interfaceType === 'keyboard') {
-        movePointButton.classList.remove('defra-map-button--hidden')
+        // enable
       }
     }
   }
@@ -399,7 +418,7 @@ function DrawMap (containerId, options) {
   map.getView().setZoom(options.zoom || 6)
 
   // Show layers
-  road.setVisible(true)
+  // road.setVisible(true)
 
   // Interactions
   map.addInteraction(doubleClickZoomInteraction)
@@ -429,9 +448,8 @@ function DrawMap (containerId, options) {
     vectorSource.removeFeature(polygon)
     state.isDraw = false
     state.isModify = false
-    state.isOverideModifyCondition = false
-    state.modifyIndexes = []
-    state.modifyOffset = []
+    state.vertexIndexes = []
+    state.vertexOffset = []
     deleteDrawingButton.classList.add('defra-map-button--hidden')
     confirmPointButton.classList.add('defra-map-button--hidden')
     finishShapeButton.classList.add('defra-map-button--hidden')
@@ -450,6 +468,7 @@ function DrawMap (containerId, options) {
       map.addInteraction(doubleClickZoomInteraction)
     }, 100)
     map.addInteraction(modifyInteraction)
+    modifyInteraction.overlay_.setZIndex(3) // Force zIndex for overlay layer
     state.isModify = true
     deleteDrawingButton.classList.remove('defra-map-button--hidden')
   })
@@ -493,17 +512,6 @@ function DrawMap (containerId, options) {
     finishShapeButton.classList.add('defra-map-button--hidden')
   })
 
-  movePointButton.addEventListener('click', () => {
-    // Store current vertex feature in the state object
-    if (modifyInteraction.vertexFeature_) {
-      updateVertex(modifyInteraction.vertexFeature_)
-    }
-    // Toggle edit state
-    state.isMovePoint = !state.isMovePoint
-    // Toggle button text
-    movePointButton.innerText = state.isMovePoint ? 'Done' : 'Move'
-  })
-
   drawInteraction.addEventListener('drawabort', (e) => {
     // Reset state and source
     pointLayer.setVisible(false)
@@ -521,23 +529,49 @@ function DrawMap (containerId, options) {
 
   // Get vertex to modify and add a temporary current point to the point layer
   map.on('click', (e) => {
-    // Reset state
-    pointLayer.setVisible(false)
-    state.modifyIndexes = []
-    state.modifyOffset = []
-    if (state.isModify) {
-      state.isOverideModifyCondition = true
+    if (maps.interfaceType === 'touch' && state.isModify) {
+      state.isEnableModifyCondition = true
       modifyInteraction.handleDownEvent(e)
-      state.isOverideModifyCondition = false
-      if (modifyInteraction.vertexFeature_) {
-        // Store current vertex feature in the state object
-        updateVertex(modifyInteraction.vertexFeature_)
+      state.isEnableModifyCondition = false
+      const vertexFeature = modifyInteraction.vertexFeature_
+      updateSelectedIndexAndOffset(vertexFeature)
+      if (vertexFeature) {
+        setVertexType(vertexFeature)
+        // Place point on top of vertex
+        vertexFeature.set('isSelected', true)
+        // Position and style point feature
+        pointFeature.getGeometry().setCoordinates(vertexFeature.getGeometry().getCoordinates())
+        pointFeature.set('type', vertexFeature.get('type'))
+        pointFeature.set('isSelected', true)
         pointLayer.setVisible(true)
+      } else {
+        // Set selected state
+        pointFeature.set('isSelected', false)
+        pointLayer.setVisible(false)
       }
       // Show edit/add buttons depending on feature type and interface
-      toggleEditButtons()
+      // toggleEditButtons()
     }
   })
+
+  // Mouse pointer down
+  const pointerDown = (e) => {
+    if (maps.interfaceType === 'mouse' && state.isModify) {
+      const vertexFeature = modifyInteraction.vertexFeature_
+      if (vertexFeature) {
+        setVertexType(vertexFeature)
+        vertexFeature.set('isSelected', true)
+        pointLayer.setVisible(false)
+        state.isEnableModifyCondition = vertexFeature.get('isSelected') && vertexFeature.get('type') === 'point'
+      } else {
+        // Set selected state
+        pointFeature.set('isSelected', false)
+        pointLayer.setVisible(false)
+        state.isEnableModifyCondition = false
+      }
+    }
+  }
+  map.on('pointerdown', pointerDown)
 
   // Map pan and zoom
   const pointerMove = (e) => {
@@ -546,13 +580,13 @@ function DrawMap (containerId, options) {
     // Display appropriate modify icon
     if (maps.interfaceType === 'mouse') {
       if (state.isModify) {
-        // Move temporary feature
-        if (modifyInteraction.vertexFeature_) {
-          pointLayer.setVisible(false)
+        const vertexFeature = modifyInteraction.vertexFeature_
+        if (vertexFeature) {
+          setVertexType(vertexFeature)
+          vertexFeature.set('isSelected', vertexFeature.get('type') === 'point')
         }
       }
     } else if (maps.interfaceType === 'touch') {
-      pointLayer.setVisible(state.isModify)
       const centre = map.getView().getCenter()
       if (drawInteraction) {
         updateSketchPoint(centre)
@@ -561,38 +595,51 @@ function DrawMap (containerId, options) {
         updateSketchFeatures(centre)
       }
       if (state.isModify) {
-        updateVectorFeature()
+        updatePolygon()
+        pointLayer.setVisible(pointFeature.get('type') === 'point')
       }
     } else if (maps.interfaceType === 'keyboard') {
+      const centre = map.getView().getCenter()
+      if (drawInteraction) {
+        updateSketchPoint(centre)
+      }
+      if (state.isDraw) {
+        updateSketchFeatures(centre)
+      }
       if (state.isModify) {
         // Keyboard cursor
-        const centre = map.getView().getCenter()
         updateKeyboardCursor(centre)
-        // Select vertex
-        const pixel = map.getPixelFromCoordinate(centre)
-        const pixelX = pixel[0] + viewport.getBoundingClientRect().left
-        const pixelY = pixel[1] + viewport.getBoundingClientRect().top
-        const mouseEvent = new window.MouseEvent('click', { view: window, clientX: pixelX, clientY: pixelY })
-        const event = new MapBrowserPointerEvent('click', map, mouseEvent)
-        state.isOverideModifyCondition = true
-        modifyInteraction.handleDownEvent(event)
-        state.isOverideModifyCondition = false
+        // Simulate click
+        simulateClick(centre)
         // Show point layer
-        if (modifyInteraction.vertexFeature_) {
+        const vertexFeature = modifyInteraction.vertexFeature_
+        if (vertexFeature) {
+          vertexFeature.set('isSelected', false)
+          updateSelectedIndexAndOffset(vertexFeature)
+          setVertexType(vertexFeature)
+        }
+        if (pointFeature.get('isSelected') && pointFeature.get('type') === 'point') {
+          console.log(state.vertexIndexes)
+          updatePolygon()
+        }
+
+        /*
+        if (vertexFeature) {
           const coordinate = modifyInteraction.vertexFeature_.getGeometry().getCoordinates()
           pointFeature.getGeometry().setCoordinates(coordinate)
           pointLayer.setVisible(true)
-          modifyInteraction.overlay_.setZIndex(3)
         } else {
           pointLayer.setVisible(false)
         }
         // Move point
         if (state.isMovePoint) {
-          updateVectorFeature()
+          updatePolygon()
         }
+        */
       }
     }
     // All interface tpyes
+    /*
     if (state.isModify) {
       let coordinate
       if (modifyInteraction.vertexFeature_) {
@@ -607,8 +654,23 @@ function DrawMap (containerId, options) {
       // Show edit/add buttons depending on feature type and interface
       toggleEditButtons()
     }
+    */
   }
   map.on('moveend', pointerMove)
+
+  // Mouse pointer up
+  const pointerUp = (e) => {
+    if (maps.interfaceType === 'mouse' && state.isModify) {
+      const vertexFeature = modifyInteraction.vertexFeature_
+      if (vertexFeature) {
+        pointFeature.getGeometry().setCoordinates(vertexFeature.getGeometry().getCoordinates())
+        pointFeature.set('type', vertexFeature.get('type'))
+        pointFeature.set('isSelected', true)
+        pointLayer.setVisible(true)
+      }
+    }
+  }
+  map.on('pointerup', pointerUp)
 
   // Pointer move
   map.on('pointermove', pointerMove)
@@ -616,14 +678,8 @@ function DrawMap (containerId, options) {
   // Keydown
   const keydown = (e) => {
     // Set sketchPoint to centre on any keydown
-    let centre = map.getView().getCenter()
-    if (drawInteraction) {
-      updateSketchPoint(centre)
-    }
-    if (state.isDraw) {
-      updateSketchFeatures(centre)
-    }
     if ((e.getModifierState('CapsLock') || e.shiftKey) && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      let centre = map.getView().getCenter()
       const resolution = map.getView().getResolution()
       const distance = 10
       switch (e.key) {
@@ -647,13 +703,20 @@ function DrawMap (containerId, options) {
 
   // Keyup
   const keyup = (e) => {
-    const centre = map.getView().getCenter()
-    // Set sketchPoint to centre on any keyup
-    if (drawInteraction) {
-      updateSketchPoint(centre)
-    }
-    if (state.isDraw) {
-      updateSketchFeatures(centre)
+    if ((e.key === 'Enter' || e.key === ' ') && state.isModify) {
+      const vertexFeature = modifyInteraction.vertexFeature_
+      if (vertexFeature) {
+        vertexFeature.set('isSelected', !vertexFeature.get('isSelected'))
+        pointFeature.getGeometry().setCoordinates(vertexFeature.getGeometry().getCoordinates())
+        // Toggle select if over a vertex
+        pointFeature.set('type', vertexFeature.get('type'))
+        pointFeature.set('isSelected', vertexFeature.get('isSelected'))
+        pointLayer.setVisible(pointFeature.get('isSelected'))
+      } else {
+        // Deselect if alrerady selected
+        pointFeature.set('isSelected', false)
+        pointLayer.setVisible(false)
+      }
     }
   }
   window.addEventListener('keyup', keyup)
