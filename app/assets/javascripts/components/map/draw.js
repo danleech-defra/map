@@ -251,16 +251,6 @@ function DrawMap (mapContainer, options) {
   })
   map.addControl(finishShape)
 
-  // Delete drawing button
-  const resetDrawingButton = document.createElement('button')
-  resetDrawingButton.className = 'defra-button-text defra-map-button--reset defra-map-button--hidden'
-  resetDrawingButton.appendChild(document.createTextNode('Delete shape and start again'))
-  const resetDrawing = new Control({
-    element: resetDrawingButton,
-    target: buttons
-  })
-  map.addControl(resetDrawing)
-
   // Add point button
   const addPointButton = document.createElement('button')
   addPointButton.className = 'defra-map-button defra-map-button--addPoint defra-map-button--hidden'
@@ -280,6 +270,26 @@ function DrawMap (mapContainer, options) {
     target: buttons
   })
   map.addControl(deletePoint)
+
+  // Continue button
+  const doneButton = document.createElement('button')
+  doneButton.className = 'defra-map-button defra-map-button--done defra-map-button--hidden'
+  doneButton.appendChild(document.createTextNode('Save and continue'))
+  const done = new Control({
+    element: doneButton,
+    target: buttons
+  })
+  map.addControl(done)
+
+  // Reset and start again
+  const resetDrawingButton = document.createElement('button')
+  resetDrawingButton.className = 'defra-button-text defra-map-button--reset defra-map-button--hidden'
+  resetDrawingButton.appendChild(document.createTextNode('Delete shape and start again'))
+  const resetDrawing = new Control({
+    element: resetDrawingButton,
+    target: buttons
+  })
+  map.addControl(resetDrawing)
 
   //
   // Private methods
@@ -449,6 +459,7 @@ function DrawMap (mapContainer, options) {
     resetDrawingButton.classList.add('defra-map-button--hidden')
     confirmPointButton.classList.add('defra-map-button--hidden')
     finishShapeButton.classList.add('defra-map-button--hidden')
+    doneButton.classList.add('defra-map-button--hidden')
     keyboardLayer.setVisible(false)
     startDrawingButton.removeAttribute('disabled')
   })
@@ -468,6 +479,7 @@ function DrawMap (mapContainer, options) {
     modifyInteraction.overlay_.setZIndex(3) // Force zIndex for overlay layer
     state.isModify = true
     resetDrawingButton.classList.remove('defra-map-button--hidden')
+    doneButton.classList.remove('defra-map-button--hidden')
   })
 
   vectorSource.addEventListener('addfeature', (e) => {

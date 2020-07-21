@@ -9,20 +9,37 @@
 }
 .defra-map-button {
   @extend .govuk-button;
-  @extend .govuk-button--secondary;
   &--start {
-    max-width:50%;
+    @extend .govuk-button--secondary;
   }
   &--hidden {
-    display: none;
+    display: none !important;
   }
   &--confirm {
-    max-width:50%;
+    @extend .govuk-button--secondary;
+    max-width:calc(50% - 2.5px);
+    box-sizing: border-box;
+    margin-right:2.5px;
   }
   &--finish {
-    max-width:50%;
+    @extend .govuk-button--secondary;
+    max-width:calc(50% - 2.5px);
+    box-sizing: border-box;
+    margin-left:2.5px;
+  }
+  &--addPoint {
+    @extend .govuk-button--secondary;
+    margin-top:10px;
+  }
+  &--deletePoint {
+    @extend .govuk-button--secondary;
+    margin-top:10px;
   }
   &--reset {
-    margin-top:10px;
+    display: block;
+    margin-top:0px;
+  }
+  &--done {
+    margin-top:15px;
   }
 }
