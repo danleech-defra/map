@@ -48,7 +48,7 @@
     margin-top:10px;
     max-width:calc(50%);
     box-sizing: border-box;
-    margin:0px 10px 10px 0px;
+    margin:0px 10px 10px 10px;
     background-color: white;
     pointer-events: auto;
   }
@@ -57,7 +57,7 @@
     @include govuk-font($size: 16);
     max-width:calc(50%);
     box-sizing: border-box;
-    margin:0px 10px 10px 0px;
+    margin:0px 10px 10px 10px;
     background-color: white;
     pointer-events: auto;
   }
