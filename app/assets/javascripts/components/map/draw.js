@@ -281,7 +281,8 @@ function DrawMap (mapContainer, options) {
 
   // Continue button
   const doneButton = document.createElement('button')
-  doneButton.className = 'defra-map-button defra-map-button--done defra-map-button--hidden'
+  doneButton.className = 'defra-map-button defra-map-button--done'
+  doneButton.setAttribute('disabled', 'disabled')
   doneButton.appendChild(document.createTextNode('Save and continue'))
   const done = new Control({
     element: doneButton,
@@ -395,31 +396,15 @@ function DrawMap (mapContainer, options) {
     state.isEnableModifyCondition = false
   }
 
-  const toggleEditButtons = () => {
-    const vertexFeature = modifyInteraction.vertexFeature_
+  const toggleEditButton = (vertexFeature) => {
     if (vertexFeature) {
       if (vertexFeature.get('type') === 'point') {
-        addPointButton.classList.add('defra-map-button--hidden')
-        if (maps.interfaceType === 'keyboard') {
-          // enable move state
-        }
-        if (maps.interfaceType === 'keyboard' || maps.interfaceType === 'touch') {
-          deletePointButton.classList.remove('defra-map-button--hidden')
-        }
+        console.log('Show delete button')
       } else {
-        // disable move state
-        deletePointButton.classList.add('defra-map-button--hidden')
-        if (maps.interfaceType === 'keyboard' || maps.interfaceType === 'touch') {
-          addPointButton.classList.remove('defra-map-button--hidden')
-        }
+        console.log('Show add button')
       }
     } else {
-      // disable move state
-      deletePointButton.classList.add('defra-map-button--hidden')
-      addPointButton.classList.add('defra-map-button--hidden')
-      if (state.isMovePoint && maps.interfaceType === 'keyboard') {
-        // enable
-      }
+      console.log('Hide edit button')
     }
   }
 
@@ -467,7 +452,7 @@ function DrawMap (mapContainer, options) {
     resetDrawingButton.classList.add('defra-map-button--hidden')
     confirmPointButton.classList.add('defra-map-button--hidden')
     finishShapeButton.classList.add('defra-map-button--hidden')
-    doneButton.classList.add('defra-map-button--hidden')
+    doneButton.setAttribute('disabled', 'disabled')
     keyboardLayer.setVisible(false)
     startDrawingButton.removeAttribute('disabled')
   })
@@ -487,7 +472,7 @@ function DrawMap (mapContainer, options) {
     modifyInteraction.overlay_.setZIndex(3) // Force zIndex for overlay layer
     state.isModify = true
     resetDrawingButton.classList.remove('defra-map-button--hidden')
-    doneButton.classList.remove('defra-map-button--hidden')
+    doneButton.removeAttribute('disabled')
   })
 
   vectorSource.addEventListener('addfeature', (e) => {
@@ -566,15 +551,14 @@ function DrawMap (mapContainer, options) {
         pointFeature.set('isSelected', false)
         pointLayer.setVisible(false)
       }
-      // Show edit/add buttons depending on feature type and interface
-      // toggleEditButtons()
+      // Show add/delete buttons depending on feature type and interface
+      toggleEditButton(vertexFeature)
     }
   })
 
   // Mouse pointer down
   const pointerDown = (e) => {
     if (maps.interfaceType === 'mouse' && state.isModify) {
-      console.log('mousedown')
       const vertexFeature = modifyInteraction.vertexFeature_
       if (vertexFeature) {
         setVertexType(vertexFeature)
@@ -666,6 +650,8 @@ function DrawMap (mapContainer, options) {
         pointLayer.setVisible(true)
         updateSelectedIndexAndOffset(vertexFeature)
       }
+      // Show add/delete buttons depending on feature type and interface
+      toggleEditButton(vertexFeature)
     }
   }
   map.on('pointerup', pointerUp)
@@ -718,6 +704,8 @@ function DrawMap (mapContainer, options) {
         pointLayer.setVisible(false)
         keyboardLayer.setVisible(true)
       }
+      // Show add/delete buttons depending on feature type and interface
+      toggleEditButton(vertexFeature)
     }
   }
   window.addEventListener('keyup', keyup)
@@ -733,10 +721,12 @@ maps.createDrawMap = (placeholderId, options = {}) => {
   const toolBarContainer = document.createElement('div')
   toolBarContainer.id = 'tool-bar'
   toolBarContainer.className = 'defra-map__tool-bar'
+  const mapOuterContainer = document.createElement('div')
+  mapOuterContainer.id = 'map-outer-container'
+  mapOuterContainer.className = 'defra-map__outer-container'
   const mapContainer = document.createElement('div')
   mapContainer.id = 'map-container'
   mapContainer.className = 'defra-map__container'
-  // mapContainer.tabIndex = 0
   const mapbuttonContainer = document.createElement('div')
   mapbuttonContainer.id = 'map-buttons'
   mapbuttonContainer.className = 'defra-map__map-buttons'
@@ -744,8 +734,9 @@ maps.createDrawMap = (placeholderId, options = {}) => {
   buttonContainer.id = 'buttons'
   buttonContainer.className = 'defra-map__buttons'
   placeholder.appendChild(toolBarContainer)
-  placeholder.appendChild(mapContainer)
-  placeholder.appendChild(mapbuttonContainer)
+  mapOuterContainer.appendChild(mapContainer)
+  mapOuterContainer.appendChild(mapbuttonContainer)
+  placeholder.appendChild(mapOuterContainer)
   placeholder.appendChild(buttonContainer)
 
   // Detect keyboard interaction

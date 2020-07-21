@@ -1,4 +1,7 @@
 .defra-map {
+  &__outer-container {
+    position:relative;
+  }
   &__container {
     width:100%;
     height:300px;
@@ -7,7 +10,10 @@
     margin-top:5px;
   }
   &__map-buttons {
-    margin-top:5px;
+    position: absolute;
+    bottom:0px;
+    width:100%;
+    pointer-events: none;
   }
 }
 .defra-map-button {
@@ -20,23 +26,40 @@
   }
   &--confirm {
     @extend .govuk-button--secondary;
-    max-width:calc(50% - 2.5px);
+    @include govuk-font($size: 16);
+    max-width:calc(50% - 12.5px);
     box-sizing: border-box;
-    margin-right: 2.5px;
+    margin:0px 2.5px 10px 10px;
+    background-color: white;
+    pointer-events: auto;
   }
   &--finish {
     @extend .govuk-button--secondary;
-    max-width:calc(50% - 2.5px);
+    @include govuk-font($size: 16);
+    max-width:calc(50% - 12.5px);
     box-sizing: border-box;
-    margin-left:2.5px;
+    margin:0px 10px 10px 2.5px;
+    background-color: white;
+    pointer-events: auto;
   }
   &--addPoint {
     @extend .govuk-button--secondary;
+    @include govuk-font($size: 16);
     margin-top:10px;
+    max-width:calc(50%);
+    box-sizing: border-box;
+    margin:0px 10px 10px 0px;
+    background-color: white;
+    pointer-events: auto;
   }
   &--deletePoint {
     @extend .govuk-button--secondary;
-    margin-top:10px;
+    @include govuk-font($size: 16);
+    max-width:calc(50%);
+    box-sizing: border-box;
+    margin:0px 10px 10px 0px;
+    background-color: white;
+    pointer-events: auto;
   }
   &--reset {
     display: block;
