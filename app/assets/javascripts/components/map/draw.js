@@ -214,6 +214,14 @@ function DrawMap (mapContainer, options) {
 
   // Viewport
   const viewport = document.querySelector('.ol-viewport')
+  viewport.classList.add('defra-map__viewport')
+
+  // Button container
+  /*
+  const mapButtons = mapContainer.getElementsByClassName('ol-overlaycontainer-stopevent')[0]
+  mapButtons.classList.add('defra-map__map-buttons')
+  */
+ const mapButtons = document.getElementById('map-buttons')
 
   // Tool bar container
   const toolBar = document.getElementById('tool-bar')
@@ -237,7 +245,7 @@ function DrawMap (mapContainer, options) {
   confirmPointButton.appendChild(document.createTextNode('Confirm point'))
   const confirmPoint = new Control({
     element: confirmPointButton,
-    target: buttons
+    target: mapButtons
   })
   map.addControl(confirmPoint)
 
@@ -247,7 +255,7 @@ function DrawMap (mapContainer, options) {
   finishShapeButton.appendChild(document.createTextNode('Finish shape'))
   const finishShape = new Control({
     element: finishShapeButton,
-    target: buttons
+    target: mapButtons
   })
   map.addControl(finishShape)
 
@@ -257,7 +265,7 @@ function DrawMap (mapContainer, options) {
   addPointButton.appendChild(document.createTextNode('Add'))
   const addPoint = new Control({
     element: addPointButton,
-    target: buttons
+    target: mapButtons
   })
   map.addControl(addPoint)
 
@@ -267,7 +275,7 @@ function DrawMap (mapContainer, options) {
   deletePointButton.appendChild(document.createTextNode('Delete'))
   const deletePoint = new Control({
     element: deletePointButton,
-    target: buttons
+    target: mapButtons
   })
   map.addControl(deletePoint)
 
@@ -728,11 +736,16 @@ maps.createDrawMap = (placeholderId, options = {}) => {
   const mapContainer = document.createElement('div')
   mapContainer.id = 'map-container'
   mapContainer.className = 'defra-map__container'
+  // mapContainer.tabIndex = 0
+  const mapbuttonContainer = document.createElement('div')
+  mapbuttonContainer.id = 'map-buttons'
+  mapbuttonContainer.className = 'defra-map__map-buttons'
   const buttonContainer = document.createElement('div')
   buttonContainer.id = 'buttons'
   buttonContainer.className = 'defra-map__buttons'
   placeholder.appendChild(toolBarContainer)
   placeholder.appendChild(mapContainer)
+  placeholder.appendChild(mapbuttonContainer)
   placeholder.appendChild(buttonContainer)
 
   // Detect keyboard interaction

@@ -6,6 +6,9 @@
   &__buttons {
     margin-top:5px;
   }
+  &__map-buttons {
+    margin-top:5px;
+  }
 }
 .defra-map-button {
   @extend .govuk-button;
@@ -19,7 +22,7 @@
     @extend .govuk-button--secondary;
     max-width:calc(50% - 2.5px);
     box-sizing: border-box;
-    margin-right:2.5px;
+    margin-right: 2.5px;
   }
   &--finish {
     @extend .govuk-button--secondary;

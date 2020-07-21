@@ -70,7 +70,8 @@ window.flood.maps.MapContainer = function MapContainer (mapId, options) {
     layers: options.layers,
     view: options.view,
     controls: controls,
-    interactions: options.interactions
+    interactions: options.interactions,
+    keyboardEventTarget: document
   })
 
   // Get reference to viewport
