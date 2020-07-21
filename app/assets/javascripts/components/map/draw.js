@@ -152,7 +152,7 @@ function DrawMap (containerId, options) {
   })
 
   // Layers
-  // const road = maps.layers.road()
+  const road = maps.layers.road()
   const vectorLayer = new VectorLayer({
     source: vectorSource,
     style: [completedShapeStyle, completedPointStyle],
@@ -207,8 +207,8 @@ function DrawMap (containerId, options) {
   // Render map
   const map = new Map({
     target: containerElement,
-    // layers: [road, vectorLayer, pointLayer, keyboardLayer],
-    layers: [vectorLayer, pointLayer, keyboardLayer],
+    layers: [road, vectorLayer, pointLayer, keyboardLayer],
+    // layers: [vectorLayer, pointLayer, keyboardLayer],
     view: view,
     controls: controls,
     interactions: interactions,
@@ -360,8 +360,6 @@ function DrawMap (containerId, options) {
     let coordinates = polygonFeature.getGeometry().getCoordinates()[0]
     const newCoordinate = [centre[0] + state.vertexOffset[0], centre[1] + state.vertexOffset[1]]
     state.vertexIndexes.forEach((index) => { coordinates[index] = newCoordinate })
-    console.log(state.vertexIndexes)
-    // console.log([coordinates])
     polygonFeature.getGeometry().setCoordinates([coordinates])
     pointFeature.getGeometry().setCoordinates(newCoordinate)
   }
@@ -418,7 +416,7 @@ function DrawMap (containerId, options) {
   map.getView().setZoom(options.zoom || 6)
 
   // Show layers
-  // road.setVisible(true)
+  road.setVisible(true)
 
   // Interactions
   map.addInteraction(doubleClickZoomInteraction)
@@ -575,18 +573,18 @@ function DrawMap (containerId, options) {
 
   // Map pan and zoom
   const pointerMove = (e) => {
-    // Show keyboard cursor
-    keyboardLayer.setVisible(maps.interfaceType === 'keyboard' && state.isModify)
     // Display appropriate modify icon
     if (maps.interfaceType === 'mouse') {
+      keyboardLayer.setVisible(false)
       if (state.isModify) {
         const vertexFeature = modifyInteraction.vertexFeature_
         if (vertexFeature) {
           setVertexType(vertexFeature)
-          vertexFeature.set('isSelected', vertexFeature.get('type') === 'point')
+          vertexFeature.set('isSelected', vertexFeature.get('isSelected') && vertexFeature.get('type') === 'point')
         }
       }
     } else if (maps.interfaceType === 'touch') {
+      keyboardLayer.setVisible(false)
       const centre = map.getView().getCenter()
       if (drawInteraction) {
         updateSketchPoint(centre)
@@ -615,46 +613,14 @@ function DrawMap (containerId, options) {
         const vertexFeature = modifyInteraction.vertexFeature_
         if (vertexFeature) {
           vertexFeature.set('isSelected', false)
-          updateSelectedIndexAndOffset(vertexFeature)
           setVertexType(vertexFeature)
         }
         if (pointFeature.get('isSelected') && pointFeature.get('type') === 'point') {
-          console.log(state.vertexIndexes)
           updatePolygon()
         }
-
-        /*
-        if (vertexFeature) {
-          const coordinate = modifyInteraction.vertexFeature_.getGeometry().getCoordinates()
-          pointFeature.getGeometry().setCoordinates(coordinate)
-          pointLayer.setVisible(true)
-        } else {
-          pointLayer.setVisible(false)
-        }
-        // Move point
-        if (state.isMovePoint) {
-          updatePolygon()
-        }
-        */
+        keyboardLayer.setVisible(!(pointFeature.get('isSelected') && pointFeature.get('type') === 'point'))
       }
     }
-    // All interface tpyes
-    /*
-    if (state.isModify) {
-      let coordinate
-      if (modifyInteraction.vertexFeature_) {
-        // Determin
-        coordinate = modifyInteraction.vertexFeature_.getGeometry().getCoordinates()
-        const coordinates = vectorSource.getFeatures()[0].getGeometry().getCoordinates()[0]
-        const isPoint = coordinates.findIndex((item) => JSON.stringify(item) === JSON.stringify(coordinate)) >= 0
-        modifyInteraction.vertexFeature_.set('type', isPoint ? 'point' : 'line')
-        const type = isPoint ? 'point' : 'line'
-        pointFeature.set('type', type)
-      }
-      // Show edit/add buttons depending on feature type and interface
-      toggleEditButtons()
-    }
-    */
   }
   map.on('moveend', pointerMove)
 
@@ -712,10 +678,13 @@ function DrawMap (containerId, options) {
         pointFeature.set('type', vertexFeature.get('type'))
         pointFeature.set('isSelected', vertexFeature.get('isSelected'))
         pointLayer.setVisible(pointFeature.get('isSelected'))
+        updateSelectedIndexAndOffset(vertexFeature)
+        keyboardLayer.setVisible(!pointFeature.get('isSelected'))
       } else {
         // Deselect if alrerady selected
         pointFeature.set('isSelected', false)
         pointLayer.setVisible(false)
+        keyboardLayer.setVisible(true)
       }
     }
   }
