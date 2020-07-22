@@ -228,6 +228,7 @@ function DrawMap (mapContainer, options) {
 
   // Start drawing button
   const startDrawingButton = document.createElement('button')
+  startDrawingButton.id = 'start-drawing'
   startDrawingButton.className = 'defra-map-button defra-map-button--start'
   startDrawingButton.appendChild(document.createTextNode('Start drawing'))
   const startDrawing = new Control({
@@ -259,7 +260,7 @@ function DrawMap (mapContainer, options) {
   // Add point button
   const addPointButton = document.createElement('button')
   addPointButton.className = 'defra-map-button-edit defra-map-button-edit--add'
-  addPointButton.appendChild(document.createTextNode('Add point'))
+  addPointButton.appendChild(document.createTextNode('Add'))
   const addPointOverlay = new Overlay({
     element: addPointButton,
     className: 'defra-map-button-overlay',
@@ -269,7 +270,7 @@ function DrawMap (mapContainer, options) {
   // Delete point button
   const deletePointButton = document.createElement('button')
   deletePointButton.className = 'defra-map-button-edit defra-map-button-edit--delete'
-  deletePointButton.appendChild(document.createTextNode('Delete point'))
+  deletePointButton.appendChild(document.createTextNode('Remove'))
   const deletePointOverlay = new Overlay({
     element: deletePointButton,
     className: 'defra-map-button-overlay',
@@ -432,6 +433,7 @@ function DrawMap (mapContainer, options) {
     if (maps.interfaceType === 'touch' || maps.interfaceType === 'keyboard') {
       confirmPointButton.classList.remove('defra-map-button--hidden')
     }
+    if (mapContainer.hasAttribute('tabindex')) { mapContainer.focus() }
   })
 
   resetDrawingButton.addEventListener('click', () => {
@@ -448,11 +450,11 @@ function DrawMap (mapContainer, options) {
     resetDrawingButton.classList.add('defra-map-button--hidden')
     confirmPointButton.classList.add('defra-map-button--hidden')
     finishShapeButton.classList.add('defra-map-button--hidden')
-    addPointButton.classList.add('defra-map-button--hidden')
-    deletePointButton.classList.add('defra-map-button--hidden')
+    map.getOverlays().clear()
     doneButton.setAttribute('disabled', 'disabled')
     keyboardLayer.setVisible(false)
     startDrawingButton.removeAttribute('disabled')
+    startDrawingButton.focus()
   })
 
   drawInteraction.addEventListener('drawstart', (e) => {
@@ -523,6 +525,7 @@ function DrawMap (mapContainer, options) {
     pointFeature.set('type', 'point')
     map.removeOverlay(addPointOverlay)
     addPointButton.blur()
+    if (mapContainer.hasAttribute('tabindex')) { mapContainer.focus() }
   })
 
   deletePointButton.addEventListener('click', (e) => {
@@ -532,6 +535,7 @@ function DrawMap (mapContainer, options) {
     // Reset current vertext
     state.vertexIndexes = []
     state.vertexOffset = []
+    if (mapContainer.hasAttribute('tabindex')) { mapContainer.focus() }
   })
 
   drawInteraction.addEventListener('drawabort', (e) => {
@@ -721,6 +725,7 @@ function DrawMap (mapContainer, options) {
   // Keyup
   const keyup = (e) => {
     if ((e.key === 'Enter' || e.key === ' ') && state.isModify) {
+      console.log(e.target)
       const centre = map.getView().getCenter()
       state.isEnableModify = true
       map.addInteraction(modifyInteraction)
@@ -781,18 +786,23 @@ maps.createDrawMap = (placeholderId, options = {}) => {
   if (!maps.interfaceType) {
     window.addEventListener('pointerdown', (e) => {
       maps.interfaceType = 'mouse'
+      mapContainer.removeAttribute('tabindex')
     })
     window.addEventListener('touchstart', (e) => {
       maps.interfaceType = 'touch'
+      mapContainer.removeAttribute('tabindex')
     })
     window.addEventListener('touchmove', (e) => {
       maps.interfaceType = 'touch'
+      mapContainer.removeAttribute('tabindex')
     })
     window.addEventListener('pointermove', (e) => {
       maps.interfaceType = 'mouse'
+      mapContainer.removeAttribute('tabindex')
     })
     window.addEventListener('keydown', (e) => {
       maps.interfaceType = 'keyboard'
+      mapContainer.tabIndex = 0
     })
     window.addEventListener('focusin', (e) => {
       if (maps.interfaceType === 'keyboard') {
