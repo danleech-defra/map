@@ -11,6 +11,10 @@
     bottom:0px;
     width:100%;
     pointer-events: none;
+    text-align:center;
+    @include mq ($from: desktop) {
+      text-align:left;
+    }
   }
 }
 .defra-map__container {
@@ -46,7 +50,10 @@
     @include govuk-font($size: 16);
     max-width:calc(50% - 12.5px);
     box-sizing: border-box;
-    margin:0px 2.5px 10px 10px;
+    margin:0px auto 10px auto;
+    @include mq ($from: desktop) {
+      margin:0px 2.5px 10px 10px;
+    }
     background-color: white;
     pointer-events: auto;
   }
@@ -55,7 +62,10 @@
     @include govuk-font($size: 16);
     max-width:calc(50% - 12.5px);
     box-sizing: border-box;
-    margin:0px 10px 10px 2.5px;
+    margin:0px auto 10px 5px;
+    @include mq ($from: desktop) {
+      margin:0px 10px 10px 2.5px;
+    }
     background-color: white;
     pointer-events: auto;
   }
@@ -64,39 +74,53 @@
     margin-top:0px;
   }
 }
+.defra-map-button-overlay {
+  @include mq ($until: desktop) {
+    transform: none !important;
+    bottom:0px;
+    width:100%;
+    text-align:center;
+  }
+}
 .defra-map-button-edit {
   @include govuk-font($size: 16);
-  position: absolute;
   color: $govuk-text-colour;
-  left:-25px;
-  bottom:21px;
-  margin:0;
-  border:2px solid transparent;
+  margin:0px auto 10px auto;
+  @include mq ($from: desktop) {
+    position: absolute;
+    left:-25px;
+    bottom:21px;
+    margin:0;
+    width:50px;
+  }
   box-shadow: 0 2px govuk-colour('mid-grey');
   padding:0;
   border:0;
-  width:50px;
-  // height:32px;
   padding:10px;
-  // border-radius: 100%;
   background-color: white;
   cursor:pointer;
   &::-moz-focus-inner {
     border: 0;
   }
-  background-size: 15px 15px;
-  background-position: center;
-  background-repeat: no-repeat;
-  // text-indent:-5000px;
   &--add {
-    left:-25px;
-    width: 50px;
-    // background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" ><path d="M9,6L15,6L15,9L9,9L9,15L6,15L6,9L0,9L0,6L6,6L6,0L9,0L9,6Z" style="fill:rgb(11,12,12);"/></svg>');
+    @include mq ($from: desktop) {
+      left:-25px;
+      width: 50px;
+    }
   }
   &--delete {
-    left:-37px;
-    width:74px;
-    // background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15"><path d="M15,9L15,6L0,6L0,9L15,9Z" style="fill:rgb(11,12,12);"/></svg>');
+    @include mq ($from: desktop) {
+      left:-37px;
+      width:74px;
+    }
+  }
+  span {
+    @include mq ($from: desktop) {
+      position: absolute;
+      width:0px;
+      height:0px;
+      text-indent: -5000px;
+    }
   }
   &:focus {
     outline:0px;

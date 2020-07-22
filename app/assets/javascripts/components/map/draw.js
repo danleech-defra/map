@@ -260,7 +260,7 @@ function DrawMap (mapContainer, options) {
   // Add point button
   const addPointButton = document.createElement('button')
   addPointButton.className = 'defra-map-button-edit defra-map-button-edit--add'
-  addPointButton.appendChild(document.createTextNode('Add'))
+  addPointButton.innerHTML = 'Add<span> point</span>'
   const addPointOverlay = new Overlay({
     element: addPointButton,
     className: 'defra-map-button-overlay',
@@ -270,7 +270,7 @@ function DrawMap (mapContainer, options) {
   // Delete point button
   const deletePointButton = document.createElement('button')
   deletePointButton.className = 'defra-map-button-edit defra-map-button-edit--delete'
-  deletePointButton.appendChild(document.createTextNode('Remove'))
+  deletePointButton.innerHTML = 'Remove<span> point</span>'
   const deletePointOverlay = new Overlay({
     element: deletePointButton,
     className: 'defra-map-button-overlay',
