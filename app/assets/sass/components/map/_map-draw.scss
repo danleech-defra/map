@@ -6,9 +6,6 @@
     width:100%;
     height:300px;
   }
-  &__buttons {
-    margin-top:5px;
-  }
   &__map-buttons {
     position: absolute;
     bottom:0px;
@@ -17,6 +14,10 @@
   }
 }
 .defra-map__container {
+  margin-bottom:22px;
+  @include mq ($from: tablet) {
+    margin-bottom:32px;
+  }
   &:focus {
     outline: none;
   }
@@ -61,9 +62,6 @@
   &--reset {
     display: block;
     margin-top:0px;
-  }
-  &--done {
-    margin-top:15px;
   }
 }
 .defra-map-button-edit {
