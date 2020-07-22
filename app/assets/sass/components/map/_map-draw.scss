@@ -42,30 +42,38 @@
     background-color: white;
     pointer-events: auto;
   }
-  &--addPoint {
-    @extend .govuk-button--secondary;
-    @include govuk-font($size: 16);
-    margin-top:10px;
-    max-width:calc(50%);
-    box-sizing: border-box;
-    margin:0px 10px 10px 10px;
-    background-color: white;
-    pointer-events: auto;
-  }
-  &--deletePoint {
-    @extend .govuk-button--secondary;
-    @include govuk-font($size: 16);
-    max-width:calc(50%);
-    box-sizing: border-box;
-    margin:0px 10px 10px 10px;
-    background-color: white;
-    pointer-events: auto;
-  }
   &--reset {
     display: block;
     margin-top:0px;
   }
   &--done {
     margin-top:15px;
+  }
+}
+.defra-map-button-edit {
+  position: absolute;
+  left:-16px;
+  bottom:16px;
+  margin:0;
+  border:0;
+  padding:0;
+  border:0;
+  width:32px;
+  height:32px;
+  border-radius: 100%;
+  background-color: white;
+  cursor:pointer;
+  &::-moz-focus-inner {
+    border: 0;
+  }
+  background-size: 15px 15px;
+  background-position: center;
+  background-repeat: no-repeat;
+  text-indent:-5000px;
+  &--add {
+    background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15" ><path d="M9,6L15,6L15,9L9,9L9,15L6,15L6,9L0,9L0,6L6,6L6,0L9,0L9,6Z" style="fill:rgb(11,12,12);"/></svg>');
+  }
+  &--delete {
+    background-image: svg-url('<svg width="15" height="15" viewBox="0 0 15 15"><path d="M15,9L15,6L0,6L0,9L15,9Z" style="fill:rgb(11,12,12);"/></svg>');
   }
 }
