@@ -752,6 +752,24 @@ function DrawMap (mapContainer, options) {
     }
   }
   window.addEventListener('keyup', keyup)
+
+  // Disable pinch and double tap zoom
+  document.body.addEventListener('gesturestart', function (e) {
+    console.log(e.target)
+    console.log('gesturestart')
+    e.preventDefault()
+    document.body.style.zoom = 0.99 // Disable Safari zoom-to-tabs gesture
+  }, { passive: false })
+  document.body.addEventListener('gesturechange', function (e) {
+    console.log('gesturechange')
+    e.preventDefault()
+    document.body.style.zoom = 0.99 // Disable Safari zoom-to-tabs gesture
+  }, { passive: false })
+  document.body.addEventListener('gestureend', function (e) {
+    e.preventDefault()
+    console.log('gestureend')
+    document.body.style.zoom = 1 // Disable Safari zoom-to-tabs gesture
+  }, { passive: false })
 }
 
 // Export a helper factory to create this map
