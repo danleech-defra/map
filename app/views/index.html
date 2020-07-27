@@ -2,6 +2,13 @@
 {% from "govuk/components/tabs/macro.njk" import govukTabs %}
 {% extends "layout.html" %}
 
+{% block head %}
+  {% include "includes/head.html" %}
+  <!--<meta name="viewport" user-scalable="no">-->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no, shrink-to-fit=no" />
+  <meta name="HandheldFriendly" content="true">
+{% endblock %}
+
 {% block pageTitle %}
   Map component - GOV.UK
 {% endblock %}

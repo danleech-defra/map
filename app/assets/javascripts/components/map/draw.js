@@ -754,22 +754,16 @@ function DrawMap (mapContainer, options) {
   window.addEventListener('keyup', keyup)
 
   // Disable pinch and double tap zoom
-  document.body.addEventListener('gesturestart', function (e) {
-    console.log(e.target)
-    console.log('gesturestart')
-    e.preventDefault()
-    document.body.style.zoom = 0.99 // Disable Safari zoom-to-tabs gesture
+  window.addEventListener('touchmove', (e) => {
+    if (e.scale !== 1) {
+      e.preventDefault()
+    }
   }, { passive: false })
-  document.body.addEventListener('gesturechange', function (e) {
-    console.log('gesturechange')
+  /*
+  document.documentElement.addEventListener('touchmove', (e) => {
     e.preventDefault()
-    document.body.style.zoom = 0.99 // Disable Safari zoom-to-tabs gesture
-  }, { passive: false })
-  document.body.addEventListener('gestureend', function (e) {
-    e.preventDefault()
-    console.log('gestureend')
-    document.body.style.zoom = 1 // Disable Safari zoom-to-tabs gesture
-  }, { passive: false })
+  }, false)
+  */
 }
 
 // Export a helper factory to create this map

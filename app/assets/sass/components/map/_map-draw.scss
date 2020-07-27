@@ -1,3 +1,6 @@
+body {
+  touch-action: pan-y;
+}
 .defra-map {
   &__outer-container {
     position:relative;
