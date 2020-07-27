@@ -6,6 +6,6 @@ import '../components/map/draw'
 
 // Create an area map
 window.flood.maps.createDrawMap('map', {
-  centre: [-2.9329, 54.8925],
-  zoom: 18
+  centre: [0.90401, 51.80645],
+  zoom: 15
 })

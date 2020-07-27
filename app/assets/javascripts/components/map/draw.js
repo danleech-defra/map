@@ -118,7 +118,7 @@ function DrawMap (mapContainer, options) {
   }
   const completedShapeStyle = new Style({
     fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
-    stroke: new Stroke({ color: '#0b0c0c', width: 3 }),
+    stroke: new Stroke({ color: '#0b0c0c', width: 3 })
   })
   const completedPointStyle = new Style({
     image: new Icon({
