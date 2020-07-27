@@ -1,15 +1,18 @@
 .defra-map {
   &__outer-container {
     position:relative;
-  }
-  &__container {
     width:100%;
     height:300px;
+    margin-bottom:22px;
+    @include mq ($from: tablet) {
+      margin-bottom:32px;
+    }
   }
   &__map-buttons {
     position: absolute;
     bottom:0px;
     width:100%;
+    height:auto;
     pointer-events: none;
     text-align:center;
     @include mq ($from: desktop) {
@@ -18,10 +21,8 @@
   }
 }
 .defra-map__container {
-  margin-bottom:22px;
-  @include mq ($from: tablet) {
-    margin-bottom:32px;
-  }
+  width:100%;
+  height:100%;
   &:focus {
     outline: none;
   }
