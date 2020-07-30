@@ -725,7 +725,6 @@ function DrawMap (mapContainer, options) {
   // Keyup
   const keyup = (e) => {
     if ((e.key === 'Enter' || e.key === ' ') && state.isModify) {
-      console.log(e.target)
       const centre = map.getView().getCenter()
       state.isEnableModify = true
       map.addInteraction(modifyInteraction)
