@@ -754,16 +754,16 @@ function DrawMap (mapContainer, options) {
   window.addEventListener('keyup', keyup)
 
   // Disable pinch and double tap zoom
+  /*
   window.addEventListener('touchmove', (e) => {
     if (e.scale !== 1) {
       e.preventDefault()
     }
   }, { passive: false })
-  /*
+  */
   document.documentElement.addEventListener('touchmove', (e) => {
     e.preventDefault()
   }, false)
-  */
 }
 
 // Export a helper factory to create this map
