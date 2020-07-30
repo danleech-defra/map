@@ -768,12 +768,12 @@ function DrawMap (mapContainer, options) {
     document.body.style.zoom = 1
   })
   */
-  /*
   window.addEventListener('touchmove', (e) => {
     if (e.scale !== 1) {
       e.preventDefault()
     }
   }, { passive: false })
+  /*
   document.documentElement.addEventListener('touchmove', (e) => {
     e.preventDefault()
   }, false)
