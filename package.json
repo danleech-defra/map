@@ -50,6 +50,7 @@
     "notifications-node-client": "^4.1.0",
     "nunjucks": "^3.2.1",
     "ol": "^6.4.3",
+    "pepjs": "^0.5.2",
     "portscanner": "^2.1.1",
     "prompt": "^1.0.0",
     "regenerator-runtime": "^0.13.5",

@@ -1,4 +1,5 @@
 'use strict'
+import 'pepjs' // polyfill to add pointer events to older browsers such as iOS12
 import { Map, View, Overlay, MapBrowserEvent, Feature } from 'ol'
 import { defaults as defaultControls, Control } from 'ol/control'
 import { transform } from 'ol/proj'
