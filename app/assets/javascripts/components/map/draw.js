@@ -543,7 +543,7 @@ function DrawMap (mapContainer, options) {
     editPointButton.blur()
   })
 
-  // Get vertex to modify and add a temporary current point to the point layer
+  // Get vertex to modify and add a temporary point to the point layer
   map.on('click', (e) => {
     const vertexFeature = modifyInteraction.vertexFeature_
     if (maps.interfaceType === 'touch' && state.isModify) {
@@ -596,7 +596,7 @@ function DrawMap (mapContainer, options) {
   }
   map.on('pointerdrag', pointerDrag)
 
-  // Map pan and zoom
+  // Map pan and zoom (all interfaces)
   const pointerMove = (e) => {
     if (maps.interfaceType === 'mouse') {
       if (!state.isEnableModify) {
@@ -661,10 +661,10 @@ function DrawMap (mapContainer, options) {
     }
   }
   map.on('moveend', pointerMove)
+  map.on('pointermove', pointerMove)
 
   // Mouse pointer up
   const pointerUp = (e) => {
-    console.log('pointer up')
     if (maps.interfaceType === 'mouse' && state.isModify && e.target === map) {
       const vertexFeature = modifyInteraction.vertexFeature_
       if (vertexFeature) {
@@ -675,14 +675,8 @@ function DrawMap (mapContainer, options) {
         updateSelectedIndexAndOffset(vertexFeature)
       }
     }
-    // Show edit buttons
-    // addPointButton.classList.remove('defra-map-button--hidden')
-    // deletePointButton.classList.remove('defra-map-button--hidden')
   }
   map.on('pointerup', pointerUp)
-
-  // Pointer move
-  map.on('pointermove', pointerMove)
 
   // Keydown
   const keydown = (e) => {
@@ -739,30 +733,6 @@ function DrawMap (mapContainer, options) {
     }
   }
   window.addEventListener('keyup', keyup)
-
-  // Disable pinch and double tap zoom
-  /*
-  document.addEventListener('gesturestart', function (e) {
-    e.preventDefault()
-    document.body.style.zoom = 0.99
-  })
-  document.addEventListener('gesturechange', function (e) {
-    e.preventDefault()
-    document.body.style.zoom = 0.99
-  })
-  document.addEventListener('gestureend', function (e) {
-    e.preventDefault()
-    document.body.style.zoom = 1
-  })
-  window.addEventListener('touchmove', (e) => {
-    if (e.scale !== 1) {
-      e.preventDefault()
-    }
-  }, { passive: false })
-  document.documentElement.addEventListener('touchmove', (e) => {
-    e.preventDefault()
-  }, false)
-  */
 }
 
 // Export a helper factory to create this map
