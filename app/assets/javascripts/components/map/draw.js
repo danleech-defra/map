@@ -545,11 +545,11 @@ function DrawMap (mapContainer, options) {
 
   // Get vertex to modify and add a temporary current point to the point layer
   map.on('click', (e) => {
+    const vertexFeature = modifyInteraction.vertexFeature_
     if (maps.interfaceType === 'touch' && state.isModify) {
       state.isEnableModify = true
       modifyInteraction.handleDownEvent(e)
       state.isEnableModify = false
-      const vertexFeature = modifyInteraction.vertexFeature_
       updateSelectedIndexAndOffset(vertexFeature)
       if (vertexFeature) {
         setVertexType(vertexFeature)
@@ -565,9 +565,9 @@ function DrawMap (mapContainer, options) {
         pointFeature.set('isSelected', false)
         pointLayer.setVisible(false)
       }
-      // Show add/delete buttons depending on feature type and interface
-      toggleEditButton(vertexFeature)
     }
+    // Show add/delete buttons depending on feature type and interface
+    toggleEditButton(vertexFeature)
   })
 
   // Mouse pointer down
@@ -674,8 +674,6 @@ function DrawMap (mapContainer, options) {
         pointLayer.setVisible(true)
         updateSelectedIndexAndOffset(vertexFeature)
       }
-      // Show add/delete buttons depending on feature type and interface
-      toggleEditButton(vertexFeature)
     }
     // Show edit buttons
     // addPointButton.classList.remove('defra-map-button--hidden')
