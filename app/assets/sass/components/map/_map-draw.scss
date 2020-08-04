@@ -92,10 +92,10 @@ body {
   margin:0px auto 10px auto;
   @include mq ($from: desktop) {
     position: absolute;
-    left:-25px;
+    left:-37px;
     bottom:21px;
     margin:0;
-    width:50px;
+    width:74px;
   }
   box-shadow: 0 2px govuk-colour('mid-grey');
   border:0;
@@ -104,18 +104,6 @@ body {
   cursor:pointer;
   &::-moz-focus-inner {
     border: 0;
-  }
-  &--add {
-    @include mq ($from: desktop) {
-      left:-25px;
-      width: 50px;
-    }
-  }
-  &--delete {
-    @include mq ($from: desktop) {
-      left:-37px;
-      width:74px;
-    }
   }
   span {
     @include mq ($from: desktop) {

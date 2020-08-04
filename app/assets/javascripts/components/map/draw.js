@@ -1,5 +1,5 @@
 'use strict'
-import { Map, View, Overlay, MapBrowserPointerEvent, Feature } from 'ol'
+import { Map, View, Overlay, MapBrowserEvent, Feature } from 'ol'
 import { defaults as defaultControls, Control } from 'ol/control'
 import { transform } from 'ol/proj'
 import { Point, MultiPoint } from 'ol/geom'
@@ -258,24 +258,14 @@ function DrawMap (mapContainer, options) {
   map.addControl(finishShape)
 
   // Add point button
-  const addPointButton = document.createElement('button')
-  addPointButton.className = 'defra-map-button-edit defra-map-button-edit--add'
-  addPointButton.innerHTML = 'Add<span> point</span>'
-  const addPointOverlay = new Overlay({
-    element: addPointButton,
+  const editPointButton = document.createElement('button')
+  editPointButton.classList = 'defra-map-button-edit defra-map-button--hidden'
+  const editPointOverlay = new Overlay({
+    element: editPointButton,
     className: 'defra-map-button-overlay',
     offset: [0, 0]
   })
-
-  // Delete point button
-  const deletePointButton = document.createElement('button')
-  deletePointButton.className = 'defra-map-button-edit defra-map-button-edit--delete'
-  deletePointButton.innerHTML = 'Remove<span> point</span>'
-  const deletePointOverlay = new Overlay({
-    element: deletePointButton,
-    className: 'defra-map-button-overlay',
-    offset: [0, 0]
-  })
+  map.addOverlay(editPointOverlay)
 
   // Continue button
   const doneButton = document.createElement('button')
@@ -387,21 +377,24 @@ function DrawMap (mapContainer, options) {
     const pixel = map.getPixelFromCoordinate(coordinate)
     const pixelX = Math.round(pixel[0] + viewport.getBoundingClientRect().left)
     const pixelY = Math.round(pixel[1] + viewport.getBoundingClientRect().top)
-    const mouseEvent = new window.MouseEvent('click', { view: window, clientX: pixelX, clientY: pixelY })
-    const event = new MapBrowserPointerEvent('click', map, mouseEvent)
+    const mouseEvent = new window.MouseEvent('click', { view: window, clientX: pixelX, clientY: pixelY, bubbles: true })
+    const event = new MapBrowserEvent('click', map, mouseEvent)
     return event
   }
 
   const toggleEditButton = (vertexFeature) => {
-    map.getOverlays().clear()
     if (vertexFeature && vertexFeature.get('isSelected')) {
+      editPointOverlay.setPosition(vertexFeature.getGeometry().getCoordinates())
+      editPointButton.classList.remove('defra-map-button--hidden')
       if (vertexFeature.get('type') === 'point') {
-        deletePointOverlay.setPosition(vertexFeature.getGeometry().getCoordinates())
-        map.addOverlay(deletePointOverlay)
+        editPointButton.innerHTML = 'Delete<span> point</span>'
+        editPointButton.setAttribute('data-mode', 'delete')
       } else {
-        addPointOverlay.setPosition(vertexFeature.getGeometry().getCoordinates())
-        map.addOverlay(addPointOverlay)
+        editPointButton.innerHTML = 'Insert<span> point</span>'
+        editPointButton.setAttribute('data-mode', 'add')
       }
+    } else {
+      editPointButton.classList.add('defra-map-button--hidden')
     }
   }
 
@@ -450,7 +443,7 @@ function DrawMap (mapContainer, options) {
     resetDrawingButton.classList.add('defra-map-button--hidden')
     confirmPointButton.classList.add('defra-map-button--hidden')
     finishShapeButton.classList.add('defra-map-button--hidden')
-    map.getOverlays().clear()
+    editPointButton.classList.add('defra-map-button--hidden')
     doneButton.setAttribute('disabled', 'disabled')
     keyboardLayer.setVisible(false)
     startDrawingButton.removeAttribute('disabled')
@@ -479,7 +472,7 @@ function DrawMap (mapContainer, options) {
     // Generate output
   })
 
-  confirmPointButton.addEventListener('click', () => {
+  confirmPointButton.addEventListener('click', (e) => {
     const centre = map.getView().getCenter()
     if (!state.isDraw) {
       drawInteraction.startDrawing_(simulateClick(centre)) // Private method
@@ -499,7 +492,7 @@ function DrawMap (mapContainer, options) {
     }
   })
 
-  finishShapeButton.addEventListener('click', () => {
+  finishShapeButton.addEventListener('click', (e) => {
     drawInteraction.finishDrawing()
     // Reset
     pointLayer.setVisible(false)
@@ -507,35 +500,6 @@ function DrawMap (mapContainer, options) {
     resetDrawingButton.classList.remove('defra-map-button--hidden')
     confirmPointButton.classList.add('defra-map-button--hidden')
     finishShapeButton.classList.add('defra-map-button--hidden')
-  })
-
-  addPointButton.addEventListener('click', (e) => {
-    const vertexFeature = modifyInteraction.vertexFeature_
-    const coordinate = pointFeature.getGeometry().getCoordinates()
-    state.isEnableModify = true
-    state.isEnableInsert = true
-    modifyInteraction.handleDownEvent(simulateClick(coordinate))
-    state.isEnableModify = false
-    state.isEnableInsert = false
-    if (vertexFeature) {
-      updateSelectedIndexAndOffset(vertexFeature)
-      vertexFeature.set('type', 'point')
-      vertexFeature.set('isSelected', false)
-    }
-    pointFeature.set('type', 'point')
-    map.removeOverlay(addPointOverlay)
-    addPointButton.blur()
-    if (mapContainer.hasAttribute('tabindex')) { mapContainer.focus() }
-  })
-
-  deletePointButton.addEventListener('click', (e) => {
-    modifyInteraction.removePoint()
-    map.removeOverlay(deletePointOverlay)
-    deletePointButton.blur()
-    // Reset current vertext
-    state.vertexIndexes = []
-    state.vertexOffset = []
-    if (mapContainer.hasAttribute('tabindex')) { mapContainer.focus() }
   })
 
   drawInteraction.addEventListener('drawabort', (e) => {
@@ -551,6 +515,32 @@ function DrawMap (mapContainer, options) {
     if (!modifyInteraction.vertexFeature_) {
       pointLayer.setVisible(false)
     }
+  })
+
+  editPointButton.addEventListener('click', (e) => {
+    if (editPointButton.getAttribute('data-mode') === 'add') {
+      const vertexFeature = modifyInteraction.vertexFeature_
+      const coordinate = pointFeature.getGeometry().getCoordinates()
+      state.isEnableModify = true
+      state.isEnableInsert = true
+      modifyInteraction.handleDownEvent(simulateClick(coordinate))
+      state.isEnableModify = false
+      state.isEnableInsert = false
+      if (vertexFeature) {
+        updateSelectedIndexAndOffset(vertexFeature)
+        vertexFeature.set('type', 'point')
+        vertexFeature.set('isSelected', false)
+      }
+      pointFeature.set('type', 'point')
+    } else {
+      modifyInteraction.removePoint()
+      // Reset current vertext
+      state.vertexIndexes = []
+      state.vertexOffset = []
+    }
+    if (mapContainer.hasAttribute('tabindex')) { mapContainer.focus() }
+    editPointButton.classList.add('defra-map-button--hidden')
+    editPointButton.blur()
   })
 
   // Get vertex to modify and add a temporary current point to the point layer
@@ -602,7 +592,7 @@ function DrawMap (mapContainer, options) {
 
   // Mouse drag
   const pointerDrag = (e) => {
-    map.getOverlays().clear()
+    editPointButton.classList.add('defra-map-button--hidden')
   }
   map.on('pointerdrag', pointerDrag)
 
@@ -653,7 +643,7 @@ function DrawMap (mapContainer, options) {
         const isMovePoint = pointFeature.get('isSelected') && pointFeature.get('type') === 'point'
         keyboardLayer.setVisible(!isMovePoint)
         if (isMovePoint) {
-          map.getOverlays().clear()
+          editPointButton.classList.add('defra-map-button--hidden')
           state.isEnableModify = false
           map.removeInteraction(modifyInteraction)
           updatePolygon()
@@ -674,8 +664,8 @@ function DrawMap (mapContainer, options) {
 
   // Mouse pointer up
   const pointerUp = (e) => {
-    if (e.target !== map) { return }
-    if (maps.interfaceType === 'mouse' && state.isModify) {
+    console.log('pointer up')
+    if (maps.interfaceType === 'mouse' && state.isModify && e.target === map) {
       const vertexFeature = modifyInteraction.vertexFeature_
       if (vertexFeature) {
         pointFeature.getGeometry().setCoordinates(vertexFeature.getGeometry().getCoordinates())
@@ -688,8 +678,8 @@ function DrawMap (mapContainer, options) {
       toggleEditButton(vertexFeature)
     }
     // Show edit buttons
-    addPointButton.classList.remove('defra-map-button--hidden')
-    deletePointButton.classList.remove('defra-map-button--hidden')
+    // addPointButton.classList.remove('defra-map-button--hidden')
+    // deletePointButton.classList.remove('defra-map-button--hidden')
   }
   map.on('pointerup', pointerUp)
 
@@ -766,13 +756,11 @@ function DrawMap (mapContainer, options) {
     e.preventDefault()
     document.body.style.zoom = 1
   })
-  */
   window.addEventListener('touchmove', (e) => {
     if (e.scale !== 1) {
       e.preventDefault()
     }
   }, { passive: false })
-  /*
   document.documentElement.addEventListener('touchmove', (e) => {
     e.preventDefault()
   }, false)
