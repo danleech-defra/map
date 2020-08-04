@@ -566,7 +566,7 @@ function DrawMap (mapContainer, options) {
         pointLayer.setVisible(false)
       }
     }
-    // Show add/delete buttons depending on feature type and interface
+    // Show edit point button
     toggleEditButton(vertexFeature)
   })
 
@@ -734,7 +734,7 @@ function DrawMap (mapContainer, options) {
         pointLayer.setVisible(false)
         keyboardLayer.setVisible(true)
       }
-      // Show add/delete buttons depending on feature type and interface
+      // Show edit point button
       toggleEditButton(vertexFeature)
     }
   }
