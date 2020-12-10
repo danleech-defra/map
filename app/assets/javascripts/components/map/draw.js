@@ -695,15 +695,15 @@ function DrawMap (placeholderId, options) {
 
   // Mouse pointer up
   const pointerUp = (e) => {
-    if (maps.interfaceType === 'mouse' && state.isModify && e.target === map) {
-      const vertexFeature = modifyInteraction.vertexFeature_
-      if (vertexFeature) {
-        pointFeature.getGeometry().setCoordinates(vertexFeature.getGeometry().getCoordinates())
-        pointFeature.set('type', vertexFeature.get('type'))
-        pointFeature.set('isSelected', true)
-        pointLayer.setVisible(true)
-        updateSelectedIndexAndOffset(vertexFeature)
-      }
+    const target = e.originalEvent.target
+    if (!state.isModify || target.classList.contains('defra-map-draw-button-edit')) { return }
+    const vertexFeature = modifyInteraction.vertexFeature_
+    if (vertexFeature) {
+      pointFeature.getGeometry().setCoordinates(vertexFeature.getGeometry().getCoordinates())
+      pointFeature.set('type', vertexFeature.get('type'))
+      pointFeature.set('isSelected', true)
+      pointLayer.setVisible(true)
+      updateSelectedIndexAndOffset(vertexFeature)
     }
   }
   map.on('pointerup', pointerUp)
