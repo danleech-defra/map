@@ -712,7 +712,7 @@ function DrawMap (placeholderId, options) {
   const keydown = (e) => {
     // Set sketchPoint to centre on any keydown
     if ((e.getModifierState('CapsLock') || e.shiftKey) && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
-      if (state.isModify) {
+      if (state.isDraw) {
         // Show touch and keyboard interface buttons
         confirmPointButton.classList.remove('defra-map-draw-button--hidden')
         finishShapeButton.classList.remove('defra-map-draw-button--hidden')
