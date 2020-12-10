@@ -573,10 +573,10 @@ function DrawMap (placeholderId, options) {
 
   // Get vertex to modify and add a temporary point to the point layer
   map.on('click', (e) => {
-    const vertexFeature = modifyInteraction.vertexFeature_
-    if (maps.interfaceType === 'touch' && state.isModify) {
+    if (state.isModify) {
       state.isEnableModify = true
       modifyInteraction.handleDownEvent(e)
+      const vertexFeature = modifyInteraction.vertexFeature_
       state.isEnableModify = false
       updateSelectedIndexAndOffset(vertexFeature)
       if (vertexFeature) {
@@ -593,16 +593,14 @@ function DrawMap (placeholderId, options) {
         pointFeature.set('isSelected', false)
         pointLayer.setVisible(false)
       }
+      // Show edit point button
+      toggleEditButton(vertexFeature)
     }
-    // Show edit point button
-    toggleEditButton(vertexFeature)
   })
 
   // Mouse pointer down
   const pointerDown = (e) => {
     if (e.target !== map) { return }
-    // Hide touch and keyboard interface buttons
-    // mapbuttonContainer.style.display = 'none'
     if (state.isModify) {
       const vertexFeature = modifyInteraction.vertexFeature_
       if (vertexFeature) {
@@ -707,6 +705,12 @@ function DrawMap (placeholderId, options) {
     }
   }
   map.on('pointerup', pointerUp)
+
+  // Stop user select callout on iphones
+  window.addEventListener('touchstart', (e) => {
+    // if (!e.target.closest('.defra-draw-map')) { return }
+    console.log(e.target.closest('.defra-map-draw'))
+  })
 
   // Keydown
   const keydown = (e) => {

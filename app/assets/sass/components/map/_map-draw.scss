@@ -43,6 +43,12 @@ body {
 }
 .defra-map-draw-button {
   @extend .govuk-button;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   &--start {
     @extend .govuk-button--secondary;
   }
