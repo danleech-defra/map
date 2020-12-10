@@ -13,7 +13,34 @@ import { mouseOnly } from 'ol/events/condition'
 const { forEach } = window.flood.utils
 const maps = window.flood.maps
 
-function DrawMap (mapContainer, options) {
+function DrawMap (placeholderId, options) {
+  // Create container elements
+  const placeholder = document.getElementById(placeholderId)
+  placeholder.className = 'defra-map-draw'
+  const toolBarContainer = document.createElement('div')
+  toolBarContainer.id = 'tool-bar'
+  toolBarContainer.className = 'defra-map-draw__tool-bar'
+  const mapContainer = document.createElement('div')
+  mapContainer.id = 'map-container'
+  mapContainer.className = 'defra-map-draw__container'
+  mapContainer.setAttribute('role', 'application')
+  const mapInnerContainer = document.createElement('div')
+  mapInnerContainer.id = 'map-inner-container'
+  mapInnerContainer.className = 'defra-map-draw__inner-container'
+  mapInnerContainer.tabIndex = 0
+  const mapbuttonContainer = document.createElement('div')
+  mapbuttonContainer.id = 'map-buttons'
+  mapbuttonContainer.className = 'defra-map-draw__map-buttons'
+  const buttonContainer = document.createElement('div')
+  buttonContainer.id = 'buttons'
+  buttonContainer.className = 'defra-map-draw__buttons'
+  placeholder.appendChild(toolBarContainer)
+  mapContainer.appendChild(mapInnerContainer)
+  mapContainer.appendChild(mapbuttonContainer)
+  placeholder.appendChild(mapContainer)
+  placeholder.appendChild(buttonContainer)
+
+  // Maintain interaction state
   const state = {
     isDraw: false,
     isModify: false,
@@ -205,7 +232,7 @@ function DrawMap (mapContainer, options) {
 
   // Render map
   const map = new Map({
-    target: mapContainer,
+    target: mapInnerContainer,
     layers: [road, vectorLayer, pointLayer, keyboardLayer],
     // layers: [vectorLayer, pointLayer, keyboardLayer],
     view: view,
@@ -216,7 +243,7 @@ function DrawMap (mapContainer, options) {
 
   // Viewport
   const viewport = document.querySelector('.ol-viewport')
-  viewport.classList.add('defra-map__viewport')
+  viewport.classList.add('defra-map-draw__viewport')
 
   // Button container
   const mapButtons = document.getElementById('map-buttons')
@@ -230,7 +257,7 @@ function DrawMap (mapContainer, options) {
   // Start drawing button
   const startDrawingButton = document.createElement('button')
   startDrawingButton.id = 'start-drawing'
-  startDrawingButton.className = 'defra-map-button defra-map-button--start'
+  startDrawingButton.className = 'defra-map-draw-button defra-map-draw-button--start'
   startDrawingButton.appendChild(document.createTextNode('Start drawing'))
   const startDrawing = new Control({
     element: startDrawingButton,
@@ -240,7 +267,7 @@ function DrawMap (mapContainer, options) {
 
   // Place node button
   const confirmPointButton = document.createElement('button')
-  confirmPointButton.className = 'defra-map-button defra-map-button--confirm defra-map-button--hidden'
+  confirmPointButton.className = 'defra-map-draw-button defra-map-draw-button--confirm defra-map-draw-button--hidden'
   confirmPointButton.appendChild(document.createTextNode('Confirm point'))
   const confirmPoint = new Control({
     element: confirmPointButton,
@@ -250,7 +277,7 @@ function DrawMap (mapContainer, options) {
 
   // Finish shape button
   const finishShapeButton = document.createElement('button')
-  finishShapeButton.className = 'defra-map-button defra-map-button--finish defra-map-button--hidden'
+  finishShapeButton.className = 'defra-map-draw-button defra-map-draw-button--finish defra-map-draw-button--hidden'
   finishShapeButton.appendChild(document.createTextNode('Finish shape'))
   const finishShape = new Control({
     element: finishShapeButton,
@@ -260,17 +287,17 @@ function DrawMap (mapContainer, options) {
 
   // Add point button
   const editPointButton = document.createElement('button')
-  editPointButton.classList = 'defra-map-button-edit defra-map-button--hidden'
+  editPointButton.classList = 'defra-map-draw-button-edit defra-map-draw-button--hidden'
   const editPointOverlay = new Overlay({
     element: editPointButton,
-    className: 'defra-map-button-overlay',
+    className: 'defra-map-draw-button-overlay',
     offset: [0, 0]
   })
   map.addOverlay(editPointOverlay)
 
   // Continue button
   const doneButton = document.createElement('button')
-  doneButton.className = 'defra-map-button defra-map-button--done'
+  doneButton.className = 'defra-map-draw-button defra-map-draw-button--done'
   doneButton.setAttribute('disabled', 'disabled')
   doneButton.appendChild(document.createTextNode('Save and continue'))
   const done = new Control({
@@ -281,7 +308,7 @@ function DrawMap (mapContainer, options) {
 
   // Reset and start again
   const resetDrawingButton = document.createElement('button')
-  resetDrawingButton.className = 'defra-button-text defra-map-button--reset defra-map-button--hidden'
+  resetDrawingButton.className = 'defra-button-text defra-map-draw-button--reset defra-map-draw-button--hidden'
   resetDrawingButton.appendChild(document.createTextNode('Delete shape and start again'))
   const resetDrawing = new Control({
     element: resetDrawingButton,
@@ -386,7 +413,7 @@ function DrawMap (mapContainer, options) {
   const toggleEditButton = (vertexFeature) => {
     if (vertexFeature && vertexFeature.get('isSelected')) {
       editPointOverlay.setPosition(vertexFeature.getGeometry().getCoordinates())
-      editPointButton.classList.remove('defra-map-button--hidden')
+      editPointButton.classList.remove('defra-map-draw-button--hidden')
       if (vertexFeature.get('type') === 'point') {
         editPointButton.innerHTML = 'Delete<span> point</span>'
         editPointButton.setAttribute('data-mode', 'delete')
@@ -395,7 +422,7 @@ function DrawMap (mapContainer, options) {
         editPointButton.setAttribute('data-mode', 'add')
       }
     } else {
-      editPointButton.classList.add('defra-map-button--hidden')
+      editPointButton.classList.add('defra-map-draw-button--hidden')
     }
   }
 
@@ -425,9 +452,9 @@ function DrawMap (mapContainer, options) {
     updateSketchPoint(centre)
     startDrawingButton.setAttribute('disabled', 'disabled')
     if (maps.interfaceType === 'touch' || maps.interfaceType === 'keyboard') {
-      confirmPointButton.classList.remove('defra-map-button--hidden')
+      confirmPointButton.classList.remove('defra-map-draw-button--hidden')
     }
-    if (mapContainer.hasAttribute('tabindex')) { mapContainer.focus() }
+    if (mapInnerContainer.hasAttribute('tabindex')) { mapInnerContainer.focus() }
   })
 
   resetDrawingButton.addEventListener('click', () => {
@@ -441,10 +468,10 @@ function DrawMap (mapContainer, options) {
     state.isModify = false
     state.vertexIndexes = []
     state.vertexOffset = []
-    resetDrawingButton.classList.add('defra-map-button--hidden')
-    confirmPointButton.classList.add('defra-map-button--hidden')
-    finishShapeButton.classList.add('defra-map-button--hidden')
-    editPointButton.classList.add('defra-map-button--hidden')
+    resetDrawingButton.classList.add('defra-map-draw-button--hidden')
+    confirmPointButton.classList.add('defra-map-draw-button--hidden')
+    finishShapeButton.classList.add('defra-map-draw-button--hidden')
+    editPointButton.classList.add('defra-map-draw-button--hidden')
     doneButton.setAttribute('disabled', 'disabled')
     keyboardLayer.setVisible(false)
     startDrawingButton.removeAttribute('disabled')
@@ -465,7 +492,7 @@ function DrawMap (mapContainer, options) {
     map.addInteraction(modifyInteraction)
     modifyInteraction.overlay_.setZIndex(3) // Force zIndex for overlay layer
     state.isModify = true
-    resetDrawingButton.classList.remove('defra-map-button--hidden')
+    resetDrawingButton.classList.remove('defra-map-draw-button--hidden')
     doneButton.removeAttribute('disabled')
   })
 
@@ -487,7 +514,7 @@ function DrawMap (mapContainer, options) {
         const sketchFeature = drawInteraction.sketchFeature_ // Private method
         let fCoordinates = sketchFeature.getGeometry().getCoordinates()[0]
         if (fCoordinates.length >= 3) {
-          finishShapeButton.classList.remove('defra-map-button--hidden')
+          finishShapeButton.classList.remove('defra-map-draw-button--hidden')
         }
       }
     }
@@ -498,9 +525,9 @@ function DrawMap (mapContainer, options) {
     // Reset
     pointLayer.setVisible(false)
     // Toggel button visibility
-    resetDrawingButton.classList.remove('defra-map-button--hidden')
-    confirmPointButton.classList.add('defra-map-button--hidden')
-    finishShapeButton.classList.add('defra-map-button--hidden')
+    resetDrawingButton.classList.remove('defra-map-draw-button--hidden')
+    confirmPointButton.classList.add('defra-map-draw-button--hidden')
+    finishShapeButton.classList.add('defra-map-draw-button--hidden')
   })
 
   drawInteraction.addEventListener('drawabort', (e) => {
@@ -539,8 +566,8 @@ function DrawMap (mapContainer, options) {
       state.vertexIndexes = []
       state.vertexOffset = []
     }
-    if (mapContainer.hasAttribute('tabindex')) { mapContainer.focus() }
-    editPointButton.classList.add('defra-map-button--hidden')
+    if (mapInnerContainer.hasAttribute('tabindex')) { mapInnerContainer.focus() }
+    editPointButton.classList.add('defra-map-draw-button--hidden')
     editPointButton.blur()
   })
 
@@ -574,7 +601,9 @@ function DrawMap (mapContainer, options) {
   // Mouse pointer down
   const pointerDown = (e) => {
     if (e.target !== map) { return }
-    if (maps.interfaceType === 'mouse' && state.isModify) {
+    // Hide touch and keyboard interface buttons
+    // mapbuttonContainer.style.display = 'none'
+    if (state.isModify) {
       const vertexFeature = modifyInteraction.vertexFeature_
       if (vertexFeature) {
         setVertexType(vertexFeature)
@@ -593,7 +622,7 @@ function DrawMap (mapContainer, options) {
 
   // Mouse drag
   const pointerDrag = (e) => {
-    editPointButton.classList.add('defra-map-button--hidden')
+    editPointButton.classList.add('defra-map-draw-button--hidden')
   }
   map.on('pointerdrag', pointerDrag)
 
@@ -644,7 +673,7 @@ function DrawMap (mapContainer, options) {
         const isMovePoint = pointFeature.get('isSelected') && pointFeature.get('type') === 'point'
         keyboardLayer.setVisible(!isMovePoint)
         if (isMovePoint) {
-          editPointButton.classList.add('defra-map-button--hidden')
+          editPointButton.classList.add('defra-map-draw-button--hidden')
           state.isEnableModify = false
           map.removeInteraction(modifyInteraction)
           updatePolygon()
@@ -683,6 +712,11 @@ function DrawMap (mapContainer, options) {
   const keydown = (e) => {
     // Set sketchPoint to centre on any keydown
     if ((e.getModifierState('CapsLock') || e.shiftKey) && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      if (state.isModify) {
+        // Show touch and keyboard interface buttons
+        confirmPointButton.classList.remove('defra-map-draw-button--hidden')
+        finishShapeButton.classList.remove('defra-map-draw-button--hidden')
+      }
       let centre = map.getView().getCenter()
       const resolution = map.getView().getResolution()
       const distance = 10
@@ -741,61 +775,31 @@ function DrawMap (mapContainer, options) {
 // (This is done mainly to avoid the rule
 // "do not use 'new' for side effects. (no-new)")
 maps.createDrawMap = (placeholderId, options = {}) => {
-  // Create container elements
-  const placeholder = document.getElementById(placeholderId)
-  const toolBarContainer = document.createElement('div')
-  toolBarContainer.id = 'tool-bar'
-  toolBarContainer.className = 'defra-map__tool-bar'
-  const mapOuterContainer = document.createElement('div')
-  mapOuterContainer.id = 'map-outer-container'
-  mapOuterContainer.className = 'defra-map__outer-container'
-  const mapContainer = document.createElement('div')
-  mapContainer.id = 'map-container'
-  mapContainer.className = 'defra-map__container'
-  const mapbuttonContainer = document.createElement('div')
-  mapbuttonContainer.id = 'map-buttons'
-  mapbuttonContainer.className = 'defra-map__map-buttons'
-  const buttonContainer = document.createElement('div')
-  buttonContainer.id = 'buttons'
-  buttonContainer.className = 'defra-map__buttons'
-  placeholder.appendChild(toolBarContainer)
-  mapOuterContainer.appendChild(mapContainer)
-  mapOuterContainer.appendChild(mapbuttonContainer)
-  placeholder.appendChild(mapOuterContainer)
-  placeholder.appendChild(buttonContainer)
-
-  // Detect keyboard interaction
-  if (!maps.interfaceType) {
-    window.addEventListener('pointerdown', (e) => {
-      maps.interfaceType = 'mouse'
-      mapContainer.removeAttribute('tabindex')
+  // Detect interface type
+  window.addEventListener('pointerdown', (e) => {
+    maps.interfaceType = 'mouse'
+  })
+  window.addEventListener('touchstart', (e) => {
+    maps.interfaceType = 'touch'
+  })
+  window.addEventListener('touchmove', (e) => {
+    maps.interfaceType = 'touch'
+  })
+  window.addEventListener('pointermove', (e) => {
+    maps.interfaceType = 'mouse'
+  })
+  window.addEventListener('keydown', (e) => {
+    maps.interfaceType = 'keyboard'
+  })
+  window.addEventListener('focusin', (e) => {
+    if (maps.interfaceType === 'keyboard') {
+      e.target.setAttribute('keyboard-focus', '')
+    }
+  })
+  window.addEventListener('focusout', (e) => {
+    forEach(document.querySelectorAll('[keyboard-focus]'), (element) => {
+      element.removeAttribute('keyboard-focus')
     })
-    window.addEventListener('touchstart', (e) => {
-      maps.interfaceType = 'touch'
-      mapContainer.removeAttribute('tabindex')
-    })
-    window.addEventListener('touchmove', (e) => {
-      maps.interfaceType = 'touch'
-      mapContainer.removeAttribute('tabindex')
-    })
-    window.addEventListener('pointermove', (e) => {
-      maps.interfaceType = 'mouse'
-      mapContainer.removeAttribute('tabindex')
-    })
-    window.addEventListener('keydown', (e) => {
-      maps.interfaceType = 'keyboard'
-      mapContainer.tabIndex = 0
-    })
-    window.addEventListener('focusin', (e) => {
-      if (maps.interfaceType === 'keyboard') {
-        e.target.setAttribute('keyboard-focus', '')
-      }
-    })
-    window.addEventListener('focusout', (e) => {
-      forEach(document.querySelectorAll('[keyboard-focus]'), (element) => {
-        element.removeAttribute('keyboard-focus')
-      })
-    })
-  }
-  return new DrawMap(mapContainer, options)
+  })
+  return new DrawMap(placeholderId, options)
 }

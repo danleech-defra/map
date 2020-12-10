@@ -1,8 +1,8 @@
 body {
   touch-action: pan-y;
 }
-.defra-map {
-  &__outer-container {
+.defra-map-draw {
+  &__container {
     position:relative;
     width:100%;
     height:300px;
@@ -23,7 +23,7 @@ body {
     }
   }
 }
-.defra-map__container {
+.defra-map-draw__inner-container {
   width:100%;
   height:100%;
   &:focus {
@@ -41,7 +41,7 @@ body {
     z-index: 99;
   }
 }
-.defra-map-button {
+.defra-map-draw-button {
   @extend .govuk-button;
   &--start {
     @extend .govuk-button--secondary;
@@ -78,7 +78,7 @@ body {
     margin-top:0px;
   }
 }
-.defra-map-button-overlay {
+.defra-map-draw-button-overlay {
   @include mq ($until: desktop) {
     transform: none !important;
     bottom:0px;
@@ -86,7 +86,7 @@ body {
     text-align:center;
   }
 }
-.defra-map-button-edit {
+.defra-map-draw-button-edit {
   @include govuk-font($size: 16);
   color: $govuk-text-colour;
   margin:0px auto 10px auto;
