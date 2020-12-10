@@ -1,0 +1,27 @@
+.defra-key-symbol {
+    position:relative;
+    z-index:2;
+    display: inline-block;
+    position: relative;
+    @include govuk-font($size: 16, $weight: bold);
+    min-width: 26px;
+    box-sizing: border-box;
+    text-align:center;
+    background-color: white;
+    -webkit-box-shadow: 1px 1px 0 1px $govuk-input-border-colour, 0px 0px 0 1px $govuk-input-border-colour;
+    -moz-box-shadow: 1px 1px 0 1px $govuk-input-border-colour, 0px 0px 0 1px $govuk-input-border-colour;
+    -ms-box-shadow: 1px 1px 0 1px $govuk-input-border-colour, 0px 0px 0 1px $govuk-input-border-colour;
+    box-shadow: 1px 1px 0 1px $govuk-input-border-colour, 0px 0px 0 1px $govuk-input-border-colour;
+    border-radius: 3px;
+    &--selected {
+      z-index: 3;
+      box-shadow: 0 0 0 3px $govuk-input-border-colour;
+    }
+    margin-right: 1px;
+    padding: 0px 6px;
+    line-height:21px !important;
+    @include mq ($from: tablet) {
+        padding: 0px 7px;
+        line-height:25px !important;
+    }
+  }

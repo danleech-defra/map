@@ -18,6 +18,7 @@ $govuk-images-path: '/public/images/';
 
 // Objects that aren't in Frontend
 @import "objects/buttons";
+@import "objects/key-symbols";
 
 // Components that aren't in Frontend
 @import "components/cookie-banner";
@@ -26,6 +27,7 @@ $govuk-images-path: '/public/images/';
 @import "components/map/map-live";
 @import "components/map/map-draw";
 
-
+// Utilities that aren't in Frontend
+@import "utilities/lists";
 
 // Add extra styles here, or re-organise the Sass files in whichever way makes most sense to you

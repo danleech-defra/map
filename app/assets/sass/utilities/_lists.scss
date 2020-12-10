@@ -1,0 +1,7 @@
+// GOV.UK number list aligment fix
+.govuk-list.govuk-list--number {
+    padding-left: 23px;
+    @include mq ($from: tablet) {
+        padding-left: 27px;
+    }
+}
