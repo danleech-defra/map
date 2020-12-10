@@ -12,7 +12,7 @@
     "test": "npm run lint && gulp generate-assets && jest"
   },
   "dependencies": {
-    "@babel/cli": "^7.8.4",
+    "@babel/cli": "^7.12.10",
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
     "acorn": "^6.4.1",
@@ -30,6 +30,7 @@
     "cross-spawn": "^6.0.5",
     "del": "^3.0.0",
     "dotenv": "^6.0.0",
+    "elm-pep": "^1.0.6",
     "express": "4.16.3",
     "express-session": "^1.13.0",
     "express-writer": "0.0.4",
@@ -50,7 +51,6 @@
     "notifications-node-client": "^4.1.0",
     "nunjucks": "^3.2.1",
     "ol": "^6.4.3",
-    "pepjs": "^0.5.2",
     "portscanner": "^2.1.1",
     "prompt": "^1.0.0",
     "regenerator-runtime": "^0.13.5",
