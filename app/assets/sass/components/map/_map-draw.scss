@@ -55,7 +55,7 @@ body {
   &--hidden {
     display: none !important;
   }
-  &--confirm {
+  &--add {
     @extend .govuk-button--secondary;
     @include govuk-font($size: 16);
     max-width:calc(50% - 12.5px);

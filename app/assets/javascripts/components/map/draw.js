@@ -266,14 +266,14 @@ function DrawMap (placeholderId, options) {
   map.addControl(startDrawing)
 
   // Place node button
-  const confirmPointButton = document.createElement('button')
-  confirmPointButton.className = 'defra-map-draw-button defra-map-draw-button--confirm defra-map-draw-button--hidden'
-  confirmPointButton.appendChild(document.createTextNode('Confirm point'))
-  const confirmPoint = new Control({
-    element: confirmPointButton,
+  const addPointButton = document.createElement('button')
+  addPointButton.className = 'defra-map-draw-button defra-map-draw-button--add defra-map-draw-button--hidden'
+  addPointButton.appendChild(document.createTextNode('Add point'))
+  const addPoint = new Control({
+    element: addPointButton,
     target: mapButtons
   })
-  map.addControl(confirmPoint)
+  map.addControl(addPoint)
 
   // Finish shape button
   const finishShapeButton = document.createElement('button')
@@ -452,7 +452,7 @@ function DrawMap (placeholderId, options) {
     updateSketchPoint(centre)
     startDrawingButton.setAttribute('disabled', 'disabled')
     if (maps.interfaceType === 'touch' || maps.interfaceType === 'keyboard') {
-      confirmPointButton.classList.remove('defra-map-draw-button--hidden')
+      addPointButton.classList.remove('defra-map-draw-button--hidden')
     }
     if (mapInnerContainer.hasAttribute('tabindex')) { mapInnerContainer.focus() }
   })
@@ -469,7 +469,7 @@ function DrawMap (placeholderId, options) {
     state.vertexIndexes = []
     state.vertexOffset = []
     resetDrawingButton.classList.add('defra-map-draw-button--hidden')
-    confirmPointButton.classList.add('defra-map-draw-button--hidden')
+    addPointButton.classList.add('defra-map-draw-button--hidden')
     finishShapeButton.classList.add('defra-map-draw-button--hidden')
     editPointButton.classList.add('defra-map-draw-button--hidden')
     doneButton.setAttribute('disabled', 'disabled')
@@ -500,7 +500,7 @@ function DrawMap (placeholderId, options) {
     // Generate output
   })
 
-  confirmPointButton.addEventListener('click', (e) => {
+  addPointButton.addEventListener('click', (e) => {
     const centre = map.getView().getCenter()
     if (!state.isDraw) {
       drawInteraction.startDrawing_(simulateClick(centre)) // Private method
@@ -526,7 +526,7 @@ function DrawMap (placeholderId, options) {
     pointLayer.setVisible(false)
     // Toggel button visibility
     resetDrawingButton.classList.remove('defra-map-draw-button--hidden')
-    confirmPointButton.classList.add('defra-map-draw-button--hidden')
+    addPointButton.classList.add('defra-map-draw-button--hidden')
     finishShapeButton.classList.add('defra-map-draw-button--hidden')
   })
 
@@ -718,7 +718,7 @@ function DrawMap (placeholderId, options) {
     if ((e.getModifierState('CapsLock') || e.shiftKey) && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
       if (state.isDraw) {
         // Show touch and keyboard interface buttons
-        confirmPointButton.classList.remove('defra-map-draw-button--hidden')
+        addPointButton.classList.remove('defra-map-draw-button--hidden')
         finishShapeButton.classList.remove('defra-map-draw-button--hidden')
       }
       let centre = map.getView().getCenter()
