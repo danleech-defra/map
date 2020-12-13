@@ -552,7 +552,7 @@ function DrawMap (placeholderId, options) {
     map.removeInteraction(snapInteraction)
     state.isDraw = false
     state.isModify = false
-    state.isEnableModify = false
+    state.isStarted = false
     // Reset
     pointLayer.setVisible(false)
     keyboardLayer.setVisible(false)
@@ -563,7 +563,8 @@ function DrawMap (placeholderId, options) {
   })
 
   editShapeButton.addEventListener('click', (e) => {
-    if (state.isStarted && !state.isDraw && !state.isModify) { enableModifyPolygon() }
+    state.isStarted = true
+    enableModifyPolygon()
     editShapeButton.disabled = true
     previewShapeButton.disabled = false
     keyboardLayer.setVisible(true)
