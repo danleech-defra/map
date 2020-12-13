@@ -598,7 +598,7 @@ function DrawMap (placeholderId, options) {
     toggleEditButtons(vertexFeature)
     state.isEnableModify = false
     state.isEnableInsert = false
-    mapInnerContainer.focus()
+    // mapInnerContainer.focus()
   })
 
   deletePointButton.addEventListener('click', (e) => {
@@ -779,6 +779,7 @@ function DrawMap (placeholderId, options) {
   // Keyup
   const keyup = (e) => {
     if (e.target === mapInnerContainer && (e.key === 'Enter' || e.key === ' ')) {
+      console.log(e.target)
       const centre = map.getView().getCenter()
       map.dispatchEvent(simulateClick(centre))
     }
