@@ -552,6 +552,7 @@ function DrawMap (placeholderId, options) {
     map.removeInteraction(snapInteraction)
     state.isDraw = false
     state.isModify = false
+    state.isEnableModify = false
     // Reset
     pointLayer.setVisible(false)
     keyboardLayer.setVisible(false)
