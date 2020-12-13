@@ -554,6 +554,7 @@ function DrawMap (placeholderId, options) {
     state.isModify = false
     // Reset
     pointLayer.setVisible(false)
+    keyboardLayer.setVisible(false)
     // Toggle button visibility
     previewShapeButton.disabled = true
     editShapeButton.disabled = false
@@ -564,6 +565,7 @@ function DrawMap (placeholderId, options) {
     if (state.isStarted && !state.isDraw && !state.isModify) { enableModifyPolygon() }
     editShapeButton.disabled = true
     previewShapeButton.disabled = false
+    keyboardLayer.setVisible(true)
     mapInnerContainer.focus()
   })
 
@@ -590,10 +592,12 @@ function DrawMap (placeholderId, options) {
     const vertexFeature = modifyInteraction.vertexFeature_
     updateSelectedIndexAndOffset(vertexFeature)
     vertexFeature.set('type', 'point')
-    vertexFeature.set('isSelected', false)
+    vertexFeature.set('isSelected', true)
+    pointFeature.set('type', 'point')
+    pointFeature.set('isSelected', true)
+    toggleEditButtons(vertexFeature)
     state.isEnableModify = false
     state.isEnableInsert = false
-    pointLayer.setVisible(false)
     mapInnerContainer.focus()
   })
 
@@ -633,8 +637,8 @@ function DrawMap (placeholderId, options) {
       }
       // Show edit point button
       toggleEditButtons(vertexFeature)
-    } else if (state.isStarted && !state.isDraw) {
-      // enableModifyPolygon()
+    } else if (maps.interfaceType !== 'keyboard' && state.isStarted && !state.isDraw) {
+      enableModifyPolygon()
     }
   })
 
@@ -645,14 +649,17 @@ function DrawMap (placeholderId, options) {
       const vertexFeature = modifyInteraction.vertexFeature_
       if (vertexFeature) {
         setVertexType(vertexFeature)
-        vertexFeature.set('isSelected', true)
-        pointLayer.setVisible(false)
-        state.isEnableModify = vertexFeature.get('isSelected') && vertexFeature.get('type') === 'point'
+        if (vertexFeature.get('type') === 'point') {
+          vertexFeature.set('isSelected', true)
+          pointLayer.setVisible(false)
+          state.isEnableModify = true
+          // state.isEnableModify = vertexFeature.get('isSelected') && vertexFeature.get('type') === 'point'
+        }
       } else {
         // Set selected state
-        pointFeature.set('isSelected', false)
-        pointLayer.setVisible(false)
-        state.isEnableModify = false
+        // pointFeature.set('isSelected', false)
+        // pointLayer.setVisible(false)
+        // state.isEnableModify = false
       }
     }
   }
