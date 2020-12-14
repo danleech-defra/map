@@ -14,7 +14,7 @@ const { forEach } = window.flood.utils
 const maps = window.flood.maps
 
 function DrawMap (placeholderId, options) {
-  // Create container elements
+  // Create DOM elements
   const placeholder = document.getElementById(placeholderId)
   placeholder.className = 'defra-map-draw'
   const toolBarContainer = document.createElement('div')
@@ -40,7 +40,7 @@ function DrawMap (placeholderId, options) {
   placeholder.appendChild(mapContainer)
   placeholder.appendChild(buttonContainer)
 
-  // Maintain interaction state
+  // State object
   const state = {
     isStarted: false,
     isDraw: false,
@@ -48,6 +48,7 @@ function DrawMap (placeholderId, options) {
     isEnableModify: false, // Control modify condition
     isEnableDelete: false, // Control delete condition
     isEnableInsert: false, // Control insert condition
+    isKeyboardButtonClick: false, // Manage duplicate between click and keyup events
     vertexIndexes: [],
     vertexOffset: []
   }
@@ -147,11 +148,11 @@ function DrawMap (placeholderId, options) {
     } : {}
     return new Style(options)
   }
-  const completedShapeStyle = new Style({
+  const editShapeStyle = new Style({
     fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
     stroke: new Stroke({ color: '#0b0c0c', width: 3 })
   })
-  const completedPointStyle = new Style({
+  const editPointStyle = new Style({
     image: new Icon({
       opacity: 1,
       size: [32, 32],
@@ -167,6 +168,10 @@ function DrawMap (placeholderId, options) {
         return null
       }
     }
+  })
+  const previewShapeStyle = new Style({
+    fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
+    stroke: new Stroke({ color: '#0b0c0c', width: 3 })
   })
 
   // The featur polygon
@@ -188,7 +193,7 @@ function DrawMap (placeholderId, options) {
   const road = maps.layers.road()
   const vectorLayer = new VectorLayer({
     source: vectorSource,
-    style: [completedShapeStyle, completedPointStyle],
+    style: [previewShapeStyle],
     updateWhileInteracting: true,
     zIndex: 1
   })
@@ -473,6 +478,7 @@ function DrawMap (placeholderId, options) {
     map.addInteraction(drawInteraction)
     map.addInteraction(snapInteraction)
     map.removeInteraction(doubleClickZoomInteraction)
+    vectorLayer.setStyle([editShapeStyle, editPointStyle])
     updateSketchPoint(centre)
     startDrawingButton.setAttribute('disabled', 'disabled')
     if (maps.interfaceType === 'touch' || maps.interfaceType === 'keyboard') {
@@ -559,6 +565,7 @@ function DrawMap (placeholderId, options) {
     // Toggle button visibility
     previewShapeButton.disabled = true
     editShapeButton.disabled = false
+    vectorLayer.setStyle(previewShapeStyle)
     mapInnerContainer.focus()
   })
 
@@ -568,6 +575,7 @@ function DrawMap (placeholderId, options) {
     editShapeButton.disabled = true
     previewShapeButton.disabled = false
     keyboardLayer.setVisible(true)
+    vectorLayer.setStyle([editShapeStyle, editPointStyle])
     mapInnerContainer.focus()
   })
 
@@ -600,7 +608,8 @@ function DrawMap (placeholderId, options) {
     toggleEditButtons(vertexFeature)
     state.isEnableModify = false
     state.isEnableInsert = false
-    // mapInnerContainer.focus()
+    state.isKeyboardButtonClick = (maps.interfaceType === 'keyboard')
+    mapInnerContainer.focus()
   })
 
   deletePointButton.addEventListener('click', (e) => {
@@ -780,11 +789,11 @@ function DrawMap (placeholderId, options) {
 
   // Keyup
   const keyup = (e) => {
-    if (e.target === mapInnerContainer && (e.key === 'Enter' || e.key === ' ')) {
-      console.log(e.target)
+    if (!state.isKeyboardButtonClick && e.target === mapInnerContainer && (e.key === 'Enter' || e.key === ' ')) {
       const centre = map.getView().getCenter()
       map.dispatchEvent(simulateClick(centre))
     }
+    state.isKeyboardButtonClick = false
   }
   window.addEventListener('keyup', keyup)
 }
