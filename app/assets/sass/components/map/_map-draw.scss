@@ -73,7 +73,7 @@ body {
   padding:0px;
   width:40px;
   height:40px;
-  @include mq ($from: tablet) {
+  @include mq ($from: desktop) {
     text-indent: 0px;
     text-decoration: underline;
     width:auto;
