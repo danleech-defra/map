@@ -172,7 +172,7 @@ function DrawMap (placeholderId, options) {
     stroke: new Stroke({ color: '#0b0c0c', width: 3 })
   })
 
-  // The featur polygon
+  // The feature polygon
   let polygon
 
   // Features
@@ -240,7 +240,6 @@ function DrawMap (placeholderId, options) {
   const map = new Map({
     target: mapInnerContainer,
     layers: [road, vectorLayer, pointLayer, keyboardLayer],
-    // layers: [vectorLayer, pointLayer, keyboardLayer],
     view: view,
     controls: controls,
     interactions: interactions,
@@ -435,7 +434,6 @@ function DrawMap (placeholderId, options) {
     map.addInteraction(modifyInteraction)
     modifyInteraction.overlay_.setZIndex(3) // Force zIndex for overlay layer
     state.isModify = true
-    // resetDrawingButton.classList.remove('defra-map-draw__button--hidden')
   }
 
   const addPoint = () => {
