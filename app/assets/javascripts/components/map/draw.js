@@ -1,6 +1,6 @@
 'use strict'
 import 'elm-pep' // polyfill to add pointer events to older browsers such as iOS12
-import { Map, View, Overlay, MapBrowserEvent, Feature } from 'ol'
+import { Map, View, MapBrowserEvent, Feature } from 'ol'
 import { defaults as defaultControls, Control } from 'ol/control'
 import { transform } from 'ol/proj'
 import { Point, MultiPoint } from 'ol/geom'
@@ -28,17 +28,15 @@ function DrawMap (placeholderId, options) {
   mapInnerContainer.id = 'map-inner-container'
   mapInnerContainer.className = 'defra-map-draw__inner-container'
   mapInnerContainer.tabIndex = 0
-  const mapbuttonContainer = document.createElement('div')
-  mapbuttonContainer.id = 'map-buttons'
-  mapbuttonContainer.className = 'defra-map-draw__map-buttons'
-  const buttonContainer = document.createElement('div')
-  buttonContainer.id = 'buttons'
-  buttonContainer.className = 'defra-map-draw__buttons'
+  const buttons = document.createElement('div')
+  buttons.className = 'defra-map-draw-buttons'
+  const buttonsContainer = document.createElement('div')
+  buttonsContainer.className = 'defra-map-draw-buttons__container'
   placeholder.appendChild(toolBarContainer)
   mapContainer.appendChild(mapInnerContainer)
-  mapContainer.appendChild(mapbuttonContainer)
+  buttons.appendChild(buttonsContainer)
+  mapContainer.appendChild(buttons)
   placeholder.appendChild(mapContainer)
-  placeholder.appendChild(buttonContainer)
 
   // State object
   const state = {
@@ -253,14 +251,8 @@ function DrawMap (placeholderId, options) {
   const viewport = document.querySelector('.ol-viewport')
   viewport.classList.add('defra-map-draw__viewport')
 
-  // Button container
-  const mapButtons = document.getElementById('map-buttons')
-
   // Tool bar container
   const toolBar = document.getElementById('tool-bar')
-
-  // Buttons container
-  const buttons = document.getElementById('buttons')
 
   // Start drawing button
   const startDrawingButton = document.createElement('button')
@@ -273,63 +265,50 @@ function DrawMap (placeholderId, options) {
   })
   map.addControl(startDrawing)
 
-  // Finish shape button
-  const previewShapeButton = document.createElement('button')
-  previewShapeButton.className = 'defra-map-draw__button defra-map-draw__button--finish'
-  previewShapeButton.setAttribute('disabled', 'disabled')
-  previewShapeButton.appendChild(document.createTextNode('Preview'))
-  const previewShape = new Control({
-    element: previewShapeButton,
-    target: mapButtons
-  })
-  map.addControl(previewShape)
-
-  // Finish shape button
-  const editShapeButton = document.createElement('button')
-  editShapeButton.className = 'defra-map-draw__button defra-map-draw__button--edit-shape'
-  editShapeButton.setAttribute('disabled', 'disabled')
-  editShapeButton.appendChild(document.createTextNode('Edit'))
-  const editShape = new Control({
-    element: editShapeButton,
-    target: mapButtons
-  })
-  map.addControl(editShape)
-
-  // Add point button
-  /*
-  const addPointButton = document.createElement('button')
-  addPointButton.className = 'defra-map-draw__button defra-map-draw__button--add-point'
-  addPointButton.appendChild(document.createTextNode('Insert'))
-  addPointButton.style.display = 'none'
-  const addPoint = new Control({
-    element: addPointButton,
-    target: mapButtons
-  })
-  map.addControl(addPoint)
-  */
-
   // Insert point button
   const newPointButton = document.createElement('button')
-  newPointButton.className = 'defra-map-draw__button defra-map-draw__button--edit-point'
+  newPointButton.className = 'defra-map-draw__button defra-map-draw__button--new'
   newPointButton.setAttribute('disabled', 'disabled')
   newPointButton.appendChild(document.createTextNode('Insert'))
   newPointButton.setAttribute('data-mode', 'insert')
   const newPoint = new Control({
     element: newPointButton,
-    target: mapButtons
+    target: buttonsContainer
   })
   map.addControl(newPoint)
 
   // Add point button
   const deletePointButton = document.createElement('button')
-  deletePointButton.className = 'defra-map-draw__button defra-map-draw__button--edit-point'
+  deletePointButton.className = 'defra-map-draw__button defra-map-draw__button--delete'
   deletePointButton.setAttribute('disabled', 'disabled')
   deletePointButton.appendChild(document.createTextNode('Delete'))
   const deletePoint = new Control({
     element: deletePointButton,
-    target: mapButtons
+    target: buttonsContainer
   })
   map.addControl(deletePoint)
+
+  // Finish shape button
+  const previewShapeButton = document.createElement('button')
+  previewShapeButton.className = 'defra-map-draw__button defra-map-draw__button--preview'
+  previewShapeButton.setAttribute('disabled', 'disabled')
+  previewShapeButton.appendChild(document.createTextNode('Preview'))
+  const previewShape = new Control({
+    element: previewShapeButton,
+    target: buttonsContainer
+  })
+  map.addControl(previewShape)
+
+  // Finish shape button
+  const editShapeButton = document.createElement('button')
+  editShapeButton.className = 'defra-map-draw__button defra-map-draw__button--edit'
+  editShapeButton.setAttribute('disabled', 'disabled')
+  editShapeButton.appendChild(document.createTextNode('Edit'))
+  const editShape = new Control({
+    element: editShapeButton,
+    target: buttonsContainer
+  })
+  map.addControl(editShape)
 
   // Reset and start again
   const resetDrawingButton = document.createElement('button')
@@ -338,7 +317,7 @@ function DrawMap (placeholderId, options) {
   resetDrawingButton.appendChild(document.createTextNode('Clear all'))
   const resetDrawing = new Control({
     element: resetDrawingButton,
-    target: mapButtons
+    target: buttonsContainer
   })
   map.addControl(resetDrawing)
 
@@ -349,7 +328,7 @@ function DrawMap (placeholderId, options) {
   doneButton.appendChild(document.createTextNode('Save and continue'))
   const done = new Control({
     element: doneButton,
-    target: buttons
+    target: placeholder
   })
   map.addControl(done)
 
@@ -666,10 +645,9 @@ function DrawMap (placeholderId, options) {
     }
   })
 
-  // Mouse or touch pointer down
+  // Set vertex display type on pointerdown
   const pointerDown = (e) => {
-    if (e.target !== map) { return }
-    if (state.isModify) {
+    if (state.isModify && e.target === map) {
       const vertexFeature = modifyInteraction.vertexFeature_
       if (vertexFeature) {
         setVertexType(vertexFeature)
@@ -683,7 +661,7 @@ function DrawMap (placeholderId, options) {
   }
   map.on('pointerdown', pointerDown)
 
-  // Mouse drag
+  // Clear line vertexes display on pointerdrag
   const pointerDrag = (e) => {
     if (state.isModify) {
       const vertexFeature = modifyInteraction.vertexFeature_
@@ -763,10 +741,9 @@ function DrawMap (placeholderId, options) {
   map.on('moveend', pointerMove)
   map.on('pointermove', pointerMove)
 
-  // Keydown
+  // Centre map on cursors keys keydown
   const keydown = (e) => {
     if (e.target === mapInnerContainer) {
-      // Set sketchPoint to centre on any keydown
       if ((e.getModifierState('CapsLock') || e.shiftKey) && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
         let centre = map.getView().getCenter()
         const resolution = map.getView().getResolution()
@@ -791,9 +768,8 @@ function DrawMap (placeholderId, options) {
   }
   window.addEventListener('keydown', keydown)
 
-  // Keyup
+  // Dispatch click event on map
   const keyup = (e) => {
-    // Dispatch click event on map
     if (!state.isKeyboardButtonClick && e.target === mapInnerContainer && (e.key === 'Enter' || e.key === ' ')) {
       const centre = map.getView().getCenter()
       map.dispatchEvent(simulateClick(centre))

@@ -34,19 +34,26 @@ body {
   @extend .govuk-button;
   margin-top:32px;
 }
-.defra-map-draw__map-buttons {
+.defra-map-draw-buttons {
   position: absolute;
-  bottom:0px;
-  width:100%;
+  bottom:10px;
+  left:10px;
+  right:10px;
   box-sizing: border-box;
-  padding:0 5px 10px;
   height:auto;
   pointer-events: none;
   text-align:center;
+  &__container {
+    display: inline-block;
+    background-color:white;
+    margin:auto;
+  }
 }
 .defra-map-draw__button {
   @extend .govuk-button;
   @extend .govuk-button--secondary;
+  box-shadow: none !important;
+  top:0px !important;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -55,22 +62,27 @@ body {
   user-select: none;
   background-color: white;
   pointer-events: auto;
-  margin-bottom: 0px;
+  margin: 0px;
   display: inline-block;
   width:auto;
   @include govuk-font($size: 16);
-  &--hidden {
-    display: none !important;
+  background-size: 20px;
+  background-position: 10px center;
+  background-repeat: no-repeat;
+  padding-left:33px;
+  text-decoration: underline;
+  &--new {
+    background-image: svg-url('<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg width="20" height="20" viewBox="0 0 20 20" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5;"><path d="M15.184,8.322c-0,-0 -3.592,3.825 -2.266,5.151l-9.993,3.583l3.582,-9.994c1.327,1.326 5.152,-2.265 5.152,-2.265" style="fill:none;stroke:#0b0c0c;stroke-width:1.07px;"/><path d="M17.569,7.314l-4.902,-4.903l-1.697,1.697l4.902,4.903l1.697,-1.697Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:0.71px;stroke-linecap:square;stroke-miterlimit:1.5;"/><path d="M3.712,16.268l5.47,-5.47" style="fill:none;stroke:#0b0c0c;stroke-width:1.07px;stroke-linecap:square;stroke-linejoin:miter;"/><path d="M9.921,10.059c0.408,0.408 0.408,1.07 0,1.478c-0.408,0.408 -1.07,0.408 -1.477,-0c-0.408,-0.408 -0.408,-1.07 -0,-1.478c0.407,-0.407 1.069,-0.407 1.477,0Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:1.07px;stroke-linecap:square;stroke-linejoin:miter;"/><rect x="-0" y="3" width="7.467" height="1.5" style="fill:#0b0c0c;"/><path d="M4.5,7.467l0,-7.467l-1.5,0l0,7.467l1.5,-0Z" style="fill:#0b0c0c;"/></svg>');
   }
-  &--add-point {
+  &--delete {
+    background-image: svg-url('<svg width="20" height="20" viewBox="0 0 20 20" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5;"><path d="M15.184,8.322c-0,-0 -3.592,3.825 -2.266,5.151l-9.993,3.583l3.582,-9.994c1.327,1.326 5.152,-2.265 5.152,-2.265" style="fill:none;stroke:#0b0c0c;stroke-width:1.07px;"/><path d="M17.569,7.314l-4.902,-4.903l-1.697,1.697l4.902,4.903l1.697,-1.697Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:0.71px;stroke-linecap:square;stroke-miterlimit:1.5;"/><path d="M3.712,16.268l5.47,-5.47" style="fill:none;stroke:#0b0c0c;stroke-width:1.07px;stroke-linecap:square;stroke-linejoin:miter;"/><path d="M9.921,10.059c0.408,0.408 0.408,1.07 0,1.478c-0.408,0.408 -1.07,0.408 -1.477,-0c-0.408,-0.408 -0.408,-1.07 -0,-1.478c0.407,-0.407 1.069,-0.407 1.477,0Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:1.07px;stroke-linecap:square;stroke-linejoin:miter;"/><rect x="-0" y="3" width="7.467" height="1.5" style="fill:#0b0c0c;"/></svg>');
   }
-  &--finish {
+  &--preview {
   }
-  &--edit-shape {
+  &--edit {
+    background-image: svg-url('<svg width="20" height="20" viewBox="0 0 20 20" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5;"><path d="M15.184,8.322c-0,-0 -3.592,3.825 -2.266,5.151l-9.993,3.583l3.582,-9.994c1.327,1.326 5.152,-2.265 5.152,-2.265" style="fill:none;stroke:#0b0c0c;stroke-width:1.07px;"/><path d="M17.569,7.314l-4.902,-4.903l-1.697,1.697l4.902,4.903l1.697,-1.697Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:0.71px;stroke-linecap:square;stroke-miterlimit:1.5;"/><path d="M3.712,16.268l5.47,-5.47" style="fill:none;stroke:#0b0c0c;stroke-width:1.07px;stroke-linecap:square;stroke-linejoin:miter;"/><path d="M9.921,10.059c0.408,0.408 0.408,1.07 0,1.478c-0.408,0.408 -1.07,0.408 -1.477,-0c-0.408,-0.408 -0.408,-1.07 -0,-1.478c0.407,-0.407 1.069,-0.407 1.477,0Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:1.07px;stroke-linecap:square;stroke-linejoin:miter;"/></svg>');
   }
   &--reset {
-  }
-  &--edit-point {
 
   }
 }
