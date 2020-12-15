@@ -176,7 +176,7 @@ function DrawMap (placeholderId, options) {
       }
     }
   })
-  const previewShapeStyle = new Style({
+  const doneShapeStyle = new Style({
     fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
     stroke: new Stroke({ color: '#0b0c0c', width: 3 })
   })
@@ -200,7 +200,7 @@ function DrawMap (placeholderId, options) {
   const road = maps.layers.road()
   const vectorLayer = new VectorLayer({
     source: vectorSource,
-    style: [previewShapeStyle],
+    style: [doneShapeStyle],
     updateWhileInteracting: true,
     zIndex: 1
   })
@@ -289,7 +289,7 @@ function DrawMap (placeholderId, options) {
   const deletePointButton = document.createElement('button')
   deletePointButton.className = 'defra-map-draw__button defra-map-draw__button--delete'
   deletePointButton.setAttribute('disabled', 'disabled')
-  deletePointButton.appendChild(document.createTextNode('Delete'))
+  deletePointButton.appendChild(document.createTextNode('Remove'))
   const deletePoint = new Control({
     element: deletePointButton,
     target: buttonGroupEditPoint
@@ -297,15 +297,15 @@ function DrawMap (placeholderId, options) {
   map.addControl(deletePoint)
 
   // Finish shape button
-  const previewShapeButton = document.createElement('button')
-  previewShapeButton.className = 'defra-map-draw__button defra-map-draw__button--preview'
-  previewShapeButton.setAttribute('disabled', 'disabled')
-  previewShapeButton.appendChild(document.createTextNode('Preview'))
-  const previewShape = new Control({
-    element: previewShapeButton,
+  const doneShapeButton = document.createElement('button')
+  doneShapeButton.className = 'defra-map-draw__button defra-map-draw__button--done'
+  doneShapeButton.setAttribute('disabled', 'disabled')
+  doneShapeButton.appendChild(document.createTextNode('Done'))
+  const doneShape = new Control({
+    element: doneShapeButton,
     target: buttonGroupEditShape
   })
-  map.addControl(previewShape)
+  map.addControl(doneShape)
 
   // Finish shape button
   const editShapeButton = document.createElement('button')
@@ -460,7 +460,7 @@ function DrawMap (placeholderId, options) {
         const sketchFeature = drawInteraction.sketchFeature_ // Private method
         let fCoordinates = sketchFeature.getGeometry().getCoordinates()[0]
         if (fCoordinates.length >= 3) {
-          previewShapeButton.removeAttribute('disabled')
+          doneShapeButton.removeAttribute('disabled')
         }
       }
     }
@@ -513,7 +513,7 @@ function DrawMap (placeholderId, options) {
     setTimeout(() => {
       map.addInteraction(doubleClickZoomInteraction)
     }, 100)
-    previewShapeButton.disabled = false
+    doneShapeButton.disabled = false
     resetDrawingButton.disabled = false
     doneButton.disabled = false
   })
@@ -551,7 +551,7 @@ function DrawMap (placeholderId, options) {
     mapInnerContainer.focus()
   })
 
-  previewShapeButton.addEventListener('click', (e) => {
+  doneShapeButton.addEventListener('click', (e) => {
     drawInteraction.finishDrawing()
     map.removeInteraction(modifyInteraction)
     map.removeInteraction(snapInteraction)
@@ -562,12 +562,12 @@ function DrawMap (placeholderId, options) {
     pointLayer.setVisible(false)
     keyboardLayer.setVisible(false)
     // Toggle button visibility
-    previewShapeButton.disabled = true
+    doneShapeButton.disabled = true
     editShapeButton.disabled = false
     newPointButton.disabled = true
     deletePointButton.disabled = true
     resetDrawingButton.disabled = true
-    vectorLayer.setStyle(previewShapeStyle)
+    vectorLayer.setStyle(doneShapeStyle)
     mapInnerContainer.focus()
   })
 
@@ -575,7 +575,7 @@ function DrawMap (placeholderId, options) {
     state.isStarted = true
     enableModifyPolygon()
     editShapeButton.disabled = true
-    previewShapeButton.disabled = false
+    doneShapeButton.disabled = false
     resetDrawingButton.disabled = false
     newPointButton.setAttribute('data-mode', 'insert')
     keyboardLayer.setVisible(maps.interfaceType === 'keyboard')
@@ -609,7 +609,7 @@ function DrawMap (placeholderId, options) {
     state.isModify = false
     state.vertexIndexes = []
     state.vertexOffset = []
-    previewShapeButton.disabled = true
+    doneShapeButton.disabled = true
     editShapeButton.disabled = true
     // addPointButton.disabled = true
     newPointButton.disabled = true
