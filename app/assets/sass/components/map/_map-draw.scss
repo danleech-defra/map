@@ -45,8 +45,15 @@ body {
   text-align:center;
   &__container {
     display: inline-block;
-    background-color:white;
     margin:auto;
+  }
+  &__group {
+    display: inline-block;
+    background-color:white;
+  }
+  &__group:nth-child(2) {
+    margin-left:5px;
+    margin-right:5px;
   }
 }
 .defra-map-draw__button {
@@ -67,12 +74,13 @@ body {
   width:auto;
   @include govuk-font($size: 16);
   background-size: 20px;
-  background-position: 10px center;
+  background-position: center center;
   background-repeat: no-repeat;
   text-indent: -5000px;
   padding:0px;
   width:40px;
   height:40px;
+  /*
   @include mq ($from: desktop) {
     text-indent: 0px;
     text-decoration: underline;
@@ -80,6 +88,7 @@ body {
     height:auto;
     padding:8px 10px 7px 33px;
   }
+  */
   &--new {
     background-image: svg-url('<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg width="20" height="20" viewBox="0 0 20 20" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5;"><path d="M15.184,8.322c-0,-0 -3.592,3.825 -2.266,5.151l-9.993,3.583l3.582,-9.994c1.327,1.326 5.152,-2.265 5.152,-2.265" style="fill:none;stroke:#0b0c0c;stroke-width:1.07px;"/><path d="M17.569,7.314l-4.902,-4.903l-1.697,1.697l4.902,4.903l1.697,-1.697Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:0.71px;stroke-linecap:square;stroke-miterlimit:1.5;"/><path d="M3.712,16.268l5.47,-5.47" style="fill:none;stroke:#0b0c0c;stroke-width:1.07px;stroke-linecap:square;stroke-linejoin:miter;"/><path d="M9.921,10.059c0.408,0.408 0.408,1.07 0,1.478c-0.408,0.408 -1.07,0.408 -1.477,-0c-0.408,-0.408 -0.408,-1.07 -0,-1.478c0.407,-0.407 1.069,-0.407 1.477,0Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:1.07px;stroke-linecap:square;stroke-linejoin:miter;"/><rect x="-0" y="3" width="7.467" height="1.5" style="fill:#0b0c0c;"/><path d="M4.5,7.467l0,-7.467l-1.5,0l0,7.467l1.5,-0Z" style="fill:#0b0c0c;"/></svg>');
   }
@@ -92,59 +101,7 @@ body {
     background-image: svg-url('<svg width="20" height="20" viewBox="0 0 20 20" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5;"><path d="M15.184,8.322c-0,-0 -3.592,3.825 -2.266,5.151l-9.993,3.583l3.582,-9.994c1.327,1.326 5.152,-2.265 5.152,-2.265" style="fill:none;stroke:#0b0c0c;stroke-width:1.07px;"/><path d="M17.569,7.314l-4.902,-4.903l-1.697,1.697l4.902,4.903l1.697,-1.697Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:0.71px;stroke-linecap:square;stroke-miterlimit:1.5;"/><path d="M3.712,16.268l5.47,-5.47" style="fill:none;stroke:#0b0c0c;stroke-width:1.07px;stroke-linecap:square;stroke-linejoin:miter;"/><path d="M9.921,10.059c0.408,0.408 0.408,1.07 0,1.478c-0.408,0.408 -1.07,0.408 -1.477,-0c-0.408,-0.408 -0.408,-1.07 -0,-1.478c0.407,-0.407 1.069,-0.407 1.477,0Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:1.07px;stroke-linecap:square;stroke-linejoin:miter;"/></svg>');
   }
   &--reset {
-
-  }
-}
-.defra-map-draw-button__edit {
-  @include govuk-font($size: 16);
-  color: $govuk-text-colour;
-  margin:0px auto 10px auto;
-  box-shadow: 0 2px govuk-colour('mid-grey');
-  border:0;
-  padding:10px 10px 9px 35px;
-  background-color: white;
-  cursor:pointer;
-  &::-moz-focus-inner {
-    border: 0;
-  }
-  span {
-    @include mq ($from: desktop) {
-      position: absolute;
-      width:0px;
-      height:0px;
-      text-indent: -5000px;
-    }
-  }
-  &:focus {
-    outline:0px;
-    background-color: $govuk-focus-colour;
-    box-shadow: 0 2px $govuk-link-active-colour;
-  }
-  pointer-events: auto;
-  background-size: 20px;
-  background-position: 10px center;
-  background-repeat: no-repeat;
-  @include mq ($from: desktop) {
-    position: absolute;
-    left:-50px;
-    bottom:21px;
-    margin:0;
-    width:100px;
-    padding-left:32px;
-    background-size: 22px;
-    box-sizing: border-box;
-  }
-  &[data-mode="add"] {
-    background-image: svg-url('<svg width="100%" height="100%" viewBox="0 0 22 22" version="1.1" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5;"><path d="M16.702,9.154c-0,0 -3.951,4.207 -2.492,5.666l-10.993,3.941l3.941,-10.993c1.459,1.459 5.666,-2.491 5.666,-2.491" style="fill:none;stroke:#0b0c0c;stroke-width:1.17px;"/><path d="M19.326,8.045l-5.393,-5.393l-1.866,1.867l5.393,5.393l1.866,-1.867Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:0.78px;stroke-linecap:square;stroke-miterlimit:1.5;"/><path d="M4.084,17.895l6.017,-6.017" style="fill:none;stroke:#0b0c0c;stroke-width:1.17px;stroke-linecap:square;stroke-linejoin:miter;"/><path d="M10.913,11.065c0.449,0.449 0.449,1.177 0,1.625c-0.448,0.449 -1.177,0.449 -1.625,0c-0.448,-0.448 -0.448,-1.176 -0,-1.625c0.448,-0.448 1.177,-0.448 1.625,0Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:1.17px;stroke-linecap:square;stroke-linejoin:miter;"/><g><rect x="-0" y="3.227" width="8.213" height="1.76" style="fill:#0b0c0c;"/><path d="M4.987,8.213l-0,-8.213l-1.76,-0l-0,8.213l1.76,0Z" style="fill:#0b0c0c;"/></g></svg>');
-    @include mq ($from: desktop) {
-      left:-47px;
-      width:94px;
-    }
-  }
-  &[data-mode="delete"] {
-    background-image: svg-url('<svg width="22" height="22" viewBox="0 0 22 22" version="1.1" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5;"><path d="M16.702,9.154c-0,0 -3.951,4.207 -2.492,5.666l-10.993,3.941l3.941,-10.993c1.459,1.459 5.666,-2.491 5.666,-2.491" style="fill:none;stroke:#0b0c0c;stroke-width:1.17px;"/><path d="M19.326,8.045l-5.393,-5.393l-1.866,1.867l5.393,5.393l1.866,-1.867Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:0.78px;stroke-linecap:square;stroke-miterlimit:1.5;"/><path d="M4.084,17.895l6.017,-6.017" style="fill:none;stroke:#0b0c0c;stroke-width:1.17px;stroke-linecap:square;stroke-linejoin:miter;"/><path d="M10.913,11.065c0.449,0.449 0.449,1.177 0,1.625c-0.448,0.449 -1.177,0.449 -1.625,0c-0.448,-0.448 -0.448,-1.176 -0,-1.625c0.448,-0.448 1.177,-0.448 1.625,0Z" style="fill:#0b0c0c;stroke:#0b0c0c;stroke-width:1.17px;stroke-linecap:square;stroke-linejoin:miter;"/><rect x="-0" y="3.227" width="8.213" height="1.76" style="fill:#0b0c0c;"/></svg>');
-  }
-  &:hover {
-    background-color: govuk-colour('light-grey');
+    // background-image: svg-url('<svg width="20" height="20" viewBox="0 0 20 20" style="fill-rule:evenodd;clip-rule:evenodd;stroke-miterlimit:1.5;"><g><path d="M6,17.49c-0.552,-0 -1,-0.448 -1,-1l0,-10l10,-0l-0.044,10c-0,0.552 -0.448,1 -1,1l-7.956,-0Z" style="fill:none;stroke:#000;stroke-width:1px;"/><path d="M3,6.49l14,-0" style="fill:none;stroke:#000;stroke-width:1px;"/><path d="M15.5,5.512c0,-0.139 -0.055,-0.272 -0.153,-0.369c-0.098,-0.098 -0.23,-0.153 -0.369,-0.153c-1.853,-0 -8.103,-0 -9.956,-0c-0.139,-0 -0.271,0.055 -0.369,0.153c-0.098,0.097 -0.153,0.23 -0.153,0.369c-0,0.433 -0,0.978 -0,0.978l11,-0l-0,-0.978Z" style="fill:#0b0c0c;stroke:#000;stroke-width:1px;"/><path d="M7.5,8.49l0,7" style="fill:none;stroke:#000;stroke-width:1px;"/><path d="M10,8.49l0,7" style="fill:none;stroke:#000;stroke-width:1px;"/><path d="M12.5,8.49l0,7" style="fill:none;stroke:#000;stroke-width:1px;"/><path d="M7.5,4.823l0,-1.313c0,-0.552 0.448,-1 1,-1l3.125,0c0.552,0 1,0.448 1,1l-0,1.313" style="fill:none;stroke:#000;stroke-width:1px;"/></g></svg>');
+    background-image: svg-url('<svg width="20" height="20" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-miterlimit:1.5;"><path d="M6,17.49c-0.552,-0 -1,-0.448 -1,-1l0,-10l10,-0l-0.044,10c-0,0.552 -0.448,1 -1,1l-7.956,-0Z" style="fill:none;stroke:#000;stroke-width:1.25px;"/><path d="M3,6.49l14,-0" style="fill:none;stroke:#000;stroke-width:1.25px;"/><path d="M15.5,5.512c0,-0.139 -0.055,-0.272 -0.153,-0.369c-0.098,-0.098 -0.23,-0.153 -0.369,-0.153c-1.853,-0 -8.103,-0 -9.956,-0c-0.139,-0 -0.271,0.055 -0.369,0.153c-0.098,0.097 -0.153,0.23 -0.153,0.369c-0,0.433 -0,0.978 -0,0.978l11,-0l-0,-0.978Z" style="fill:#0b0c0c;stroke:#000;stroke-width:1.25px;"/><path d="M7.5,8.49l0,7" style="fill:none;stroke:#000;stroke-width:1.25px;"/><path d="M10,8.49l0,7" style="fill:none;stroke:#000;stroke-width:1.25px;"/><path d="M12.5,8.49l0,7" style="fill:none;stroke:#000;stroke-width:1.25px;"/><path d="M7.5,4.823l0,-1.313c0,-0.552 0.448,-1 1,-1l3.125,0c0.552,0 1,0.448 1,1l-0,1.313" style="fill:none;stroke:#000;stroke-width:1.25px;"/></svg>');
   }
 }

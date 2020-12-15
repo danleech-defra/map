@@ -32,8 +32,17 @@ function DrawMap (placeholderId, options) {
   buttons.className = 'defra-map-draw-buttons'
   const buttonsContainer = document.createElement('div')
   buttonsContainer.className = 'defra-map-draw-buttons__container'
+  const buttonGroupEditPoint = document.createElement('div')
+  buttonGroupEditPoint.className = 'defra-map-draw-buttons__group'
+  const buttonGroupEditShape = document.createElement('div')
+  buttonGroupEditShape.className = 'defra-map-draw-buttons__group'
+  const buttonGroupReset = document.createElement('div')
+  buttonGroupReset.className = 'defra-map-draw-buttons__group'
   placeholder.appendChild(toolBarContainer)
   mapContainer.appendChild(mapInnerContainer)
+  buttonsContainer.appendChild(buttonGroupEditPoint)
+  buttonsContainer.appendChild(buttonGroupEditShape)
+  buttonsContainer.appendChild(buttonGroupReset)
   buttons.appendChild(buttonsContainer)
   mapContainer.appendChild(buttons)
   placeholder.appendChild(mapContainer)
@@ -272,7 +281,7 @@ function DrawMap (placeholderId, options) {
   newPointButton.setAttribute('data-mode', 'insert')
   const newPoint = new Control({
     element: newPointButton,
-    target: buttonsContainer
+    target: buttonGroupEditPoint
   })
   map.addControl(newPoint)
 
@@ -283,7 +292,7 @@ function DrawMap (placeholderId, options) {
   deletePointButton.appendChild(document.createTextNode('Delete'))
   const deletePoint = new Control({
     element: deletePointButton,
-    target: buttonsContainer
+    target: buttonGroupEditPoint
   })
   map.addControl(deletePoint)
 
@@ -294,7 +303,7 @@ function DrawMap (placeholderId, options) {
   previewShapeButton.appendChild(document.createTextNode('Preview'))
   const previewShape = new Control({
     element: previewShapeButton,
-    target: buttonsContainer
+    target: buttonGroupEditShape
   })
   map.addControl(previewShape)
 
@@ -305,7 +314,7 @@ function DrawMap (placeholderId, options) {
   editShapeButton.appendChild(document.createTextNode('Edit'))
   const editShape = new Control({
     element: editShapeButton,
-    target: buttonsContainer
+    target: buttonGroupEditShape
   })
   map.addControl(editShape)
 
@@ -316,7 +325,7 @@ function DrawMap (placeholderId, options) {
   resetDrawingButton.appendChild(document.createTextNode('Clear all'))
   const resetDrawing = new Control({
     element: resetDrawingButton,
-    target: buttonsContainer
+    target: buttonGroupReset
   })
   map.addControl(resetDrawing)
 
