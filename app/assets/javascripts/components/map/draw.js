@@ -297,17 +297,6 @@ function DrawMap (placeholderId, options) {
   map.addControl(deletePoint)
 
   // Finish shape button
-  const doneShapeButton = document.createElement('button')
-  doneShapeButton.className = 'defra-map-draw__button defra-map-draw__button--done'
-  doneShapeButton.setAttribute('disabled', 'disabled')
-  doneShapeButton.appendChild(document.createTextNode('Done'))
-  const doneShape = new Control({
-    element: doneShapeButton,
-    target: buttonGroupEditShape
-  })
-  map.addControl(doneShape)
-
-  // Finish shape button
   const editShapeButton = document.createElement('button')
   editShapeButton.className = 'defra-map-draw__button defra-map-draw__button--edit'
   editShapeButton.setAttribute('disabled', 'disabled')
@@ -317,6 +306,17 @@ function DrawMap (placeholderId, options) {
     target: buttonGroupEditShape
   })
   map.addControl(editShape)
+
+  // Finish shape button
+  const doneShapeButton = document.createElement('button')
+  doneShapeButton.className = 'defra-map-draw__button defra-map-draw__button--done'
+  doneShapeButton.setAttribute('disabled', 'disabled')
+  doneShapeButton.appendChild(document.createTextNode('Done'))
+  const doneShape = new Control({
+    element: doneShapeButton,
+    target: buttonGroupEditShape
+  })
+  map.addControl(doneShape)
 
   // Reset and start again
   const resetDrawingButton = document.createElement('button')
