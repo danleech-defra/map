@@ -3,7 +3,7 @@ import 'elm-pep' // polyfill to add pointer events to older browsers such as iOS
 import { Map, View, MapBrowserEvent, Feature } from 'ol'
 import { defaults as defaultControls, Control } from 'ol/control'
 import { transform } from 'ol/proj'
-import { Point, MultiPoint } from 'ol/geom'
+import { Point, MultiPoint, LineString } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
 import { defaults as defaultInteractions, Modify, Snap, Draw, DoubleClickZoom } from 'ol/interaction'
@@ -76,8 +76,12 @@ function DrawMap (placeholderId, options) {
     attribution: false
   })
 
+  //
   // Styles
-  const keyboardStyle = new Style({
+  //
+
+  // Keyboard crosshair cursor
+  const keyboardCursorStyle = new Style({
     image: new Icon({
       opacity: 1,
       size: [52, 52],
@@ -85,39 +89,80 @@ function DrawMap (placeholderId, options) {
       src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 52 52"%3E%3Cg%3E%3Cpath d="M6.201,0.544L0.544,6.201L16.101,16.101L6.201,0.544Z" style="fill:rgb(11,12,12);"/%3E%3Cpath d="M51.456,45.799L45.799,51.456L35.899,35.899L51.456,45.799Z" style="fill:rgb(11,12,12);"/%3E%3Cpath d="M0.544,45.799L6.201,51.456L16.101,35.899L0.544,45.799Z" style="fill:rgb(11,12,12);"/%3E%3Cpath d="M45.799,0.544L51.456,6.201L35.899,16.101L45.799,0.544Z" style="fill:rgb(11,12,12);"/%3E%3C/g%3E%3C/svg%3E'
     })
   })
-  const drawShapeStyle = new Style({
-    fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
-    stroke: new Stroke({ color: '#0b0c0c', width: 3 }),
-    image: new Icon({
-      opacity: 1,
-      size: [32, 32],
-      scale: 1,
-      src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3C/svg%3E'
-    }),
-    zIndex: 2
-  })
-  const drawPointStyle = new Style({
-    image: new Icon({
-      opacity: 1,
-      size: [32, 32],
-      scale: 1,
-      src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="4" style="fill:%230b0c0c"/%3E%3C/svg%3E'
-    }),
-    // Return the coordinates of the first ring of the polygon
-    geometry: function (feature) {
-      if (feature.getGeometry().getType() === 'Polygon') {
-        let coordinates = feature.getGeometry().getCoordinates()[0]
-        // We dont want a point for the vertex that havsn't been placed
-        if (coordinates.length > 2) {
-          coordinates.splice(coordinates.length - 2, 2)
+
+  // Styles for drawing a new shape
+  const drawStyles = (feature) => {
+    const styles = []
+    const coordinates = feature.getGeometry().getCoordinates()
+    const image = {
+      small: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="4" style="fill:%230b0c0c"/%3E%3C/svg%3E',
+      large: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3C/svg%3E'
+    }
+    const src = feature.getGeometry().getType() === 'Point' ? image.large : image.small
+    styles.push(new Style({
+      // Return the coordinates of the first ring of the polygon
+      geometry: (feature) => {
+        if (feature.getGeometry().getType() === 'Polygon') {
+          let coordinates = feature.getGeometry().getCoordinates()[0]
+          // We dont want a point for the vertex that havsn't been placed
+          if (coordinates.length > 2) {
+            coordinates.splice(coordinates.length - 2, 2)
+          }
+          return new MultiPoint(coordinates)
+        } else if (feature.getGeometry().getType() === 'Point') {
+          return feature.getGeometry()
         }
-        return new MultiPoint(coordinates)
-      } else {
-        return null
+      },
+      image: new Icon({
+        opacity: 1,
+        size: [32, 32],
+        scale: 1,
+        src: src
+      }),
+      zIndex: 1
+    }))
+    styles.push(new Style({
+      // Return the coordinates of the first ring of the polygon
+      geometry: (feature) => {
+        if (feature.getGeometry().getType() === 'Polygon') {
+          let coordinates = feature.getGeometry().getCoordinates()[0]
+          // We dont want a point for the vertex that havsn't been placed
+          if (coordinates.length > 2) {
+            coordinates.splice(coordinates.length - 2, 2)
+          }
+          return new MultiPoint(coordinates)
+        } else if (feature.getGeometry().getType() === 'Point') {
+          return feature.getGeometry()
+        }
+      },
+      image: new Icon({
+        opacity: 1,
+        size: [32, 32],
+        scale: 1,
+        src: src
+      }),
+      zIndex: 2
+    }))
+    if (feature.getGeometry().getType() === 'LineString') {
+      styles.push(new Style({
+        geometry: new LineString(coordinates.slice(-2)),
+        // fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
+        stroke: new Stroke({ color: '#b1b4b6', width: 3, lineCap: 'butt', lineDash: [3, 2] }),
+        zIndex: 2
+      }))
+      if (coordinates.length > 2) {
+        styles.push(new Style({
+          geometry: new LineString(coordinates.slice(0, -1)),
+          // fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
+          stroke: new Stroke({ color: '#0b0c0c', width: 3 }),
+          zIndex: 2
+        }))
       }
-    },
-    zIndex: 1
-  })
+    }
+    return styles
+  }
+
+  // Style for overlayig a point
   const pointStyle = (feature) => {
     const colour = feature.get('isSelected') ? 'rgb(255,221,0)' : 'rgb(177,180,182)'
     let icon = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="10" style="fill:${colour};"/%3E%3Ccircle cx="16" cy="16" r="4"/%3E%3C/svg%3E%0A`
@@ -134,27 +179,8 @@ function DrawMap (placeholderId, options) {
       zIndex: 4
     })
   }
-  const modifyStyle = (feature) => {
-    const type = feature.get('type')
-    const colour = feature.get('isSelected') ? 'rgb(255,221,0)' : 'rgb(177,180,182)'
-    let icon = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="10" style="fill:${colour};"/%3E%3Ccircle cx="16" cy="16" r="4"/%3E%3C/svg%3E%0A`
-    if (type === 'point') {
-      icon = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3Ccircle cx="16" cy="16" r="11" style="fill:none;stroke:${colour};stroke-width:6px;"/%3E%3C/svg%3E`
-    }
-    const image = new Icon({
-      opacity: 1,
-      size: [32, 32],
-      scale: 1,
-      src: icon
-    })
-    const options = type !== '' ? {
-      // fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
-      // stroke: new Stroke({ color: '#0b0c0c', width: 3 }),
-      image: maps.interfaceType !== 'touch' ? image : null,
-      zIndex: 3
-    } : {}
-    return new Style(options)
-  }
+
+  // Styles feature when in edit mode
   const editShapeStyle = new Style({
     fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
     stroke: new Stroke({ color: '#0b0c0c', width: 3 })
@@ -176,6 +202,31 @@ function DrawMap (placeholderId, options) {
       }
     }
   })
+
+  // Style for modifying a point
+  const modifyStyle = (feature) => {
+    const type = feature.get('type')
+    const colour = feature.get('isSelected') ? 'rgb(255,221,0)' : 'rgb(177,180,182)'
+    let icon = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="10" style="fill:${colour};"/%3E%3Ccircle cx="16" cy="16" r="4"/%3E%3C/svg%3E%0A`
+    if (type === 'point') {
+      icon = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3Ccircle cx="16" cy="16" r="11" style="fill:none;stroke:${colour};stroke-width:6px;"/%3E%3C/svg%3E`
+    }
+    const image = new Icon({
+      opacity: 1,
+      size: [32, 32],
+      scale: 1,
+      src: icon
+    })
+    const options = type !== '' ? {
+      // fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
+      // stroke: new Stroke({ color: '#0b0c0c', width: 3 }),
+      image: maps.interfaceType !== 'touch' ? image : null,
+      zIndex: 3
+    } : {}
+    return new Style(options)
+  }
+
+  // Style shape preview
   const doneShapeStyle = new Style({
     fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
     stroke: new Stroke({ color: '#0b0c0c', width: 3 })
@@ -213,7 +264,7 @@ function DrawMap (placeholderId, options) {
   })
   const keyboardLayer = new VectorLayer({
     source: keyboardSource,
-    style: keyboardStyle,
+    style: keyboardCursorStyle,
     updateWhileInteracting: true,
     visible: false,
     zIndex: 5
@@ -237,7 +288,7 @@ function DrawMap (placeholderId, options) {
   const drawInteraction = new Draw({
     source: vectorSource,
     type: 'Polygon',
-    style: [drawShapeStyle, drawPointStyle],
+    style: drawStyles,
     condition: mouseOnly
   })
   const snapInteraction = new Snap({
