@@ -98,56 +98,13 @@ function DrawMap (placeholderId, options) {
       small: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="4" style="fill:%230b0c0c"/%3E%3C/svg%3E',
       large: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="7" style="fill:white;fill-opacity:0.01;stroke:black;stroke-width:2px;"/%3E%3C/svg%3E'
     }
-    const src = feature.getGeometry().getType() === 'Point' ? image.large : image.small
-    styles.push(new Style({
-      // Return the coordinates of the first ring of the polygon
-      geometry: (feature) => {
-        if (feature.getGeometry().getType() === 'Polygon') {
-          let coordinates = feature.getGeometry().getCoordinates()[0]
-          // We dont want a point for the vertex that havsn't been placed
-          if (coordinates.length > 2) {
-            coordinates.splice(coordinates.length - 2, 2)
-          }
-          return new MultiPoint(coordinates)
-        } else if (feature.getGeometry().getType() === 'Point') {
-          return feature.getGeometry()
-        }
-      },
-      image: new Icon({
-        opacity: 1,
-        size: [32, 32],
-        scale: 1,
-        src: src
-      }),
-      zIndex: 1
-    }))
-    styles.push(new Style({
-      // Return the coordinates of the first ring of the polygon
-      geometry: (feature) => {
-        if (feature.getGeometry().getType() === 'Polygon') {
-          let coordinates = feature.getGeometry().getCoordinates()[0]
-          // We dont want a point for the vertex that havsn't been placed
-          if (coordinates.length > 2) {
-            coordinates.splice(coordinates.length - 2, 2)
-          }
-          return new MultiPoint(coordinates)
-        } else if (feature.getGeometry().getType() === 'Point') {
-          return feature.getGeometry()
-        }
-      },
-      image: new Icon({
-        opacity: 1,
-        size: [32, 32],
-        scale: 1,
-        src: src
-      }),
-      zIndex: 2
-    }))
+    // const src = feature.getGeometry().getType() === 'Point' ? image.large : image.small
+    // Line styles
     if (feature.getGeometry().getType() === 'LineString') {
       styles.push(new Style({
         geometry: new LineString(coordinates.slice(-2)),
         // fill: new Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
-        stroke: new Stroke({ color: '#b1b4b6', width: 3, lineCap: 'butt', lineDash: [3, 2] }),
+        stroke: new Stroke({ color: '#b1b4b6', width: 3 }), // lineCap: 'butt', lineDash: [3, 2]
         zIndex: 2
       }))
       if (coordinates.length > 2) {
@@ -159,6 +116,65 @@ function DrawMap (placeholderId, options) {
         }))
       }
     }
+    // Style lines
+    styles.push(new Style({
+      // Return the coordinates of the first ring of the polygon
+      geometry: (feature) => {
+        if (feature.getGeometry().getType() === 'Polygon') {
+          // All but last point
+          let coordinates = feature.getGeometry().getCoordinates()[0]
+          // We dont want a point for the vertex that havsn't been placed
+          if (coordinates.length > 2) {
+            coordinates.splice(coordinates.length - 2, 2)
+          }
+          return new MultiPoint(coordinates)
+        } else if (feature.getGeometry().getType() === 'Point') {
+          return feature.getGeometry()
+        }
+      },
+      image: new Icon({
+        opacity: 1,
+        size: [32, 32],
+        scale: 1,
+        src: feature.getGeometry().getType() === 'Point' ? image.large : image.small
+      }),
+      zIndex: 3
+    }))
+    /*
+    styles.push(new Style({
+      // Return the coordinates of the first ring of the polygon
+      geometry: (feature) => {
+        if (feature.getGeometry().getType() === 'Polygon') {
+          console.log('Last point')
+          let coordinates = feature.getGeometry().getCoordinates()[0]
+          return new Point(coordinates[coordinates.length - 2])
+        }
+      },
+      image: new Icon({
+        opacity: 1,
+        size: [32, 32],
+        scale: 1,
+        src: image.large
+      }),
+      zIndex: 4
+    }))
+    styles.push(new Style({
+      // Return the coordinates of the first ring of the polygon
+      geometry: (feature) => {
+        if (feature.getGeometry().getType() === 'Point') {
+          console.log('Point')
+          return feature.getGeometry()
+        }
+      },
+      image: new Icon({
+        opacity: 1,
+        size: [32, 32],
+        scale: 1,
+        src: image.large
+      }),
+      zIndex: 5
+    }))
+    */
     return styles
   }
 
