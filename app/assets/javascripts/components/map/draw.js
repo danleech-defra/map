@@ -141,41 +141,6 @@ function DrawMap (placeholderId, options) {
       }),
       zIndex: 3
     }))
-    /*
-    styles.push(new Style({
-      // Return the coordinates of the first ring of the polygon
-      geometry: (feature) => {
-        if (feature.getGeometry().getType() === 'Polygon') {
-          console.log('Last point')
-          let coordinates = feature.getGeometry().getCoordinates()[0]
-          return new Point(coordinates[coordinates.length - 2])
-        }
-      },
-      image: new Icon({
-        opacity: 1,
-        size: [32, 32],
-        scale: 1,
-        src: image.large
-      }),
-      zIndex: 4
-    }))
-    styles.push(new Style({
-      // Return the coordinates of the first ring of the polygon
-      geometry: (feature) => {
-        if (feature.getGeometry().getType() === 'Point') {
-          console.log('Point')
-          return feature.getGeometry()
-        }
-      },
-      image: new Icon({
-        opacity: 1,
-        size: [32, 32],
-        scale: 1,
-        src: image.large
-      }),
-      zIndex: 5
-    }))
-    */
     return styles
   }
 
