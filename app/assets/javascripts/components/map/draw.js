@@ -6,7 +6,7 @@ import { transform } from 'ol/proj'
 import { Point, MultiPoint, LineString } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
-import { defaults as defaultInteractions, Modify, Snap, Draw, DoubleClickZoom } from 'ol/interaction'
+import { defaults as defaultInteractions, Modify, Snap, Draw, DoubleClickZoom, DragPan } from 'ol/interaction'
 import { Style, Icon, Fill, Stroke } from 'ol/style'
 import { mouseOnly } from 'ol/events/condition'
 
@@ -57,7 +57,8 @@ function DrawMap (placeholderId, options) {
     isEnableInsert: false, // Control insert condition
     isKeyboardButtonClick: false, // Manage duplicate between click and keyup events
     vertexIndexes: [],
-    vertexOffset: []
+    vertexOffset: [],
+    isSnap: false
   }
 
   // View
@@ -258,7 +259,8 @@ function DrawMap (placeholderId, options) {
     pinchRotate: false,
     doubleClickZoom: false,
     keyboardPan: true,
-    keyboardZoom: true
+    keyboardZoom: true,
+    dragPan: false
   })
   const modifyInteraction = new Modify({
     source: vectorSource,
@@ -277,6 +279,7 @@ function DrawMap (placeholderId, options) {
     source: vectorSource
   })
   const doubleClickZoomInteraction = new DoubleClickZoom()
+  const dragPan = new DragPan()
 
   // Render map
   const map = new Map({
@@ -399,7 +402,7 @@ function DrawMap (placeholderId, options) {
       // Polygon: Update second to last coordinate
       fCoordinates[fCoordinates.length - 2][0] = coordinate[0]
       fCoordinates[fCoordinates.length - 2][1] = coordinate[1]
-      // CLear sketch line
+      // Clear sketch line
       sketchLine.getGeometry().setCoordinates([])
     } else {
       // Polygon: Insert coordinate before last
@@ -488,11 +491,11 @@ function DrawMap (placeholderId, options) {
     } else {
       drawInteraction.appendCoordinates([centre])
       updateSketchFeatures(centre)
-      // Enable finish shape button if sketfeature has minimum points
+      // Enable finish shape button if sketch feature has minimum points
       if (maps.interfaceType === 'touch' || maps.interfaceType === 'keyboard') {
         const sketchFeature = drawInteraction.sketchFeature_ // Private method
         let fCoordinates = sketchFeature.getGeometry().getCoordinates()[0]
-        if (fCoordinates.length >= 3) {
+        if (fCoordinates.length > 4) {
           doneShapeButton.removeAttribute('disabled')
         }
       }
@@ -517,6 +520,41 @@ function DrawMap (placeholderId, options) {
     mapInnerContainer.focus()
   }
 
+  const snapMap = (pixel) => {
+    const tolerance = 9
+    const sketchCoords = drawInteraction.sketchFeature_.getGeometry().getCoordinates()[0]
+    let firstCoord = map.getPixelFromCoordinate(sketchCoords[0])
+    let centre = map.getPixelFromCoordinate(map.getView().getCenter())
+    firstCoord = [Math.round(firstCoord[0]), Math.round(firstCoord[1])]
+    centre = [Math.round(centre[0]), Math.round(centre[1])]
+    // Snap in
+    const isWithinX = (firstCoord[0] < centre[0] + tolerance) && (firstCoord[0] > centre[0] - tolerance)
+    const isWithinY = (firstCoord[1] < centre[1] + tolerance) && (firstCoord[1] > centre[1] - tolerance)
+    if (!state.isSnap && sketchCoords.length > 3 && isWithinX && isWithinY) {
+      console.log('isSnap: true')
+      map.getView().setCenter(sketchCoords[0])
+      map.removeInteraction(dragPan)
+      state.touchDownPixel = pixel
+      state.isSnap = true
+    }
+    // Snap out
+    if (state.isSnap) {
+      const startOffsetX = centre[0] - state.touchDownPixel[0]
+      const startOffsetY = centre[1] - state.touchDownPixel[1]
+      const currentOffsetX = centre[0] - pixel[0]
+      const currentOffsetY = centre[1] - pixel[1]
+      const isWithinX = (startOffsetX < currentOffsetX + tolerance) && (startOffsetX > currentOffsetX - tolerance)
+      const isWithinY = (startOffsetY < currentOffsetY + tolerance) && (startOffsetY > currentOffsetY - tolerance)
+      // console.log('pixel: ' + pixel + ', state.touchDownPixel: ' + state.touchDownPixel)
+      // console.log(isWithinX + ' ' + isWithinY)
+      if (!(isWithinX && isWithinY)) {
+        console.log('isSnap: false')
+        map.addInteraction(dragPan)
+        state.isSnap = false
+      }
+    }
+  }
+
   //
   // Setup
   //
@@ -529,6 +567,7 @@ function DrawMap (placeholderId, options) {
 
   // Interactions
   map.addInteraction(doubleClickZoomInteraction)
+  map.addInteraction(dragPan)
 
   //
   // Events
@@ -698,6 +737,11 @@ function DrawMap (placeholderId, options) {
         }
       }
     }
+    // Reference to start pixel for touch snapping
+    if (state.isDraw && maps.interfaceType === 'touch') {
+      console.log('pointerdown')
+      state.touchDownPixel = e.pixel
+    }
   }
   map.on('pointerdown', pointerDown)
 
@@ -713,7 +757,7 @@ function DrawMap (placeholderId, options) {
   map.on('pointerdrag', pointerDrag)
 
   // Map pan and zoom (all interfaces)
-  const pointerMove = (e) => {
+  const pointerAndMapMove = (e) => {
     if (maps.interfaceType === 'mouse') {
       // if (!state.isEnableModify) {
       //   map.addInteraction(modifyInteraction)
@@ -739,6 +783,9 @@ function DrawMap (placeholderId, options) {
       }
       if (state.isDraw) {
         updateSketchFeatures(centre)
+        if (e.type === 'pointermove') {
+          snapMap(e.pixel)
+        }
       }
       if (state.isModify) {
         updatePolygon()
@@ -746,12 +793,13 @@ function DrawMap (placeholderId, options) {
       }
     } else if (maps.interfaceType === 'keyboard') {
       pointLayer.setVisible(false)
-      const centre = map.getView().getCenter()
+      let centre = map.getView().getCenter()
       if (drawInteraction) {
         updateSketchPoint(centre)
       }
       if (state.isDraw) {
         updateSketchFeatures(centre)
+        // snapMap()
       }
       if (state.isModify) {
         // Keyboard cursor
@@ -778,8 +826,8 @@ function DrawMap (placeholderId, options) {
       }
     }
   }
-  map.on('moveend', pointerMove)
-  map.on('pointermove', pointerMove)
+  map.on('moveend', pointerAndMapMove)
+  map.on('pointermove', pointerAndMapMove)
 
   // Centre map on cursors keys keydown
   const keydown = (e) => {
